@@ -1,0 +1,12 @@
+{
+  "successful_payment_statuses": ["PAID", "SETTLED"],
+  "valid_payment_statuses": ["SCHEDULED", "PAID", "LATE", "MISSED", "FAILED", "SETTLED"],
+  "valid_loan_statuses": ["ACTIVE", "CLOSED", "DEFAULTED"],
+  "outstanding_balance_formula": "total_original_principal - total_successful_payments",
+  "notes": [
+    "This is the scenario-local, CURRENTLY APPROVED business rule for the settled_rule_adopted scenario -- it represents an approved upstream contract change: SETTLED is now recognized as a valid, successful payment status alongside PAID.",
+    "context/business_rules.json (the main, checked-in rule) is deliberately NOT changed to match -- this file exists only under data/scenarios/settled_rule_adopted/ to model 'the rule changed but the ETL's last run predates the change.'",
+    "The portfolio_summary.json in this same scenario directory was produced by the real, unmodified src/transform.py running against the OLDER rule (context/business_rules.json, PAID-only) -- i.e. it is genuinely stale relative to this file, not a fabricated mismatch.",
+    "Contrast with data/scenarios/settled_bug/: there, SETTLED appears in raw data but is NOT recognized by any approved rule (an unknown/unapproved contract change) -- validation fails on the enum check, reconciliation checks agree with each other, and no confident repair should be recommended. Here, SETTLED IS approved, so the enum check passes and the reconciliation checks correctly fail, because the ETL's last output doesn't reflect the current rule."
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "as_of_date": "2026-07-20",
+  "overall_status": "FAIL",
+  "total_check_count": 14,
+  "failed_check_count": 1,
+  "checks": [
+    {
+      "id": "loans_required_columns_present",
+      "description": "loans data must contain all required columns: loan_id, principal_amount, loan_status.",
+      "status": "PASS",
+      "expected": [
+        "loan_id",
+        "loan_status",
+        "principal_amount"
+      ],
+      "actual": [
+        "customer_id",
+        "interest_rate",
+        "loan_id",
+        "loan_status",
+        "originated_at",
+        "principal_amount",
+        "scheduled_payment_amount",
+        "term_months"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payments_required_columns_present",
+      "description": "payments data must contain all required columns: payment_id, loan_id, amount_paid, payment_status.",
+      "status": "PASS",
+      "expected": [
+        "amount_paid",
+        "loan_id",
+        "payment_id",
+        "payment_status"
+      ],
+      "actual": [
+        "amount_due",
+        "amount_paid",
+        "due_date",
+        "loan_id",
+        "payment_date",
+        "payment_id",
+        "payment_method",
+        "payment_status"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_status_enum_valid",
+      "description": "Every payment_status value in raw payments must be within business_rules.valid_payment_statuses. An unrecognized value (e.g. a new upstream status) fails this check even if downstream totals still reconcile.",
+      "status": "FAIL",
+      "expected": [
+        "FAILED",
+        "LATE",
+        "MISSED",
+        "PAID",
+        "SCHEDULED"
+      ],
+      "actual": [
+        "FAILED",
+        "LATE",
+        "MISSED",
+        "PAID",
+        "SCHEDULED",
+        "SETTLED"
+      ],
+      "difference": null,
+      "details": "unexpected values found: ['SETTLED']"
+    },
+    {
+      "id": "loan_status_enum_valid",
+      "description": "Every loan_status value in raw loans must be within business_rules.valid_loan_statuses.",
+      "status": "PASS",
+      "expected": [
+        "ACTIVE",
+        "CLOSED",
+        "DEFAULTED"
+      ],
+      "actual": [
+        "ACTIVE",
+        "CLOSED",
+        "DEFAULTED"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_loan_referential_integrity",
+      "description": "Every payment.loan_id must reference a loan_id present in raw loans.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "loan_count_reconciliation",
+      "description": "portfolio_summary.loan_count must match the number of raw loan records.",
+      "status": "PASS",
+      "expected": 73.0,
+      "actual": 73.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "payment_count_reconciliation",
+      "description": "portfolio_summary.payment_count must match the number of raw payment records.",
+      "status": "PASS",
+      "expected": 740.0,
+      "actual": 740.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "successful_payment_count_reconciliation",
+      "description": "portfolio_summary.successful_payment_count must match the count of raw payments whose payment_status is in business_rules.successful_payment_statuses, computed independently from raw data.",
+      "status": "PASS",
+      "expected": 477.0,
+      "actual": 477.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "active_loan_count_reconciliation",
+      "description": "portfolio_summary.active_loan_count must match the count of raw loans with loan_status == ACTIVE.",
+      "status": "PASS",
+      "expected": 38.0,
+      "actual": 38.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "closed_loan_count_reconciliation",
+      "description": "portfolio_summary.closed_loan_count must match the count of raw loans with loan_status == CLOSED.",
+      "status": "PASS",
+      "expected": 21.0,
+      "actual": 21.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "defaulted_loan_count_reconciliation",
+      "description": "portfolio_summary.defaulted_loan_count must match the count of raw loans with loan_status == DEFAULTED.",
+      "status": "PASS",
+      "expected": 14.0,
+      "actual": 14.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "total_original_principal_reconciliation",
+      "description": "portfolio_summary.total_original_principal must match the sum of principal_amount across raw loans, computed independently from raw data.",
+      "status": "PASS",
+      "expected": 1581087.62,
+      "actual": 1581087.62,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "total_successful_payments_reconciliation",
+      "description": "portfolio_summary.total_successful_payments must match the sum of amount_paid across raw payments whose payment_status is in business_rules.successful_payment_statuses, computed independently from raw data.",
+      "status": "PASS",
+      "expected": 471463.75,
+      "actual": 471463.75,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "total_outstanding_balance_reconciliation",
+      "description": "portfolio_summary.total_outstanding_balance must match (independently computed total_original_principal - total_successful_payments), computed directly from raw data rather than trusting the ETL's own arithmetic.",
+      "status": "PASS",
+      "expected": 1109623.87,
+      "actual": 1109623.87,
+      "difference": 0.0,
+      "details": null
+    }
+  ]
+}

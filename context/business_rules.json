@@ -1,0 +1,12 @@
+{
+  "successful_payment_statuses": ["PAID"],
+  "valid_payment_statuses": ["SCHEDULED", "PAID", "LATE", "MISSED", "FAILED"],
+  "valid_loan_statuses": ["ACTIVE", "CLOSED", "DEFAULTED"],
+  "outstanding_balance_formula": "total_original_principal - total_successful_payments",
+  "notes": [
+    "For the MVP, only PAID is treated as a successfully settled principal payment.",
+    "LATE payments have amount_paid > 0 in the raw data (the money was eventually received), but LATE is retained as a behavioral status and deliberately excluded from the portfolio balance calculation. This is an MVP simplification, not a claim that late-paid amounts were never collected.",
+    "MISSED, FAILED, and SCHEDULED payments have amount_paid == 0 and never count toward successful payments.",
+    "A future iteration may enrich this rule so LATE payments count once flagged as received, at which point this file -- not the transformation code -- is where that change belongs."
+  ]
+}

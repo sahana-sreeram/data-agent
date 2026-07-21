@@ -1,0 +1,171 @@
+{
+  "as_of_date": "2026-07-20",
+  "overall_status": "PASS",
+  "total_check_count": 14,
+  "failed_check_count": 0,
+  "checks": [
+    {
+      "id": "loans_required_columns_present",
+      "description": "loans data must contain all required columns: loan_id, principal_amount, loan_status.",
+      "status": "PASS",
+      "expected": [
+        "loan_id",
+        "loan_status",
+        "principal_amount"
+      ],
+      "actual": [
+        "customer_id",
+        "interest_rate",
+        "loan_id",
+        "loan_status",
+        "originated_at",
+        "principal_amount",
+        "scheduled_payment_amount",
+        "term_months"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_events_required_columns_present",
+      "description": "payment_events data must contain all required columns: event_id, payment_id, loan_id, event_type, event_timestamp, amount.",
+      "status": "PASS",
+      "expected": [
+        "amount",
+        "event_id",
+        "event_timestamp",
+        "event_type",
+        "loan_id",
+        "payment_id"
+      ],
+      "actual": [
+        "amount",
+        "event_id",
+        "event_timestamp",
+        "event_type",
+        "loan_id",
+        "payment_id"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_event_type_enum_valid",
+      "description": "Every event_type value in raw payment_events must be within business_rules.valid_payment_event_types.",
+      "status": "PASS",
+      "expected": [
+        "FAILED",
+        "INITIATED",
+        "PROCESSING",
+        "SETTLED"
+      ],
+      "actual": [
+        "FAILED",
+        "INITIATED",
+        "PROCESSING",
+        "SETTLED"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_event_loan_referential_integrity",
+      "description": "Every payment_event.loan_id must reference a loan_id present in raw loans.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "duplicate_settled_events_present",
+      "description": "INFORMATIONAL ONLY, never fails overall_status: flags payment_ids with more than one SETTLED event. Expected under at-least-once delivery -- the ETL is responsible for collapsing these, not the source for avoiding them.",
+      "status": "WARNING",
+      "expected": 0,
+      "actual": 31,
+      "difference": 31,
+      "details": "payment_ids with multiple SETTLED events: ['P0000056', 'P0000118', 'P0000134', 'P0000147', 'P0000159', 'P0000162', 'P0000215', 'P0000226', 'P0000229', 'P0000295', 'P0000311', 'P0000330', 'P0000391', 'P0000401', 'P0000413', 'P0000430', 'P0000446', 'P0000470', 'P0000487', 'P0000504', 'P0000577', 'P0000580', 'P0000593', 'P0000599', 'P0000628', 'P0000677', 'P0000688', 'P0000694', 'P0000708', 'P0000710', 'P0000722']"
+    },
+    {
+      "id": "conflicting_settled_amounts",
+      "description": "HARD FAILURE if any payment_id has multiple SETTLED events with different amounts -- ambiguous semantics that must not be silently resolved by picking one.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "loan_count_reconciliation",
+      "description": "portfolio_summary.loan_count must match the number of raw loan records.",
+      "status": "PASS",
+      "expected": 73.0,
+      "actual": 73.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "active_loan_count_reconciliation",
+      "description": "portfolio_summary.active_loan_count must match the count of raw loans with loan_status == ACTIVE.",
+      "status": "PASS",
+      "expected": 38.0,
+      "actual": 38.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "closed_loan_count_reconciliation",
+      "description": "portfolio_summary.closed_loan_count must match the count of raw loans with loan_status == CLOSED.",
+      "status": "PASS",
+      "expected": 21.0,
+      "actual": 21.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "defaulted_loan_count_reconciliation",
+      "description": "portfolio_summary.defaulted_loan_count must match the count of raw loans with loan_status == DEFAULTED.",
+      "status": "PASS",
+      "expected": 14.0,
+      "actual": 14.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "total_original_principal_reconciliation",
+      "description": "portfolio_summary.total_original_principal must match the sum of principal_amount across raw loans.",
+      "status": "PASS",
+      "expected": 1581087.62,
+      "actual": 1581087.62,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "successful_payment_count_reconciliation",
+      "description": "portfolio_summary.successful_payment_count must match the number of DISTINCT payment_ids with a SETTLED event (entity grain), not the number of SETTLED event rows (source grain).",
+      "status": "PASS",
+      "expected": 624.0,
+      "actual": 624.0,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "total_successful_payments_reconciliation",
+      "description": "portfolio_summary.total_successful_payments must match the sum of amount across one SETTLED event per payment_id (the latest, after collapsing exact-replay duplicates), not the sum across every SETTLED row.",
+      "status": "PASS",
+      "expected": 629501.98,
+      "actual": 629501.98,
+      "difference": 0.0,
+      "details": null
+    },
+    {
+      "id": "total_outstanding_balance_reconciliation",
+      "description": "portfolio_summary.total_outstanding_balance must match (total_original_principal - entity-grain total_successful_payments), computed independently from raw data.",
+      "status": "PASS",
+      "expected": 951585.64,
+      "actual": 951585.64,
+      "difference": 0.0,
+      "details": null
+    }
+  ]
+}

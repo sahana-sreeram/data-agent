@@ -1,0 +1,29 @@
+{
+  "incident_id": "clean_baseline",
+  "diagnosis_file": "data/processed/diagnosis.json",
+  "validation_results_file": "data/processed/validation_results.json",
+  "portfolio_summary_file": "data/processed/portfolio_summary.json",
+  "pipeline_run_file": "data/processed/pipeline_run.json",
+  "lineage_file": "context/lineage.json",
+  "data_dictionary_file": "context/data_dictionary.json",
+  "eligibility_target_hints": [
+    "context/business_rules.json"
+  ],
+  "business_rules_aliases": {
+    "CURRENT": "context/business_rules.json"
+  },
+  "pipeline_configuration_file": null,
+  "etl_function_name": "compute_portfolio_summary",
+  "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py", "tests/test_run_pipeline.py"],
+  "file_hash_aliases": {
+    "CURRENT_BUSINESS_RULES": "context/business_rules.json"
+  },
+  "rerun": {
+    "kind": "one_row_per_payment",
+    "loans_file": "data/raw/loans.json",
+    "payments_file": "data/raw/payments.json",
+    "as_of_date": "2026-07-20",
+    "validation_rules_file": "context/validation_rules.json",
+    "validation_business_rules_file": "context/business_rules.json"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "pipeline_order": ["generate_data", "transform", "validate_portfolio", "run_pipeline"],
+  "scenarios": {
+    "settled_bug": {
+      "description": "UNKNOWN contract change (preserve as-is; no automated repair should be recommended). A seeded subset of PAID payments are relabeled SETTLED, but no approved business rule recognizes SETTLED as valid or successful -- it's an unrecognized value, not yet an adopted contract change. The ETL still succeeds but silently understates total_successful_payments. Validation catches it via payment_status_enum_valid, NOT via the reconciliation checks (which still agree with the ETL, since both apply the identical PAID-only filter to the identical data). The diagnosis agent correctly reports genuine uncertainty here (e.g. INSUFFICIENT_EVIDENCE or a low/medium-confidence hypothesis) rather than confidently recommending a fix, because nothing in the approved business rules confirms SETTLED should count as successful.",
+      "produced_by": "src/simulate_upstream_change.py",
+      "input": "raw.payments",
+      "output_path": "data/scenarios/settled_bug/payments.json",
+      "pipeline_output_dir": "data/scenarios/settled_bug/",
+      "does_not_modify": "data/raw/ (the clean baseline stays untouched)"
+    },
+    "settled_rule_adopted": {
+      "description": "APPROVED contract change with a stale ETL output -- kept as a SMALLER INTEGRATION TEST of the configuration-repair path (not the headline demo; see incorrect_join for that). SETTLED is recognized as valid AND successful in this scenario's own business_rules.json (data/scenarios/settled_rule_adopted/business_rules.json) -- so payment_status_enum_valid PASSES. The real minimal repair target is data/scenarios/settled_rule_adopted/pipeline_config.json (a small execution-config pointer: which business_rules_file the ETL should read) -- NOT context/business_rules.json (shared with the clean baseline) and NOT src/transform.py (already correctly config-driven). REPAIRED: this scenario has been fixed by src/run_self_healing.py -- pipeline_config.json now points at the adopted rule, and portfolio_summary.json/validation_results.json/pipeline_run.json reflect the healed PASS state. See repair_plan.json/repair_result.json/repair_verification.json in this directory for the full audit trail, and README.md for how to regenerate the original stale-config failure on demand.",
+      "produced_by": "src/transform.py (against whichever business_rules_file pipeline_config.json names) + src/run_self_healing.py for the repair itself",
+      "input": "raw.loans, data/scenarios/settled_bug/payments.json",
+      "output_path": "data/scenarios/settled_rule_adopted/",
+      "pipeline_output_dir": "data/scenarios/settled_rule_adopted/",
+      "does_not_modify": "data/raw/ and context/business_rules.json (both stay untouched, even after repair)"
+    },
+    "payment_events_cardinality": {
+      "description": "KEPT AS A WORKING EXAMPLE, NO LONGER ONE OF THE 3 HEADLINE SCENARIOS (see incorrect_join for the current headline code-repair demo). The upstream payments source migrates from one row per logical payment to an at-least-once lifecycle event stream (event_id is the unique row key; payment_id, the logical payment, can repeat across event rows, including exact SETTLED replays). The existing ETL (compute_portfolio_summary_from_payment_events in src/transform.py) was ported from the old one-row-per-payment logic without collapsing to one row per payment_id, so it double-counts replayed SETTLED events -- a silent grain/cardinality mismatch, not a crash. It was superseded as the headline demo because diagnosing it required adding diagnostic tools shaped around this one failure mode (get_duplicate_payment_id_counts, etc.) rather than general-purpose ones -- that code is still here and still works, just not documented as one of the 3 core demos. validate_portfolio_from_payment_events independently recomputes truth at entity grain (collapse SETTLED events per payment_id, keep the latest by event_timestamp if amounts agree; conflicting amounts are a hard FAIL, never silently resolved; duplicate presence alone is only a WARNING). REPAIRED: fixed by src/run_self_healing.py with a narrow, model-derived unified diff to compute_portfolio_summary_from_payment_events -- the original one-row-per-payment compute_portfolio_summary was never touched. See repair_plan.json/repair_result.json/repair_verification.json in this directory for the full audit trail.",
+      "produced_by": "src/simulate_payment_events_migration.py (event generation) + src/run_payment_events_pipeline.py (ETL/validate) + src/run_self_healing.py for the repair itself",
+      "input": "raw.loans, raw.payments (expanded into payment_events.json)",
+      "output_path": "data/scenarios/payment_events_cardinality/",
+      "pipeline_output_dir": "data/scenarios/payment_events_cardinality/",
+      "does_not_modify": "data/raw/ and payment_events.json itself (duplicates remain physically present in the source after repair -- only the consumer logic changed)"
+    },
+    "incorrect_join": {
+      "description": "HEADLINE CODE-REPAIR DEMO. A small deterministic set of newly originated ACTIVE loans exist whose first payment is not yet due -- valid loans with zero payment records so far. The buggy ETL (compute_portfolio_summary_with_payment_join in src/transform.py) aggregates successful payments by loan_id, then joins that aggregate onto loans with how='inner' -- so any loan with zero successful payments (not just these 5, structurally any loan in this shape) is silently dropped from the ENTIRE portfolio, not just from the payment total, understating loan_count/active_loan_count/total_original_principal/total_outstanding_balance while payment-related checks still reconcile exactly (a useful diagnostic signal that the problem is missing loans, not miscalculated payments). Diagnosed using only GENERAL-PURPOSE data-investigation tools (list_datasets, get_dataset_schema, profile_dataset, analyze_key_cardinality, compare_dataset_keys, aggregate_dataset, sample_dataset) added to src/diagnostic_tools.py alongside the existing scenario-specific ones -- no incorrect-join-specific tool exists. validate_portfolio_with_join_profile (src/validate_portfolio.py) reuses the unmodified validate_portfolio() for all reconciliation checks (it never joins anything, so it independently catches this with zero changes) plus one new informational WARNING check, loans_without_payment_records_present, that surfaces the exact loan_ids and total principal directly.",
+      "produced_by": "src/simulate_incorrect_join.py (loans generation) + src/run_incorrect_join_pipeline.py (ETL/validate) + src/run_self_healing.py for the repair itself",
+      "input": "raw.loans (expanded into a scenario-local loans.json), raw.payments (reused directly, unchanged)",
+      "output_path": "data/scenarios/incorrect_join/",
+      "pipeline_output_dir": "data/scenarios/incorrect_join/",
+      "does_not_modify": "data/raw/ and context/business_rules.json (both stay untouched)"
+    }
+  },
+  "datasets": {
+    "raw.customers": {
+      "path": "data/raw/customers.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": []
+    },
+    "raw.loans": {
+      "path": "data/raw/loans.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["raw.customers"]
+    },
+    "raw.payments": {
+      "path": "data/raw/payments.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["raw.loans"]
+    },
+    "processed.portfolio_summary": {
+      "path": "data/processed/portfolio_summary.json",
+      "produced_by": "src/transform.py",
+      "depends_on": ["raw.loans", "raw.payments", "context.business_rules"]
+    },
+    "processed.validation_results": {
+      "path": "data/processed/validation_results.json",
+      "produced_by": "src/validate_portfolio.py",
+      "depends_on": ["raw.loans", "raw.payments", "processed.portfolio_summary", "context.business_rules", "context.validation_rules"]
+    },
+    "processed.pipeline_run": {
+      "path": "data/processed/pipeline_run.json",
+      "produced_by": "src/run_pipeline.py",
+      "depends_on": ["processed.portfolio_summary", "processed.validation_results"]
+    },
+    "processed.diagnosis": {
+      "path": "data/processed/diagnosis.json",
+      "produced_by": "src/diagnose_incident.py",
+      "depends_on": ["processed.validation_results", "raw.loans", "raw.payments", "context.business_rules", "context.data_dictionary"],
+      "notes": "If validation_results.overall_status is PASS, this is a fixed NO_INCIDENT result with no model call. If FAIL, a read-only agent investigates using diagnostic_tools.py before writing this file -- see README.md."
+    },
+    "context.business_rules": {
+      "path": "context/business_rules.json",
+      "produced_by": "manual",
+      "depends_on": []
+    },
+    "context.validation_rules": {
+      "path": "context/validation_rules.json",
+      "produced_by": "manual",
+      "depends_on": []
+    },
+    "context.data_dictionary": {
+      "path": "context/data_dictionary.json",
+      "produced_by": "manual",
+      "depends_on": []
+    },
+    "context.repair_targets": {
+      "path": "context/repair_targets.json",
+      "produced_by": "manual",
+      "depends_on": [],
+      "notes": "The STRICT, write-capable registry of files a repair may target, each with its repair_type and (for CONFIGURATION_CHANGE) editable_fields/allowed_values. Deliberately narrower than what a diagnosis's recommended_fix.target_file may name -- see README.md section 9."
+    },
+    "processed.repair_plan": {
+      "path": "<scenario_dir>/repair_plan.json",
+      "produced_by": "src/apply_repair.py",
+      "depends_on": ["processed.diagnosis", "context.repair_targets"],
+      "notes": "A structured plan (PROPOSE_REPAIR / NO_SAFE_REPAIR / HUMAN_REVIEW_REQUIRED), never applied by the model that produced it. Written even when the eligibility gate blocks the incident before any model call."
+    },
+    "processed.repair_result": {
+      "path": "<scenario_dir>/repair_result.json",
+      "produced_by": "src/apply_repair.py",
+      "depends_on": ["processed.repair_plan"],
+      "notes": "Records whether the plan was applied to an ISOLATED workspace copy (repair_status=APPLIED), blocked by eligibility/policy (BLOCKED), or not needed (NO_REPAIR). Includes original/repaired file hashes and the temp workspace_dir for verify_repair.py to pick up."
+    },
+    "processed.repair_verification": {
+      "path": "<scenario_dir>/repair_verification.json",
+      "produced_by": "src/verify_repair.py",
+      "depends_on": ["processed.repair_result", "raw.loans", "raw.payments"],
+      "notes": "The ONLY artifact that may mark a repair VERIFIED -- by rerunning tests/ETL/validation against the isolated workspace and comparing to the pre-repair baseline. Promotion into the real repository (target file + fresh pipeline outputs) happens only if verification_status becomes VERIFIED."
+    }
+  },
+  "notes": [
+    "run_pipeline.py orchestrates transform.py then validate_portfolio.py in-process; it does not regenerate raw data.",
+    "Raw data represents the immutable upstream source-of-truth snapshot for a given run. The 3 headline scenarios -- settled_bug, settled_rule_adopted, and incorrect_join (see 'scenarios' above) -- each simulate an unrecognized-value/stale-config/incorrect-join change without mutating raw data or context/business_rules.json, so the clean and broken states can be compared side by side. payment_events_cardinality is a fourth, still-working scenario kept for reference but no longer part of the headline 3.",
+    "Diagnosis and repair are separate stages with separate authorities: diagnosis decides what/why and never touches files; repair proposes a structured plan and never touches files either; only src/verify_repair.py's deterministic rerun may mark a repair VERIFIED and promote it. See README.md section 9 for the full eligibility/policy/verification design.",
+    "etl_status=SUCCESS means only that the ETL executed without raising an error. It does NOT mean the output is correct relative to current business rules -- settled_rule_adopted is the concrete proof: etl_status is SUCCESS there, yet overall_status is FAILURE because the output is stale.",
+    "No automated repair logic exists yet. This milestone only proves detection and diagnosis: clean data validates PASS and diagnoses NO_INCIDENT; settled_bug validates FAIL via an enum check and the agent reports genuine uncertainty (unapproved/unknown change); settled_rule_adopted validates FAIL via reconciliation checks and the agent confidently diagnoses a stale ETL output relative to an approved rule change."
+  ]
+}

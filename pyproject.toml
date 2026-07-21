@@ -1,0 +1,12 @@
+[project]
+name = "data-agent"
+version = "0.1.0"
+description = "Self-healing enterprise data-agent MVP: synthetic data generation for a simulated lending company"
+requires-python = ">=3.12"
+dependencies = ["pandas", "openai", "python-dotenv"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

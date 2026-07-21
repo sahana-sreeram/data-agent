@@ -1,0 +1,25 @@
+{
+  "targets": {
+    "data/scenarios/settled_rule_adopted/pipeline_config.json": {
+      "repair_type": "CONFIGURATION_CHANGE",
+      "editable_fields": ["business_rules_file"],
+      "allowed_values": {
+        "business_rules_file": [
+          "context/business_rules.json",
+          "data/scenarios/settled_rule_adopted/business_rules.json"
+        ]
+      },
+      "description": "Points the settled_rule_adopted scenario's ETL execution at which business_rules.json file to use. The stale (checked-in) value points at the old, pre-rule-change file; the fix points it at the already-existing adopted-rule file living in the same scenario directory. No file CONTENT is edited by this target -- only which file the ETL is told to read."
+    },
+    "src/transform.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_portfolio_summary_from_payment_events", "compute_portfolio_summary_with_payment_join"],
+      "description": "Two independent ETL functions live in this file and may each be repaired independently, but a repair must touch only ONE of them (the one implicated by its own diagnosis), never both, and never compute_portfolio_summary. compute_portfolio_summary_from_payment_events: collapse SETTLED events to one per payment_id (per business_rules.payment_event_rules.duplicate_policy) before aggregating, refusing to collapse when a payment_id has conflicting SETTLED amounts. compute_portfolio_summary_with_payment_join: preserve every loan by using how='left' (not 'inner') when joining aggregated payment totals onto loans, treating a missing payment total as zero rather than dropping the loan."
+    }
+  },
+  "notes": [
+    "This is the STRICT, write-capable registry used by src.repair_models.parse_repair_plan to validate a repair agent's proposed target_file and patch. It is deliberately narrower than what a diagnosis's recommended_fix.target_file may name (e.g. a diagnosis may point at 'context/business_rules.json' as the conceptual problem area without knowing about pipeline_config.json's indirection) -- the repair agent's own get_allowed_repair_targets/get_pipeline_configuration tools are what let it discover and propose the REAL, precise, safe target registered here.",
+    "Adding a future repair target is a data change to this file, not a code change -- consistent with how business_rules.json and validation_rules.json are also treated as data, not code.",
+    "editable_symbols for a CODE_CHANGE target is advisory/documentation, not schema-enforced by parse_repair_plan (unlike CONFIGURATION_CHANGE's editable_fields/allowed_values, which ARE enforced) -- the repair agent's system prompt ('touch only the one function implicated by the diagnosis') is what actually keeps a multi-function file's repair narrowly scoped, same as it already does for src/transform.py's two other functions."
+  ]
+}

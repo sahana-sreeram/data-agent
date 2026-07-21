@@ -1,0 +1,14 @@
+{
+  "as_of_date": "2026-07-20",
+  "run_started_at": "2026-07-20T15:44:04.206530+00:00",
+  "run_completed_at": "2026-07-20T15:44:04.219109+00:00",
+  "etl_status": "SUCCESS",
+  "etl_error": null,
+  "validation_status": "FAIL",
+  "validation_error": null,
+  "overall_status": "FAILURE",
+  "artifacts": {
+    "portfolio_summary": "data/scenarios/settled_bug/portfolio_summary.json",
+    "validation_results": "data/scenarios/settled_bug/validation_results.json"
+  }
+}

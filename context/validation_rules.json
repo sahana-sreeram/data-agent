@@ -1,0 +1,92 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0
+  },
+  "rules": [
+    {
+      "id": "loans_required_columns_present",
+      "type": "schema",
+      "tolerance_type": null,
+      "description": "loans data must contain all required columns: loan_id, principal_amount, loan_status."
+    },
+    {
+      "id": "payments_required_columns_present",
+      "type": "schema",
+      "tolerance_type": null,
+      "description": "payments data must contain all required columns: payment_id, loan_id, amount_paid, payment_status."
+    },
+    {
+      "id": "payment_status_enum_valid",
+      "type": "enum",
+      "tolerance_type": null,
+      "description": "Every payment_status value in raw payments must be within business_rules.valid_payment_statuses. An unrecognized value (e.g. a new upstream status) fails this check even if downstream totals still reconcile."
+    },
+    {
+      "id": "loan_status_enum_valid",
+      "type": "enum",
+      "tolerance_type": null,
+      "description": "Every loan_status value in raw loans must be within business_rules.valid_loan_statuses."
+    },
+    {
+      "id": "payment_loan_referential_integrity",
+      "type": "referential_integrity",
+      "tolerance_type": null,
+      "description": "Every payment.loan_id must reference a loan_id present in raw loans."
+    },
+    {
+      "id": "loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.loan_count must match the number of raw loan records."
+    },
+    {
+      "id": "payment_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.payment_count must match the number of raw payment records."
+    },
+    {
+      "id": "successful_payment_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.successful_payment_count must match the count of raw payments whose payment_status is in business_rules.successful_payment_statuses, computed independently from raw data."
+    },
+    {
+      "id": "active_loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.active_loan_count must match the count of raw loans with loan_status == ACTIVE."
+    },
+    {
+      "id": "closed_loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.closed_loan_count must match the count of raw loans with loan_status == CLOSED."
+    },
+    {
+      "id": "defaulted_loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.defaulted_loan_count must match the count of raw loans with loan_status == DEFAULTED."
+    },
+    {
+      "id": "total_original_principal_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "currency",
+      "description": "portfolio_summary.total_original_principal must match the sum of principal_amount across raw loans, computed independently from raw data."
+    },
+    {
+      "id": "total_successful_payments_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "currency",
+      "description": "portfolio_summary.total_successful_payments must match the sum of amount_paid across raw payments whose payment_status is in business_rules.successful_payment_statuses, computed independently from raw data."
+    },
+    {
+      "id": "total_outstanding_balance_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "currency",
+      "description": "portfolio_summary.total_outstanding_balance must match (independently computed total_original_principal - total_successful_payments), computed directly from raw data rather than trusting the ETL's own arithmetic."
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0
+  },
+  "rules": [
+    {
+      "id": "loans_required_columns_present",
+      "type": "schema",
+      "tolerance_type": null,
+      "description": "loans data must contain all required columns: loan_id, principal_amount, loan_status."
+    },
+    {
+      "id": "payment_events_required_columns_present",
+      "type": "schema",
+      "tolerance_type": null,
+      "description": "payment_events data must contain all required columns: event_id, payment_id, loan_id, event_type, event_timestamp, amount."
+    },
+    {
+      "id": "payment_event_type_enum_valid",
+      "type": "enum",
+      "tolerance_type": null,
+      "description": "Every event_type value in raw payment_events must be within business_rules.valid_payment_event_types."
+    },
+    {
+      "id": "payment_event_loan_referential_integrity",
+      "type": "referential_integrity",
+      "tolerance_type": null,
+      "description": "Every payment_event.loan_id must reference a loan_id present in raw loans."
+    },
+    {
+      "id": "duplicate_settled_events_present",
+      "type": "warning",
+      "tolerance_type": null,
+      "description": "INFORMATIONAL ONLY, never fails overall_status: flags payment_ids with more than one SETTLED event. Expected under at-least-once delivery -- the ETL is responsible for collapsing these, not the source for avoiding them."
+    },
+    {
+      "id": "conflicting_settled_amounts",
+      "type": "integrity",
+      "tolerance_type": null,
+      "description": "HARD FAILURE if any payment_id has multiple SETTLED events with different amounts -- ambiguous semantics that must not be silently resolved by picking one."
+    },
+    {
+      "id": "loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.loan_count must match the number of raw loan records."
+    },
+    {
+      "id": "active_loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.active_loan_count must match the count of raw loans with loan_status == ACTIVE."
+    },
+    {
+      "id": "closed_loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.closed_loan_count must match the count of raw loans with loan_status == CLOSED."
+    },
+    {
+      "id": "defaulted_loan_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.defaulted_loan_count must match the count of raw loans with loan_status == DEFAULTED."
+    },
+    {
+      "id": "total_original_principal_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "currency",
+      "description": "portfolio_summary.total_original_principal must match the sum of principal_amount across raw loans."
+    },
+    {
+      "id": "successful_payment_count_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "count",
+      "description": "portfolio_summary.successful_payment_count must match the number of DISTINCT payment_ids with a SETTLED event (entity grain), not the number of SETTLED event rows (source grain)."
+    },
+    {
+      "id": "total_successful_payments_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "currency",
+      "description": "portfolio_summary.total_successful_payments must match the sum of amount across one SETTLED event per payment_id (the latest, after collapsing exact-replay duplicates), not the sum across every SETTLED row."
+    },
+    {
+      "id": "total_outstanding_balance_reconciliation",
+      "type": "reconciliation",
+      "tolerance_type": "currency",
+      "description": "portfolio_summary.total_outstanding_balance must match (total_original_principal - entity-grain total_successful_payments), computed independently from raw data."
+    }
+  ]
+}

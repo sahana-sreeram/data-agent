@@ -1,0 +1,30 @@
+{
+  "incident_id": "incorrect_join",
+  "diagnosis_file": "data/scenarios/incorrect_join/diagnosis.json",
+  "validation_results_file": "data/scenarios/incorrect_join/validation_results.json",
+  "portfolio_summary_file": "data/scenarios/incorrect_join/portfolio_summary.json",
+  "pipeline_run_file": "data/scenarios/incorrect_join/pipeline_run.json",
+  "lineage_file": "context/lineage.json",
+  "data_dictionary_file": "context/data_dictionary.json",
+  "eligibility_target_hints": [
+    "src/transform.py"
+  ],
+  "business_rules_aliases": {
+    "CURRENT": "context/business_rules.json"
+  },
+  "pipeline_configuration_file": null,
+  "etl_function_name": "compute_portfolio_summary_with_payment_join",
+  "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py"],
+  "file_hash_aliases": {
+    "ETL_SOURCE": "src/transform.py"
+  },
+  "rerun": {
+    "kind": "loan_payment_join",
+    "loans_file": "data/scenarios/incorrect_join/loans.json",
+    "payments_file": "data/raw/payments.json",
+    "as_of_date": "2026-07-20",
+    "business_rules_file": "context/business_rules.json",
+    "validation_business_rules_file": "context/business_rules.json",
+    "validation_rules_file": "data/scenarios/incorrect_join/validation_rules.json"
+  }
+}

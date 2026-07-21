@@ -1,0 +1,90 @@
+{
+  "customers": {
+    "path": "data/raw/customers.json",
+    "description": "One record per synthetic customer. Demographic/risk attributes only -- no names, addresses, or other sensitive PII.",
+    "fields": {
+      "customer_id": {"type": "string", "description": "Unique customer identifier, format C000001."},
+      "created_at": {"type": "string (ISO date)", "description": "Date the customer record was created."},
+      "state": {"type": "string", "description": "Two-letter US state code."},
+      "income_band": {
+        "type": "enum",
+        "values": ["UNDER_40000", "40000_60000", "60000_80000", "80000_120000", "OVER_120000"],
+        "description": "Coarse income bracket."
+      },
+      "credit_score_band": {
+        "type": "enum",
+        "values": ["UNDER_620", "620_679", "680_719", "720_759", "760_PLUS"],
+        "description": "Coarse credit score bracket, statistically correlated with risk_segment."
+      },
+      "risk_segment": {
+        "type": "enum",
+        "values": ["LOW", "MEDIUM", "HIGH"],
+        "description": "Underwriting risk tier. Drives interest rate range and loan/payment outcome probabilities during generation."
+      }
+    }
+  },
+  "loans": {
+    "path": "data/raw/loans.json",
+    "description": "One record per loan. Every loan references an existing customer_id.",
+    "fields": {
+      "loan_id": {"type": "string", "description": "Unique loan identifier, format L000001."},
+      "customer_id": {"type": "string", "description": "Foreign key into customers.customer_id."},
+      "principal_amount": {"type": "float", "description": "Original loan principal, in dollars. Always positive."},
+      "interest_rate": {
+        "type": "float",
+        "description": "Descriptive metadata only. NOT used in scheduled_payment_amount or any balance calculation in the MVP."
+      },
+      "term_months": {"type": "int", "values": [12, 24, 36, 48, 60], "description": "Loan term in months."},
+      "originated_at": {"type": "string (ISO date)", "description": "Date the loan was originated."},
+      "loan_status": {
+        "type": "enum",
+        "values": ["ACTIVE", "CLOSED", "DEFAULTED"],
+        "description": "ACTIVE: still within its term. CLOSED: term elapsed, PAID payments reconcile to principal within $0.01. DEFAULTED: payment history ends in a LATE/MISSED payment; no further payments generated."
+      },
+      "scheduled_payment_amount": {
+        "type": "float",
+        "description": "principal_amount / term_months, rounded to 2 decimals. This is also amount_due on every payment for this loan."
+      }
+    }
+  },
+  "payments": {
+    "path": "data/raw/payments.json",
+    "description": "One record per due date. Every payment references an existing loan_id.",
+    "fields": {
+      "payment_id": {"type": "string", "description": "Unique payment identifier, format P0000001."},
+      "loan_id": {"type": "string", "description": "Foreign key into loans.loan_id."},
+      "due_date": {"type": "string (ISO date)", "description": "Date the payment was due."},
+      "payment_date": {
+        "type": "string (ISO date) or null",
+        "description": "Date the payment was actually made. Null for SCHEDULED and MISSED payments."
+      },
+      "amount_due": {"type": "float", "description": "Always equal to the parent loan's scheduled_payment_amount."},
+      "amount_paid": {
+        "type": "float",
+        "description": "Amount actually paid. > 0 for PAID and LATE; == 0 for SCHEDULED, MISSED, and FAILED."
+      },
+      "payment_status": {
+        "type": "enum",
+        "values": ["SCHEDULED", "PAID", "LATE", "MISSED", "FAILED"],
+        "description": "PAID: on/before due_date, amount_paid > 0 -- counted as successful in the MVP balance calculation. LATE: after due_date, amount_paid > 0 -- money was eventually received, but excluded from the MVP balance calculation as a deliberate simplification (see context/business_rules.json). MISSED: never paid, amount_paid == 0. FAILED: an attempted payment that did not succeed, amount_paid == 0. SCHEDULED: not yet due, amount_paid == 0."
+      },
+      "payment_method": {"type": "enum", "values": ["ACH", "CARD", "CHECK"], "description": "How the payment was made or attempted."}
+    }
+  },
+  "portfolio_summary": {
+    "path": "data/processed/portfolio_summary.json",
+    "description": "Single aggregate object (not an array) produced by src/transform.py from loans.json and payments.json.",
+    "fields": {
+      "as_of_date": {"type": "string (ISO date)", "description": "The business date this summary represents."},
+      "loan_count": {"type": "int", "description": "Total number of loans."},
+      "active_loan_count": {"type": "int"},
+      "closed_loan_count": {"type": "int"},
+      "defaulted_loan_count": {"type": "int"},
+      "payment_count": {"type": "int", "description": "Total number of payment records."},
+      "successful_payment_count": {"type": "int", "description": "Number of payments with payment_status in business_rules.successful_payment_statuses (PAID only, for the MVP)."},
+      "total_original_principal": {"type": "float", "description": "Sum of principal_amount across all loans."},
+      "total_successful_payments": {"type": "float", "description": "Sum of amount_paid across successful payments only."},
+      "total_outstanding_balance": {"type": "float", "description": "total_original_principal - total_successful_payments. Answers 'what is today's total outstanding loan balance?'"}
+    }
+  }
+}

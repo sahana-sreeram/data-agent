@@ -1,0 +1,35 @@
+{
+  "incident_id": "settled_rule_adopted",
+  "diagnosis_file": "data/scenarios/settled_rule_adopted/diagnosis.json",
+  "validation_results_file": "data/scenarios/settled_rule_adopted/validation_results.json",
+  "portfolio_summary_file": "data/scenarios/settled_rule_adopted/portfolio_summary.json",
+  "pipeline_run_file": "data/scenarios/settled_rule_adopted/pipeline_run.json",
+  "lineage_file": "context/lineage.json",
+  "data_dictionary_file": "context/data_dictionary.json",
+  "eligibility_target_hints": [
+    "context/business_rules.json",
+    "src/transform.py",
+    "data/scenarios/settled_rule_adopted/pipeline_config.json",
+    "data/scenarios/settled_rule_adopted/business_rules.json"
+  ],
+  "business_rules_aliases": {
+    "STALE": "context/business_rules.json",
+    "ADOPTED": "data/scenarios/settled_rule_adopted/business_rules.json"
+  },
+  "pipeline_configuration_file": "data/scenarios/settled_rule_adopted/pipeline_config.json",
+  "etl_function_name": "compute_portfolio_summary",
+  "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py"],
+  "file_hash_aliases": {
+    "STALE_BUSINESS_RULES": "context/business_rules.json",
+    "ADOPTED_BUSINESS_RULES": "data/scenarios/settled_rule_adopted/business_rules.json",
+    "PIPELINE_CONFIG": "data/scenarios/settled_rule_adopted/pipeline_config.json"
+  },
+  "rerun": {
+    "kind": "one_row_per_payment",
+    "loans_file": "data/raw/loans.json",
+    "payments_file": "data/scenarios/settled_bug/payments.json",
+    "as_of_date": "2026-07-20",
+    "validation_rules_file": "context/validation_rules.json",
+    "validation_business_rules_file": "data/scenarios/settled_rule_adopted/business_rules.json"
+  }
+}

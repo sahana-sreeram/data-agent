@@ -1,0 +1,782 @@
+[
+  {
+    "loan_id": "L000001",
+    "customer_id": "C000001",
+    "principal_amount": 17965.45,
+    "interest_rate": 0.1433,
+    "term_months": 12,
+    "originated_at": "2025-09-20",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1497.12
+  },
+  {
+    "loan_id": "L000002",
+    "customer_id": "C000004",
+    "principal_amount": 34431.02,
+    "interest_rate": 0.0877,
+    "term_months": 24,
+    "originated_at": "2025-05-03",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1434.63
+  },
+  {
+    "loan_id": "L000003",
+    "customer_id": "C000004",
+    "principal_amount": 24923.6,
+    "interest_rate": 0.051,
+    "term_months": 12,
+    "originated_at": "2024-11-12",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 2076.97
+  },
+  {
+    "loan_id": "L000004",
+    "customer_id": "C000005",
+    "principal_amount": 17364.03,
+    "interest_rate": 0.0916,
+    "term_months": 24,
+    "originated_at": "2025-04-16",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 723.5
+  },
+  {
+    "loan_id": "L000005",
+    "customer_id": "C000005",
+    "principal_amount": 36463.3,
+    "interest_rate": 0.1214,
+    "term_months": 12,
+    "originated_at": "2026-05-18",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 3038.61
+  },
+  {
+    "loan_id": "L000006",
+    "customer_id": "C000006",
+    "principal_amount": 16405.95,
+    "interest_rate": 0.0948,
+    "term_months": 12,
+    "originated_at": "2026-01-10",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1367.16
+  },
+  {
+    "loan_id": "L000007",
+    "customer_id": "C000008",
+    "principal_amount": 5112.44,
+    "interest_rate": 0.0814,
+    "term_months": 12,
+    "originated_at": "2024-01-19",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 426.04
+  },
+  {
+    "loan_id": "L000008",
+    "customer_id": "C000010",
+    "principal_amount": 30660.86,
+    "interest_rate": 0.0875,
+    "term_months": 24,
+    "originated_at": "2023-12-20",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 1277.54
+  },
+  {
+    "loan_id": "L000009",
+    "customer_id": "C000011",
+    "principal_amount": 38014.77,
+    "interest_rate": 0.1912,
+    "term_months": 12,
+    "originated_at": "2026-02-09",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 3167.9
+  },
+  {
+    "loan_id": "L000010",
+    "customer_id": "C000012",
+    "principal_amount": 33133.44,
+    "interest_rate": 0.2461,
+    "term_months": 12,
+    "originated_at": "2026-04-02",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2761.12
+  },
+  {
+    "loan_id": "L000011",
+    "customer_id": "C000013",
+    "principal_amount": 17072.87,
+    "interest_rate": 0.2187,
+    "term_months": 48,
+    "originated_at": "2022-04-02",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 355.68
+  },
+  {
+    "loan_id": "L000012",
+    "customer_id": "C000015",
+    "principal_amount": 24815.64,
+    "interest_rate": 0.0461,
+    "term_months": 36,
+    "originated_at": "2021-12-19",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 689.32
+  },
+  {
+    "loan_id": "L000013",
+    "customer_id": "C000015",
+    "principal_amount": 16081.69,
+    "interest_rate": 0.0653,
+    "term_months": 12,
+    "originated_at": "2026-01-20",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1340.14
+  },
+  {
+    "loan_id": "L000014",
+    "customer_id": "C000018",
+    "principal_amount": 28877.73,
+    "interest_rate": 0.0618,
+    "term_months": 24,
+    "originated_at": "2022-07-04",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 1203.24
+  },
+  {
+    "loan_id": "L000015",
+    "customer_id": "C000020",
+    "principal_amount": 18551.83,
+    "interest_rate": 0.1312,
+    "term_months": 12,
+    "originated_at": "2026-02-10",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1545.99
+  },
+  {
+    "loan_id": "L000016",
+    "customer_id": "C000023",
+    "principal_amount": 25192.6,
+    "interest_rate": 0.1065,
+    "term_months": 12,
+    "originated_at": "2026-06-05",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2099.38
+  },
+  {
+    "loan_id": "L000017",
+    "customer_id": "C000025",
+    "principal_amount": 35452.16,
+    "interest_rate": 0.2171,
+    "term_months": 12,
+    "originated_at": "2026-01-03",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2954.35
+  },
+  {
+    "loan_id": "L000018",
+    "customer_id": "C000026",
+    "principal_amount": 20565.96,
+    "interest_rate": 0.0779,
+    "term_months": 24,
+    "originated_at": "2024-08-05",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 856.91
+  },
+  {
+    "loan_id": "L000019",
+    "customer_id": "C000027",
+    "principal_amount": 10420.66,
+    "interest_rate": 0.1284,
+    "term_months": 12,
+    "originated_at": "2024-09-02",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 868.39
+  },
+  {
+    "loan_id": "L000020",
+    "customer_id": "C000028",
+    "principal_amount": 22914.76,
+    "interest_rate": 0.1787,
+    "term_months": 60,
+    "originated_at": "2024-01-12",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 381.91
+  },
+  {
+    "loan_id": "L000021",
+    "customer_id": "C000029",
+    "principal_amount": 30229.48,
+    "interest_rate": 0.0875,
+    "term_months": 12,
+    "originated_at": "2023-08-15",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 2519.12
+  },
+  {
+    "loan_id": "L000022",
+    "customer_id": "C000030",
+    "principal_amount": 30887.9,
+    "interest_rate": 0.0698,
+    "term_months": 12,
+    "originated_at": "2026-05-14",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2573.99
+  },
+  {
+    "loan_id": "L000023",
+    "customer_id": "C000031",
+    "principal_amount": 6810.15,
+    "interest_rate": 0.0832,
+    "term_months": 24,
+    "originated_at": "2026-05-03",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 283.76
+  },
+  {
+    "loan_id": "L000024",
+    "customer_id": "C000032",
+    "principal_amount": 5898.33,
+    "interest_rate": 0.0809,
+    "term_months": 24,
+    "originated_at": "2023-09-05",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 245.76
+  },
+  {
+    "loan_id": "L000025",
+    "customer_id": "C000033",
+    "principal_amount": 34745.47,
+    "interest_rate": 0.088,
+    "term_months": 12,
+    "originated_at": "2026-04-08",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2895.46
+  },
+  {
+    "loan_id": "L000026",
+    "customer_id": "C000034",
+    "principal_amount": 32823.4,
+    "interest_rate": 0.0875,
+    "term_months": 12,
+    "originated_at": "2025-04-13",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 2735.28
+  },
+  {
+    "loan_id": "L000027",
+    "customer_id": "C000035",
+    "principal_amount": 10576.11,
+    "interest_rate": 0.1166,
+    "term_months": 24,
+    "originated_at": "2023-04-06",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 440.67
+  },
+  {
+    "loan_id": "L000028",
+    "customer_id": "C000036",
+    "principal_amount": 4288.75,
+    "interest_rate": 0.1472,
+    "term_months": 12,
+    "originated_at": "2026-05-14",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 357.4
+  },
+  {
+    "loan_id": "L000029",
+    "customer_id": "C000037",
+    "principal_amount": 22975.71,
+    "interest_rate": 0.0478,
+    "term_months": 12,
+    "originated_at": "2025-12-06",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1914.64
+  },
+  {
+    "loan_id": "L000030",
+    "customer_id": "C000039",
+    "principal_amount": 34665.06,
+    "interest_rate": 0.1478,
+    "term_months": 12,
+    "originated_at": "2026-03-12",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2888.75
+  },
+  {
+    "loan_id": "L000031",
+    "customer_id": "C000039",
+    "principal_amount": 27124.96,
+    "interest_rate": 0.2427,
+    "term_months": 12,
+    "originated_at": "2025-11-17",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2260.41
+  },
+  {
+    "loan_id": "L000032",
+    "customer_id": "C000040",
+    "principal_amount": 4713.57,
+    "interest_rate": 0.0916,
+    "term_months": 24,
+    "originated_at": "2025-08-01",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 196.4
+  },
+  {
+    "loan_id": "L000033",
+    "customer_id": "C000042",
+    "principal_amount": 28589.88,
+    "interest_rate": 0.0871,
+    "term_months": 24,
+    "originated_at": "2025-02-03",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1191.25
+  },
+  {
+    "loan_id": "L000034",
+    "customer_id": "C000043",
+    "principal_amount": 14248.22,
+    "interest_rate": 0.0525,
+    "term_months": 12,
+    "originated_at": "2026-05-13",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1187.35
+  },
+  {
+    "loan_id": "L000035",
+    "customer_id": "C000043",
+    "principal_amount": 23857.57,
+    "interest_rate": 0.0875,
+    "term_months": 24,
+    "originated_at": "2024-08-12",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 994.07
+  },
+  {
+    "loan_id": "L000036",
+    "customer_id": "C000044",
+    "principal_amount": 18804.72,
+    "interest_rate": 0.0539,
+    "term_months": 12,
+    "originated_at": "2025-09-07",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1567.06
+  },
+  {
+    "loan_id": "L000037",
+    "customer_id": "C000045",
+    "principal_amount": 14665.72,
+    "interest_rate": 0.2137,
+    "term_months": 12,
+    "originated_at": "2026-04-10",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1222.14
+  },
+  {
+    "loan_id": "L000038",
+    "customer_id": "C000046",
+    "principal_amount": 30898.99,
+    "interest_rate": 0.0418,
+    "term_months": 12,
+    "originated_at": "2025-04-10",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 2574.92
+  },
+  {
+    "loan_id": "L000039",
+    "customer_id": "C000047",
+    "principal_amount": 33347.23,
+    "interest_rate": 0.1401,
+    "term_months": 36,
+    "originated_at": "2023-12-07",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 926.31
+  },
+  {
+    "loan_id": "L000040",
+    "customer_id": "C000047",
+    "principal_amount": 25660.09,
+    "interest_rate": 0.1948,
+    "term_months": 12,
+    "originated_at": "2025-11-19",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2138.34
+  },
+  {
+    "loan_id": "L000041",
+    "customer_id": "C000048",
+    "principal_amount": 28533.5,
+    "interest_rate": 0.0885,
+    "term_months": 12,
+    "originated_at": "2025-08-13",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2377.79
+  },
+  {
+    "loan_id": "L000042",
+    "customer_id": "C000050",
+    "principal_amount": 33973.42,
+    "interest_rate": 0.0457,
+    "term_months": 12,
+    "originated_at": "2026-04-30",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2831.12
+  },
+  {
+    "loan_id": "L000043",
+    "customer_id": "C000050",
+    "principal_amount": 29230.93,
+    "interest_rate": 0.0654,
+    "term_months": 12,
+    "originated_at": "2024-10-07",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 2435.91
+  },
+  {
+    "loan_id": "L000044",
+    "customer_id": "C000053",
+    "principal_amount": 21313.15,
+    "interest_rate": 0.1416,
+    "term_months": 36,
+    "originated_at": "2026-02-12",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 592.03
+  },
+  {
+    "loan_id": "L000045",
+    "customer_id": "C000056",
+    "principal_amount": 29589.94,
+    "interest_rate": 0.2321,
+    "term_months": 12,
+    "originated_at": "2025-09-05",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2465.83
+  },
+  {
+    "loan_id": "L000046",
+    "customer_id": "C000058",
+    "principal_amount": 16333.98,
+    "interest_rate": 0.2426,
+    "term_months": 24,
+    "originated_at": "2025-12-13",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 680.58
+  },
+  {
+    "loan_id": "L000047",
+    "customer_id": "C000059",
+    "principal_amount": 30298.8,
+    "interest_rate": 0.2176,
+    "term_months": 12,
+    "originated_at": "2025-11-08",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2524.9
+  },
+  {
+    "loan_id": "L000048",
+    "customer_id": "C000063",
+    "principal_amount": 14615.8,
+    "interest_rate": 0.045,
+    "term_months": 48,
+    "originated_at": "2024-02-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 304.5
+  },
+  {
+    "loan_id": "L000049",
+    "customer_id": "C000064",
+    "principal_amount": 26881.69,
+    "interest_rate": 0.157,
+    "term_months": 12,
+    "originated_at": "2025-10-12",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 2240.14
+  },
+  {
+    "loan_id": "L000050",
+    "customer_id": "C000065",
+    "principal_amount": 34388.97,
+    "interest_rate": 0.1402,
+    "term_months": 36,
+    "originated_at": "2022-06-10",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 955.25
+  },
+  {
+    "loan_id": "L000051",
+    "customer_id": "C000066",
+    "principal_amount": 25463.46,
+    "interest_rate": 0.0517,
+    "term_months": 12,
+    "originated_at": "2025-08-11",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2121.95
+  },
+  {
+    "loan_id": "L000052",
+    "customer_id": "C000069",
+    "principal_amount": 18859.78,
+    "interest_rate": 0.1286,
+    "term_months": 36,
+    "originated_at": "2023-06-19",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 523.88
+  },
+  {
+    "loan_id": "L000053",
+    "customer_id": "C000069",
+    "principal_amount": 15621.61,
+    "interest_rate": 0.1101,
+    "term_months": 12,
+    "originated_at": "2026-03-04",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1301.8
+  },
+  {
+    "loan_id": "L000054",
+    "customer_id": "C000070",
+    "principal_amount": 25160.69,
+    "interest_rate": 0.1821,
+    "term_months": 12,
+    "originated_at": "2025-08-13",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2096.72
+  },
+  {
+    "loan_id": "L000055",
+    "customer_id": "C000071",
+    "principal_amount": 19463.68,
+    "interest_rate": 0.2134,
+    "term_months": 12,
+    "originated_at": "2025-11-11",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1621.97
+  },
+  {
+    "loan_id": "L000056",
+    "customer_id": "C000073",
+    "principal_amount": 26279.67,
+    "interest_rate": 0.0612,
+    "term_months": 12,
+    "originated_at": "2026-02-06",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2189.97
+  },
+  {
+    "loan_id": "L000057",
+    "customer_id": "C000075",
+    "principal_amount": 23733.06,
+    "interest_rate": 0.0687,
+    "term_months": 12,
+    "originated_at": "2026-02-20",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1977.76
+  },
+  {
+    "loan_id": "L000058",
+    "customer_id": "C000078",
+    "principal_amount": 3863.68,
+    "interest_rate": 0.1224,
+    "term_months": 24,
+    "originated_at": "2023-03-11",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 160.99
+  },
+  {
+    "loan_id": "L000059",
+    "customer_id": "C000080",
+    "principal_amount": 11523.82,
+    "interest_rate": 0.1329,
+    "term_months": 12,
+    "originated_at": "2025-08-16",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 960.32
+  },
+  {
+    "loan_id": "L000060",
+    "customer_id": "C000081",
+    "principal_amount": 18751.28,
+    "interest_rate": 0.2038,
+    "term_months": 12,
+    "originated_at": "2023-07-16",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 1562.61
+  },
+  {
+    "loan_id": "L000061",
+    "customer_id": "C000082",
+    "principal_amount": 7022.07,
+    "interest_rate": 0.1178,
+    "term_months": 12,
+    "originated_at": "2024-07-04",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 585.17
+  },
+  {
+    "loan_id": "L000062",
+    "customer_id": "C000083",
+    "principal_amount": 37879.14,
+    "interest_rate": 0.1477,
+    "term_months": 36,
+    "originated_at": "2024-12-10",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1052.2
+  },
+  {
+    "loan_id": "L000063",
+    "customer_id": "C000085",
+    "principal_amount": 27700.3,
+    "interest_rate": 0.0737,
+    "term_months": 12,
+    "originated_at": "2024-06-03",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 2308.36
+  },
+  {
+    "loan_id": "L000064",
+    "customer_id": "C000085",
+    "principal_amount": 2528.91,
+    "interest_rate": 0.0668,
+    "term_months": 24,
+    "originated_at": "2025-04-09",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 105.37
+  },
+  {
+    "loan_id": "L000065",
+    "customer_id": "C000088",
+    "principal_amount": 10885.23,
+    "interest_rate": 0.1428,
+    "term_months": 12,
+    "originated_at": "2025-09-10",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 907.1
+  },
+  {
+    "loan_id": "L000066",
+    "customer_id": "C000090",
+    "principal_amount": 13483.23,
+    "interest_rate": 0.1086,
+    "term_months": 36,
+    "originated_at": "2023-02-19",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 374.53
+  },
+  {
+    "loan_id": "L000067",
+    "customer_id": "C000090",
+    "principal_amount": 20719.74,
+    "interest_rate": 0.0868,
+    "term_months": 12,
+    "originated_at": "2025-09-16",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 1726.65
+  },
+  {
+    "loan_id": "L000068",
+    "customer_id": "C000091",
+    "principal_amount": 22527.31,
+    "interest_rate": 0.0694,
+    "term_months": 24,
+    "originated_at": "2026-01-07",
+    "loan_status": "DEFAULTED",
+    "scheduled_payment_amount": 938.64
+  },
+  {
+    "loan_id": "L000069",
+    "customer_id": "C000094",
+    "principal_amount": 10256.25,
+    "interest_rate": 0.1889,
+    "term_months": 24,
+    "originated_at": "2025-11-09",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 427.34
+  },
+  {
+    "loan_id": "L000070",
+    "customer_id": "C000095",
+    "principal_amount": 15629.61,
+    "interest_rate": 0.1838,
+    "term_months": 48,
+    "originated_at": "2025-06-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 325.62
+  },
+  {
+    "loan_id": "L000071",
+    "customer_id": "C000098",
+    "principal_amount": 3921.98,
+    "interest_rate": 0.1033,
+    "term_months": 48,
+    "originated_at": "2022-02-02",
+    "loan_status": "CLOSED",
+    "scheduled_payment_amount": 81.71
+  },
+  {
+    "loan_id": "L000072",
+    "customer_id": "C000099",
+    "principal_amount": 32896.01,
+    "interest_rate": 0.0516,
+    "term_months": 12,
+    "originated_at": "2026-04-01",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2741.33
+  },
+  {
+    "loan_id": "L000073",
+    "customer_id": "C000100",
+    "principal_amount": 11524.86,
+    "interest_rate": 0.0487,
+    "term_months": 12,
+    "originated_at": "2025-08-20",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 960.41
+  },
+  {
+    "loan_id": "L900001",
+    "customer_id": "C000001",
+    "principal_amount": 5432.91,
+    "interest_rate": 0.1741,
+    "term_months": 12,
+    "originated_at": "2026-07-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 452.74
+  },
+  {
+    "loan_id": "L900002",
+    "customer_id": "C000002",
+    "principal_amount": 7698.9,
+    "interest_rate": 0.1487,
+    "term_months": 12,
+    "originated_at": "2026-07-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 641.57
+  },
+  {
+    "loan_id": "L900003",
+    "customer_id": "C000003",
+    "principal_amount": 33967.21,
+    "interest_rate": 0.1497,
+    "term_months": 12,
+    "originated_at": "2026-07-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2830.6
+  },
+  {
+    "loan_id": "L900004",
+    "customer_id": "C000006",
+    "principal_amount": 13473.63,
+    "interest_rate": 0.1022,
+    "term_months": 12,
+    "originated_at": "2026-07-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 1122.8
+  },
+  {
+    "loan_id": "L900005",
+    "customer_id": "C000007",
+    "principal_amount": 29430.78,
+    "interest_rate": 0.1759,
+    "term_months": 12,
+    "originated_at": "2026-07-17",
+    "loan_status": "ACTIVE",
+    "scheduled_payment_amount": 2452.57
+  }
+]

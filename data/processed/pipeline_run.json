@@ -1,0 +1,14 @@
+{
+  "as_of_date": "2026-07-20",
+  "run_started_at": "2026-07-20T15:28:03.206136+00:00",
+  "run_completed_at": "2026-07-20T15:28:03.215701+00:00",
+  "etl_status": "SUCCESS",
+  "etl_error": null,
+  "validation_status": "PASS",
+  "validation_error": null,
+  "overall_status": "SUCCESS",
+  "artifacts": {
+    "portfolio_summary": "data/processed/portfolio_summary.json",
+    "validation_results": "data/processed/validation_results.json"
+  }
+}

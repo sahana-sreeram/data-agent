@@ -1,0 +1,31 @@
+{
+  "incident_id": "payment_events_cardinality",
+  "diagnosis_file": "data/scenarios/payment_events_cardinality/diagnosis.json",
+  "validation_results_file": "data/scenarios/payment_events_cardinality/validation_results.json",
+  "portfolio_summary_file": "data/scenarios/payment_events_cardinality/portfolio_summary.json",
+  "pipeline_run_file": "data/scenarios/payment_events_cardinality/pipeline_run.json",
+  "lineage_file": "context/lineage.json",
+  "data_dictionary_file": "context/data_dictionary.json",
+  "eligibility_target_hints": [
+    "src/transform.py",
+    "data/scenarios/payment_events_cardinality/business_rules.json"
+  ],
+  "business_rules_aliases": {
+    "CURRENT": "data/scenarios/payment_events_cardinality/business_rules.json"
+  },
+  "pipeline_configuration_file": null,
+  "etl_function_name": "compute_portfolio_summary_from_payment_events",
+  "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py"],
+  "file_hash_aliases": {
+    "CURRENT_BUSINESS_RULES": "data/scenarios/payment_events_cardinality/business_rules.json",
+    "ETL_SOURCE": "src/transform.py"
+  },
+  "rerun": {
+    "kind": "payment_events",
+    "loans_file": "data/raw/loans.json",
+    "payment_events_file": "data/scenarios/payment_events_cardinality/payment_events.json",
+    "as_of_date": "2026-07-20",
+    "business_rules_file": "data/scenarios/payment_events_cardinality/business_rules.json",
+    "validation_rules_file": "data/scenarios/payment_events_cardinality/validation_rules.json"
+  }
+}

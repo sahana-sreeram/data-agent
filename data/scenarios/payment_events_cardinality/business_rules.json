@@ -1,0 +1,18 @@
+{
+  "payment_event_rules": {
+    "entity_key": "payment_id",
+    "event_key": "event_id",
+    "successful_terminal_event": "SETTLED",
+    "maximum_counted_settled_events_per_payment": 1,
+    "duplicate_policy": "COUNT_LATEST_ONCE_IF_AMOUNTS_MATCH"
+  },
+  "valid_payment_event_types": ["INITIATED", "PROCESSING", "FAILED", "SETTLED"],
+  "outstanding_balance_formula": "total_original_principal - total_successful_payments",
+  "notes": [
+    "The upstream payments source migrated from one row per logical payment to an at-least-once lifecycle event stream. Source grain is now one row per event (event_id); the business entity grain is still one row per logical payment (payment_id).",
+    "Each payment_id represents one logical payment. At most one terminal SETTLED event per payment_id contributes to principal repayment. Replayed SETTLED events -- same payment_id, same amount, a different event_id, a later event_timestamp -- are an expected characteristic of at-least-once delivery and must NOT be counted more than once.",
+    "If a payment_id has multiple SETTLED events with DIFFERENT amounts, the semantics are ambiguous (partial payment, correction, or data error) and must not be silently resolved by picking one. That case is a hard validation failure requiring human review, not an automatic collapse.",
+    "duplicate_policy=COUNT_LATEST_ONCE_IF_AMOUNTS_MATCH means: group SETTLED events by payment_id; if all amounts in a group agree, keep only the latest (by event_timestamp) and count it once; if amounts disagree within a group, do not collapse -- flag it instead.",
+    "See context/lineage.json 'scenarios.payment_events_cardinality' for the full incident narrative, and README.md for how this differs from data/scenarios/settled_bug/ and data/scenarios/settled_rule_adopted/."
+  ]
+}
