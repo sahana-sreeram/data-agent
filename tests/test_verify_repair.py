@@ -261,3 +261,198 @@ def test_targeted_and_full_suite_test_results_are_recorded(tmp_path):
     result = run_verify_repair(manifest, {}, repair_result)
     assert result["tests"]["targeted"] in ("PASS", "FAIL")
     assert result["tests"]["full_relevant_suite"] in ("PASS", "FAIL")
+
+
+# --- CODE_CHANGE / loan_payment_join (the incorrect_join scenario's repair kind) ---
+#
+# The tests above all exercise CONFIGURATION_CHANGE promotion (kind="one_row_per_payment").
+# Nothing previously exercised the CODE_CHANGE rerun path end to end: dynamically loading a
+# patched src/transform.py from an isolated workspace and validating with
+# validate_portfolio_with_join_profile. This closes that gap deterministically (a scripted
+# patched module, no live model call).
+
+JOIN_BUSINESS_RULES = {
+    "successful_payment_statuses": ["PAID"],
+    "valid_payment_statuses": ["PAID", "SETTLED"],
+    "valid_loan_statuses": ["ACTIVE", "CLOSED", "DEFAULTED"],
+}
+
+# L2 has zero payment records -- the case the inner-join bug drops entirely.
+JOIN_LOANS = [
+    {"loan_id": "L1", "customer_id": "C1", "principal_amount": 1000.0, "loan_status": "ACTIVE"},
+    {"loan_id": "L2", "customer_id": "C2", "principal_amount": 500.0, "loan_status": "ACTIVE"},
+]
+JOIN_PAYMENTS = [{"payment_id": "P1", "loan_id": "L1", "amount_paid": 1000.0, "payment_status": "PAID"}]
+
+JOIN_VALIDATION_RULES = {
+    "tolerance": {"currency": 0.01, "count": 0},
+    "rules": [
+        *VALIDATION_RULES["rules"],
+        {
+            "id": "loans_without_payment_records_present",
+            "type": "informational",
+            "tolerance_type": None,
+            "description": "d",
+        },
+    ],
+}
+
+# A correct fix for the inner-join bug: how="left" + fillna(0.0), self-contained so it can
+# be exec'd standalone as the patched module (mirrors the real fixed
+# compute_portfolio_summary_with_payment_join in src/transform.py).
+FIXED_JOIN_TRANSFORM_SOURCE = '''
+import pandas as pd
+
+
+def compute_portfolio_summary_with_payment_join(loans_df, payments_df, as_of_date, business_rules):
+    success_statuses = business_rules["successful_payment_statuses"]
+    successful_payments = (
+        payments_df[payments_df["payment_status"].isin(success_statuses)]
+        if not payments_df.empty
+        else payments_df
+    )
+    payments_by_loan = (
+        successful_payments.groupby("loan_id")["amount_paid"].sum()
+        if not successful_payments.empty
+        else pd.Series(dtype=float, name="amount_paid").rename_axis("loan_id")
+    )
+    portfolio = loans_df.merge(payments_by_loan.rename("total_paid"), on="loan_id", how="left")
+    portfolio["total_paid"] = portfolio["total_paid"].fillna(0.0)
+
+    total_original_principal = round(float(portfolio["principal_amount"].sum()), 2) if not portfolio.empty else 0.0
+    total_successful_payments = round(float(portfolio["total_paid"].sum()), 2) if not portfolio.empty else 0.0
+    total_outstanding_balance = round(total_original_principal - total_successful_payments, 2)
+
+    def _count_status(df, col, val):
+        return int((df[col] == val).sum()) if not df.empty else 0
+
+    return {
+        "as_of_date": as_of_date,
+        "loan_count": int(len(portfolio)),
+        "active_loan_count": _count_status(portfolio, "loan_status", "ACTIVE"),
+        "closed_loan_count": _count_status(portfolio, "loan_status", "CLOSED"),
+        "defaulted_loan_count": _count_status(portfolio, "loan_status", "DEFAULTED"),
+        "payment_count": int(len(payments_df)),
+        "successful_payment_count": int(len(successful_payments)),
+        "total_original_principal": total_original_principal,
+        "total_successful_payments": total_successful_payments,
+        "total_outstanding_balance": total_outstanding_balance,
+    }
+'''
+
+
+def _setup_join_scenario(tmp_path: Path) -> dict:
+    loans_path = tmp_path / "loans.json"
+    payments_path = tmp_path / "payments.json"
+    business_rules_path = tmp_path / "business_rules.json"
+    validation_rules_path = tmp_path / "validation_rules.json"
+    diagnosis_path = tmp_path / "diagnosis.json"
+    validation_results_path = tmp_path / "validation_results.json"
+    summary_path = tmp_path / "portfolio_summary.json"
+
+    loans_path.write_text(json.dumps(JOIN_LOANS))
+    payments_path.write_text(json.dumps(JOIN_PAYMENTS))
+    business_rules_path.write_text(json.dumps(JOIN_BUSINESS_RULES))
+    validation_rules_path.write_text(json.dumps(JOIN_VALIDATION_RULES))
+    diagnosis_path.write_text(json.dumps({"incident_summary": "inner join drops loans with no payments"}))
+
+    # The buggy (pre-repair) ETL output: L2 silently dropped by the inner join.
+    buggy_summary = {
+        "as_of_date": "2026-07-20",
+        "loan_count": 1,
+        "active_loan_count": 1,
+        "closed_loan_count": 0,
+        "defaulted_loan_count": 0,
+        "payment_count": 1,
+        "successful_payment_count": 1,
+        "total_original_principal": 1000.0,
+        "total_successful_payments": 1000.0,
+        "total_outstanding_balance": 0.0,
+    }
+    summary_path.write_text(json.dumps(buggy_summary))
+
+    validation_before = {
+        "overall_status": "FAIL",
+        "checks": [
+            {"id": "loan_count_reconciliation", "status": "FAIL", "expected": 2, "actual": 1, "difference": -1},
+            {"id": "active_loan_count_reconciliation", "status": "FAIL", "expected": 2, "actual": 1, "difference": -1},
+            {"id": "total_original_principal_reconciliation", "status": "FAIL", "expected": 1500.0, "actual": 1000.0, "difference": -500.0},
+            {"id": "total_outstanding_balance_reconciliation", "status": "FAIL", "expected": 500.0, "actual": 0.0, "difference": -500.0},
+            {"id": "payment_count_reconciliation", "status": "PASS", "expected": 1, "actual": 1, "difference": 0},
+            {"id": "successful_payment_count_reconciliation", "status": "PASS", "expected": 1, "actual": 1, "difference": 0},
+            {"id": "total_successful_payments_reconciliation", "status": "PASS", "expected": 1000.0, "actual": 1000.0, "difference": 0.0},
+        ],
+    }
+    validation_results_path.write_text(json.dumps(validation_before))
+
+    manifest = {
+        "incident_id": "incorrect_join_test",
+        "diagnosis_file": str(diagnosis_path),
+        "validation_results_file": str(validation_results_path),
+        "portfolio_summary_file": str(summary_path),
+        "etl_function_name": "compute_portfolio_summary_with_payment_join",
+        "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py"],
+        "rerun": {
+            "kind": "loan_payment_join",
+            "loans_file": str(loans_path),
+            "payments_file": str(payments_path),
+            "as_of_date": "2026-07-20",
+            "business_rules_file": str(business_rules_path),
+            "validation_rules_file": str(validation_rules_path),
+        },
+    }
+    return manifest
+
+
+def test_incorrect_join_code_change_repair_is_verified_and_promoted(tmp_path, monkeypatch):
+    manifest = _setup_join_scenario(tmp_path)
+
+    workspace_dir = Path(tempfile.mkdtemp())
+    patched_transform_path = workspace_dir / "src" / "transform.py"
+    patched_transform_path.parent.mkdir(parents=True, exist_ok=True)
+    patched_transform_path.write_text(FIXED_JOIN_TRANSFORM_SOURCE)
+
+    repair_result = {
+        "repair_status": "APPLIED",
+        "repair_type": "CODE_CHANGE",
+        "target_file": "src/transform.py",
+        "changed_files": ["src/transform.py"],
+        "workspace_dir": str(workspace_dir),
+    }
+
+    # Redirect ONLY the final promotion copy so the real repo's src/transform.py is never
+    # touched, without changing cwd (test_inventory's nested pytest run needs the real cwd --
+    # tests/test_transform.py's own CLI tests default to a cwd-relative business-rules path).
+    import src.verify_repair as verify_repair_module
+
+    sandbox_transform_path = tmp_path / "sandboxed_transform.py"
+    real_copy2 = verify_repair_module.shutil.copy2
+
+    def _redirect_copy2(src, dst, *args, **kwargs):
+        if Path(dst) == Path("src/transform.py"):
+            dst = sandbox_transform_path
+        return real_copy2(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(verify_repair_module.shutil, "copy2", _redirect_copy2)
+
+    result = run_verify_repair(manifest, {}, repair_result)
+
+    assert result["verification_status"] == "VERIFIED"
+    assert result["validation_before"] == "FAIL"
+    assert result["validation_after"] == "PASS"
+    assert set(result["failed_checks_before"]) == {
+        "loan_count_reconciliation",
+        "active_loan_count_reconciliation",
+        "total_original_principal_reconciliation",
+        "total_outstanding_balance_reconciliation",
+    }
+    assert result["failed_checks_after"] == []
+    assert result["rollback_performed"] is False
+
+    # Promotion happened: the (sandboxed) real transform.py and outputs were updated.
+    assert sandbox_transform_path.read_text() == FIXED_JOIN_TRANSFORM_SOURCE
+    promoted_summary = json.loads(Path(manifest["portfolio_summary_file"]).read_text())
+    assert promoted_summary["loan_count"] == 2
+    assert promoted_summary["total_original_principal"] == 1500.0
+    assert promoted_summary["total_outstanding_balance"] == 500.0
+    assert not workspace_dir.exists()

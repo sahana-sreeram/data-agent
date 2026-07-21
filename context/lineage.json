@@ -109,6 +109,107 @@
       "produced_by": "src/verify_repair.py",
       "depends_on": ["processed.repair_result", "raw.loans", "raw.payments"],
       "notes": "The ONLY artifact that may mark a repair VERIFIED -- by rerunning tests/ETL/validation against the isolated workspace and comparing to the pre-repair baseline. Promotion into the real repository (target file + fresh pipeline outputs) happens only if verification_status becomes VERIFIED."
+    },
+    "lifecycle.customers": {
+      "path": "data/lifecycle/raw/customers.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": []
+    },
+    "lifecycle.campaigns": {
+      "path": "data/lifecycle/raw/campaigns.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": []
+    },
+    "lifecycle.coupon_rules": {
+      "path": "data/lifecycle/raw/coupon_rules.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.campaigns"]
+    },
+    "lifecycle.email_events": {
+      "path": "data/lifecycle/raw/email_events.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.campaigns", "lifecycle.customers"]
+    },
+    "lifecycle.prequal_offers": {
+      "path": "data/lifecycle/raw/prequal_offers.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.customers", "lifecycle.campaigns", "lifecycle.coupon_rules", "lifecycle.email_events"],
+      "notes": "Mostly follows a CLICKED email_events row; a smaller organic share (campaign_id null) requires only lifecycle.customers."
+    },
+    "lifecycle.applications": {
+      "path": "data/lifecycle/raw/applications.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.customers", "lifecycle.prequal_offers"],
+      "notes": "Mostly follows an offer; a smaller organic share (offer_id null) requires only lifecycle.customers."
+    },
+    "lifecycle.underwriting_decisions": {
+      "path": "data/lifecycle/raw/underwriting_decisions.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.applications", "lifecycle.customers"],
+      "notes": "One row per DECISIONED application only -- SUBMITTED/WITHDRAWN applications get none."
+    },
+    "lifecycle.loans": {
+      "path": "data/lifecycle/raw/loans.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.underwriting_decisions", "lifecycle.applications", "lifecycle.customers"],
+      "notes": "One row per APPROVED decision that actually funds -- not every approved decision does."
+    },
+    "lifecycle.payment_schedule": {
+      "path": "data/lifecycle/raw/payment_schedule.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.loans"]
+    },
+    "lifecycle.payment_events": {
+      "path": "data/lifecycle/raw/payment_events.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.loans", "lifecycle.payment_schedule", "lifecycle.customers"],
+      "notes": "customers.risk_segment drives per-installment outcome probabilities during generation."
+    },
+    "lifecycle.delinquency_events": {
+      "path": "data/lifecycle/raw/delinquency_events.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.loans", "lifecycle.payment_events"]
+    },
+    "lifecycle.defaults": {
+      "path": "data/lifecycle/raw/defaults.json",
+      "produced_by": "src/generate_data.py",
+      "depends_on": ["lifecycle.loans", "lifecycle.payment_events"]
+    },
+    "curated.loan_portfolio": {
+      "path": "s3://data-agent/curated/loan_portfolio.parquet",
+      "produced_by": "src/etl_spark_loan_portfolio.py",
+      "depends_on": ["lifecycle.loans", "lifecycle.payment_events", "context.business_rules"],
+      "notes": "Validated independently (pandas, not Spark) by src/validate_loan_portfolio.py against context/validations/loan_portfolio.json. See context/metrics/loan_portfolio.json for per-metric formulas."
+    },
+    "curated.campaign_funnel": {
+      "path": "s3://data-agent/curated/campaign_funnel.parquet",
+      "produced_by": "src/etl_spark_campaign_funnel.py",
+      "depends_on": [
+        "lifecycle.campaigns", "lifecycle.email_events", "lifecycle.prequal_offers",
+        "lifecycle.applications", "lifecycle.underwriting_decisions", "lifecycle.loans"
+      ],
+      "notes": "Validated independently (pandas, not Spark) by src/validate_campaign_funnel.py against context/validations/campaign_funnel.json. See context/metrics/campaign_funnel.json for per-metric formulas."
+    },
+    "curated.underwriting_performance": {
+      "path": [
+        "s3://data-agent/curated/underwriting_performance.parquet",
+        "s3://data-agent/curated/underwriting_performance_rejections.parquet"
+      ],
+      "produced_by": "src/etl_spark_underwriting_performance.py",
+      "depends_on": ["lifecycle.underwriting_decisions", "lifecycle.applications", "lifecycle.customers"],
+      "notes": "Validated independently (pandas, not Spark) by src/validate_underwriting_performance.py against context/validations/underwriting_performance.json. See context/metrics/underwriting_performance.json for per-metric formulas."
+    },
+    "curated.payment_performance": {
+      "path": "s3://data-agent/curated/payment_performance.parquet",
+      "produced_by": "src/etl_spark_payment_performance.py",
+      "depends_on": ["lifecycle.payment_schedule", "lifecycle.payment_events", "context.business_rules"],
+      "notes": "Validated independently (pandas, not Spark) by src/validate_payment_performance.py against context/validations/payment_performance.json. See context/metrics/payment_performance.json for per-metric formulas."
+    },
+    "curated.delinquency_default": {
+      "path": "s3://data-agent/curated/delinquency_default.parquet",
+      "produced_by": "src/etl_spark_delinquency_default.py",
+      "depends_on": ["lifecycle.loans", "lifecycle.customers", "lifecycle.delinquency_events", "lifecycle.defaults", "context.business_rules"],
+      "notes": "Validated independently (pandas, not Spark) by src/validate_delinquency_default.py against context/validations/delinquency_default.json. See context/metrics/delinquency_default.json for per-metric formulas."
     }
   },
   "notes": [
@@ -116,6 +217,7 @@
     "Raw data represents the immutable upstream source-of-truth snapshot for a given run. The 3 headline scenarios -- settled_bug, settled_rule_adopted, and incorrect_join (see 'scenarios' above) -- each simulate an unrecognized-value/stale-config/incorrect-join change without mutating raw data or context/business_rules.json, so the clean and broken states can be compared side by side. payment_events_cardinality is a fourth, still-working scenario kept for reference but no longer part of the headline 3.",
     "Diagnosis and repair are separate stages with separate authorities: diagnosis decides what/why and never touches files; repair proposes a structured plan and never touches files either; only src/verify_repair.py's deterministic rerun may mark a repair VERIFIED and promote it. See README.md section 9 for the full eligibility/policy/verification design.",
     "etl_status=SUCCESS means only that the ETL executed without raising an error. It does NOT mean the output is correct relative to current business rules -- settled_rule_adopted is the concrete proof: etl_status is SUCCESS there, yet overall_status is FAILURE because the output is stale.",
-    "No automated repair logic exists yet. This milestone only proves detection and diagnosis: clean data validates PASS and diagnoses NO_INCIDENT; settled_bug validates FAIL via an enum check and the agent reports genuine uncertainty (unapproved/unknown change); settled_rule_adopted validates FAIL via reconciliation checks and the agent confidently diagnoses a stale ETL output relative to an approved rule change."
+    "No automated repair logic exists yet. This milestone only proves detection and diagnosis: clean data validates PASS and diagnoses NO_INCIDENT; settled_bug validates FAIL via an enum check and the agent reports genuine uncertainty (unapproved/unknown change); settled_rule_adopted validates FAIL via reconciliation checks and the agent confidently diagnoses a stale ETL output relative to an approved rule change.",
+    "The lifecycle.* datasets (customers through defaults, 12 tables total) are a SEPARATE, newer full-lifecycle model (data/lifecycle/raw/), independent of the raw.*/processed.* datasets and 4 scenarios above -- no ETL, validation, diagnosis, or repair machinery is wired up for it yet. Currently only src/validate_lifecycle_raw.py exists, checking the raw tables' own schema/enum/referential integrity (no reconciliation checks, since no curated/ETL output exists to reconcile against). Building the curated ETL pipelines (campaign funnel, underwriting performance, loan portfolio, payment performance, delinquency/default risk), their metric-level validation, and Q&A wiring are all future work."
   ]
 }

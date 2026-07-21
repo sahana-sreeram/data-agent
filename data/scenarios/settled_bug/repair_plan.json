@@ -1,0 +1,53 @@
+{
+  "repair_decision": "PROPOSE_REPAIR",
+  "repair_type": "CONFIGURATION_CHANGE",
+  "incident_id": "Raw payments contain a new payment_status value 'SETTLED' that is not in the approved vocabulary. This violates the business rules/data dictionary enum and triggers the payment_status_enum_valid check. Downstream portfolio_summary reconciliations still pass because successful_payment_statuses currently only includes 'PAID', so 'SETTLED' rows are ignored by both ETL and the independent validator. The initiating event is an upstream status vocabulary change; the root cause is our business rules/data dictionary (and possibly ETL mapping) not updated to accept/handle 'SETTLED'.",
+  "diagnosis_reference": "BUSINESS_RULE_MISMATCH",
+  "root_cause_addressed": "Business rules and data dictionary exclude the new upstream status 'SETTLED', causing enum validation to fail and leaving 'SETTLED' unrecognized by the ETL.",
+  "target_file": "data/scenarios/settled_rule_adopted/pipeline_config.json",
+  "target_symbol_or_setting": "business_rules_file",
+  "current_behavior": "Scenario is configured to read a stale business_rules.json that lacks 'SETTLED', causing payment_status_enum_valid to fail on upstream data containing 'SETTLED'.",
+  "proposed_behavior": "Point the scenario to the already-present adopted business_rules.json that includes 'SETTLED', restoring enum validation without altering ETL code or success semantics.",
+  "change_description": "Update the scenario pipeline configuration to use the adopted business rules file that recognizes 'SETTLED' by setting business_rules_file to data/scenarios/settled_rule_adopted/business_rules.json.",
+  "patch": {
+    "format": "STRUCTURED_CONFIG_EDIT",
+    "content": {
+      "operations": [
+        {
+          "field": "business_rules_file",
+          "value": "data/scenarios/settled_rule_adopted/business_rules.json"
+        }
+      ]
+    }
+  },
+  "files_expected_to_change": [
+    "data/scenarios/settled_rule_adopted/pipeline_config.json"
+  ],
+  "files_expected_not_to_change": [
+    "context/business_rules.json",
+    "src/transform.py",
+    "validation/validation_rules.json",
+    "data/portfolio_summary.json",
+    "data/validation_results.json"
+  ],
+  "verification_steps": [
+    "Reload configuration and confirm business_rules_file resolves to data/scenarios/settled_rule_adopted/business_rules.json.",
+    "Re-run the ETL and validations; verify payment_status_enum_valid passes and no other validation weakens or changes.",
+    "Inspect the loaded business rules at runtime to confirm valid_payment_statuses includes 'SETTLED'.",
+    "Confirm portfolio_summary reconciliation checks still pass and there are no unexpected metric shifts attributable to configuration only.",
+    "Ensure no code files (e.g., src/transform.py) were modified by this change."
+  ],
+  "rollback_description": "If any regressions occur, revert business_rules_file in data/scenarios/settled_rule_adopted/pipeline_config.json back to context/business_rules.json to restore the previous configuration.",
+  "risk_level": "LOW",
+  "assumptions": [
+    "The adopted business rules file exists at data/scenarios/settled_rule_adopted/business_rules.json and includes 'SETTLED' in valid_payment_statuses.",
+    "Switching to the adopted rules does not alter successful_payment_statuses semantics beyond enum acceptance.",
+    "The scenario respects pipeline_config.json and loads rules via the business_rules_file setting."
+  ],
+  "evidence_references": [
+    "get_failed_checks",
+    "get_business_rules",
+    "get_data_dictionary_entry",
+    "get_payment_status_counts"
+  ]
+}

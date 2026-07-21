@@ -1,0 +1,4112 @@
+[
+  {
+    "offer_id": "OFF0000001",
+    "customer_id": "C000011",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 21430.75,
+    "offer_apr": 0.0497,
+    "created_at": "2024-06-20",
+    "expires_at": "2024-07-20"
+  },
+  {
+    "offer_id": "OFF0000002",
+    "customer_id": "C000031",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 35236.71,
+    "offer_apr": 0.0923,
+    "created_at": "2024-06-16",
+    "expires_at": "2024-07-16"
+  },
+  {
+    "offer_id": "OFF0000003",
+    "customer_id": "C000088",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 4462.89,
+    "offer_apr": 0.0415,
+    "created_at": "2024-06-18",
+    "expires_at": "2024-07-18"
+  },
+  {
+    "offer_id": "OFF0000004",
+    "customer_id": "C000159",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 11311.78,
+    "offer_apr": 0.1222,
+    "created_at": "2024-06-10",
+    "expires_at": "2024-07-10"
+  },
+  {
+    "offer_id": "OFF0000005",
+    "customer_id": "C000180",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 32540.1,
+    "offer_apr": 0.1387,
+    "created_at": "2024-06-16",
+    "expires_at": "2024-07-16"
+  },
+  {
+    "offer_id": "OFF0000006",
+    "customer_id": "C000251",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 38574.01,
+    "offer_apr": 0.0805,
+    "created_at": "2024-07-11",
+    "expires_at": "2024-08-10"
+  },
+  {
+    "offer_id": "OFF0000007",
+    "customer_id": "C000255",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 17441.17,
+    "offer_apr": 0.066,
+    "created_at": "2024-07-10",
+    "expires_at": "2024-08-09"
+  },
+  {
+    "offer_id": "OFF0000008",
+    "customer_id": "C000284",
+    "campaign_id": "CMP0001",
+    "coupon_code": null,
+    "offer_amount": 4673.89,
+    "offer_apr": 0.1092,
+    "created_at": "2024-06-17",
+    "expires_at": "2024-07-17"
+  },
+  {
+    "offer_id": "OFF0000009",
+    "customer_id": "C000005",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 22418.97,
+    "offer_apr": 0.2187,
+    "created_at": "2025-02-07",
+    "expires_at": "2025-03-09"
+  },
+  {
+    "offer_id": "OFF0000010",
+    "customer_id": "C000011",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 29161.04,
+    "offer_apr": 0.0619,
+    "created_at": "2025-01-28",
+    "expires_at": "2025-02-27"
+  },
+  {
+    "offer_id": "OFF0000011",
+    "customer_id": "C000053",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 33475.69,
+    "offer_apr": 0.0763,
+    "created_at": "2025-01-22",
+    "expires_at": "2025-02-21"
+  },
+  {
+    "offer_id": "OFF0000012",
+    "customer_id": "C000058",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 29231.74,
+    "offer_apr": 0.0656,
+    "created_at": "2025-02-04",
+    "expires_at": "2025-03-06"
+  },
+  {
+    "offer_id": "OFF0000013",
+    "customer_id": "C000076",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 31922.09,
+    "offer_apr": 0.0873,
+    "created_at": "2025-02-20",
+    "expires_at": "2025-03-22"
+  },
+  {
+    "offer_id": "OFF0000014",
+    "customer_id": "C000122",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 29435.78,
+    "offer_apr": 0.0583,
+    "created_at": "2025-01-13",
+    "expires_at": "2025-02-12"
+  },
+  {
+    "offer_id": "OFF0000015",
+    "customer_id": "C000127",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 36693.03,
+    "offer_apr": 0.1357,
+    "created_at": "2025-01-28",
+    "expires_at": "2025-02-27"
+  },
+  {
+    "offer_id": "OFF0000016",
+    "customer_id": "C000130",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 14540.98,
+    "offer_apr": 0.0747,
+    "created_at": "2025-02-28",
+    "expires_at": "2025-03-30"
+  },
+  {
+    "offer_id": "OFF0000017",
+    "customer_id": "C000136",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 20679.92,
+    "offer_apr": 0.0522,
+    "created_at": "2025-02-14",
+    "expires_at": "2025-03-16"
+  },
+  {
+    "offer_id": "OFF0000018",
+    "customer_id": "C000138",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 28189.38,
+    "offer_apr": 0.0565,
+    "created_at": "2025-01-14",
+    "expires_at": "2025-02-13"
+  },
+  {
+    "offer_id": "OFF0000019",
+    "customer_id": "C000144",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 23592.79,
+    "offer_apr": 0.0697,
+    "created_at": "2025-03-01",
+    "expires_at": "2025-03-31"
+  },
+  {
+    "offer_id": "OFF0000020",
+    "customer_id": "C000150",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 2985.74,
+    "offer_apr": 0.1416,
+    "created_at": "2025-01-17",
+    "expires_at": "2025-02-16"
+  },
+  {
+    "offer_id": "OFF0000021",
+    "customer_id": "C000155",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 13066.3,
+    "offer_apr": 0.2439,
+    "created_at": "2025-02-15",
+    "expires_at": "2025-03-17"
+  },
+  {
+    "offer_id": "OFF0000022",
+    "customer_id": "C000159",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 13580.17,
+    "offer_apr": 0.1299,
+    "created_at": "2025-02-20",
+    "expires_at": "2025-03-22"
+  },
+  {
+    "offer_id": "OFF0000023",
+    "customer_id": "C000193",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 30261.86,
+    "offer_apr": 0.1287,
+    "created_at": "2025-02-13",
+    "expires_at": "2025-03-15"
+  },
+  {
+    "offer_id": "OFF0000024",
+    "customer_id": "C000195",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 34647.61,
+    "offer_apr": 0.0529,
+    "created_at": "2025-03-04",
+    "expires_at": "2025-04-03"
+  },
+  {
+    "offer_id": "OFF0000025",
+    "customer_id": "C000197",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 24162.75,
+    "offer_apr": 0.0474,
+    "created_at": "2025-01-30",
+    "expires_at": "2025-03-01"
+  },
+  {
+    "offer_id": "OFF0000026",
+    "customer_id": "C000215",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 29403.3,
+    "offer_apr": 0.222,
+    "created_at": "2025-02-24",
+    "expires_at": "2025-03-26"
+  },
+  {
+    "offer_id": "OFF0000027",
+    "customer_id": "C000242",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 36200.15,
+    "offer_apr": 0.1481,
+    "created_at": "2025-03-03",
+    "expires_at": "2025-04-02"
+  },
+  {
+    "offer_id": "OFF0000028",
+    "customer_id": "C000261",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 34399.2,
+    "offer_apr": 0.1746,
+    "created_at": "2025-01-29",
+    "expires_at": "2025-02-28"
+  },
+  {
+    "offer_id": "OFF0000029",
+    "customer_id": "C000277",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 26638.31,
+    "offer_apr": 0.0835,
+    "created_at": "2025-01-22",
+    "expires_at": "2025-02-21"
+  },
+  {
+    "offer_id": "OFF0000030",
+    "customer_id": "C000285",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 36091.08,
+    "offer_apr": 0.0407,
+    "created_at": "2025-01-19",
+    "expires_at": "2025-02-18"
+  },
+  {
+    "offer_id": "OFF0000031",
+    "customer_id": "C000299",
+    "campaign_id": "CMP0002",
+    "coupon_code": null,
+    "offer_amount": 9844.31,
+    "offer_apr": 0.0475,
+    "created_at": "2025-01-13",
+    "expires_at": "2025-02-12"
+  },
+  {
+    "offer_id": "OFF0000032",
+    "customer_id": "C000025",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 31992.42,
+    "offer_apr": 0.1255,
+    "created_at": "2025-06-15",
+    "expires_at": "2025-07-15"
+  },
+  {
+    "offer_id": "OFF0000033",
+    "customer_id": "C000037",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 23637.5,
+    "offer_apr": 0.1247,
+    "created_at": "2025-05-18",
+    "expires_at": "2025-06-17"
+  },
+  {
+    "offer_id": "OFF0000034",
+    "customer_id": "C000069",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 34138.35,
+    "offer_apr": 0.2261,
+    "created_at": "2025-06-08",
+    "expires_at": "2025-07-08"
+  },
+  {
+    "offer_id": "OFF0000035",
+    "customer_id": "C000071",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 30172.36,
+    "offer_apr": 0.1054,
+    "created_at": "2025-05-23",
+    "expires_at": "2025-06-22"
+  },
+  {
+    "offer_id": "OFF0000036",
+    "customer_id": "C000078",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 5755.92,
+    "offer_apr": 0.0565,
+    "created_at": "2025-06-12",
+    "expires_at": "2025-07-12"
+  },
+  {
+    "offer_id": "OFF0000037",
+    "customer_id": "C000085",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 38542.93,
+    "offer_apr": 0.1393,
+    "created_at": "2025-05-14",
+    "expires_at": "2025-06-13"
+  },
+  {
+    "offer_id": "OFF0000038",
+    "customer_id": "C000096",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 38876.61,
+    "offer_apr": 0.1462,
+    "created_at": "2025-06-13",
+    "expires_at": "2025-07-13"
+  },
+  {
+    "offer_id": "OFF0000039",
+    "customer_id": "C000104",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 11298.31,
+    "offer_apr": 0.2277,
+    "created_at": "2025-05-30",
+    "expires_at": "2025-06-29"
+  },
+  {
+    "offer_id": "OFF0000040",
+    "customer_id": "C000126",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 34585.86,
+    "offer_apr": 0.0514,
+    "created_at": "2025-05-11",
+    "expires_at": "2025-06-10"
+  },
+  {
+    "offer_id": "OFF0000041",
+    "customer_id": "C000130",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 3528.85,
+    "offer_apr": 0.0705,
+    "created_at": "2025-06-01",
+    "expires_at": "2025-07-01"
+  },
+  {
+    "offer_id": "OFF0000042",
+    "customer_id": "C000133",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 30238.2,
+    "offer_apr": 0.2207,
+    "created_at": "2025-06-17",
+    "expires_at": "2025-07-17"
+  },
+  {
+    "offer_id": "OFF0000043",
+    "customer_id": "C000149",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 4312.87,
+    "offer_apr": 0.0959,
+    "created_at": "2025-06-07",
+    "expires_at": "2025-07-07"
+  },
+  {
+    "offer_id": "OFF0000044",
+    "customer_id": "C000157",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 20136.73,
+    "offer_apr": 0.1508,
+    "created_at": "2025-05-30",
+    "expires_at": "2025-06-29"
+  },
+  {
+    "offer_id": "OFF0000045",
+    "customer_id": "C000171",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 4776.07,
+    "offer_apr": 0.1926,
+    "created_at": "2025-05-26",
+    "expires_at": "2025-06-25"
+  },
+  {
+    "offer_id": "OFF0000046",
+    "customer_id": "C000184",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 9501.06,
+    "offer_apr": 0.118,
+    "created_at": "2025-06-10",
+    "expires_at": "2025-07-10"
+  },
+  {
+    "offer_id": "OFF0000047",
+    "customer_id": "C000192",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 13398.52,
+    "offer_apr": 0.1411,
+    "created_at": "2025-05-27",
+    "expires_at": "2025-06-26"
+  },
+  {
+    "offer_id": "OFF0000048",
+    "customer_id": "C000193",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 29359.3,
+    "offer_apr": 0.111,
+    "created_at": "2025-06-10",
+    "expires_at": "2025-07-10"
+  },
+  {
+    "offer_id": "OFF0000049",
+    "customer_id": "C000195",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 32619.1,
+    "offer_apr": 0.0707,
+    "created_at": "2025-05-17",
+    "expires_at": "2025-06-16"
+  },
+  {
+    "offer_id": "OFF0000050",
+    "customer_id": "C000196",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 11566.42,
+    "offer_apr": 0.1085,
+    "created_at": "2025-05-28",
+    "expires_at": "2025-06-27"
+  },
+  {
+    "offer_id": "OFF0000051",
+    "customer_id": "C000200",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 8708.21,
+    "offer_apr": 0.1958,
+    "created_at": "2025-06-14",
+    "expires_at": "2025-07-14"
+  },
+  {
+    "offer_id": "OFF0000052",
+    "customer_id": "C000208",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 13386.22,
+    "offer_apr": 0.1407,
+    "created_at": "2025-06-12",
+    "expires_at": "2025-07-12"
+  },
+  {
+    "offer_id": "OFF0000053",
+    "customer_id": "C000210",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 27758.02,
+    "offer_apr": 0.0652,
+    "created_at": "2025-05-30",
+    "expires_at": "2025-06-29"
+  },
+  {
+    "offer_id": "OFF0000054",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 39134.7,
+    "offer_apr": 0.244,
+    "created_at": "2025-05-06",
+    "expires_at": "2025-06-05"
+  },
+  {
+    "offer_id": "OFF0000055",
+    "customer_id": "C000230",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 35947.95,
+    "offer_apr": 0.0655,
+    "created_at": "2025-06-11",
+    "expires_at": "2025-07-11"
+  },
+  {
+    "offer_id": "OFF0000056",
+    "customer_id": "C000232",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 4491.26,
+    "offer_apr": 0.1102,
+    "created_at": "2025-05-21",
+    "expires_at": "2025-06-20"
+  },
+  {
+    "offer_id": "OFF0000057",
+    "customer_id": "C000243",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 15012.41,
+    "offer_apr": 0.1281,
+    "created_at": "2025-06-16",
+    "expires_at": "2025-07-16"
+  },
+  {
+    "offer_id": "OFF0000058",
+    "customer_id": "C000255",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 30988.4,
+    "offer_apr": 0.0507,
+    "created_at": "2025-06-05",
+    "expires_at": "2025-07-05"
+  },
+  {
+    "offer_id": "OFF0000059",
+    "customer_id": "C000269",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 31123.98,
+    "offer_apr": 0.1919,
+    "created_at": "2025-06-16",
+    "expires_at": "2025-07-16"
+  },
+  {
+    "offer_id": "OFF0000060",
+    "customer_id": "C000280",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 9991.09,
+    "offer_apr": 0.2139,
+    "created_at": "2025-05-31",
+    "expires_at": "2025-06-30"
+  },
+  {
+    "offer_id": "OFF0000061",
+    "customer_id": "C000286",
+    "campaign_id": "CMP0003",
+    "coupon_code": null,
+    "offer_amount": 31123.1,
+    "offer_apr": 0.2264,
+    "created_at": "2025-06-10",
+    "expires_at": "2025-07-10"
+  },
+  {
+    "offer_id": "OFF0000062",
+    "customer_id": "C000001",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 26832.64,
+    "offer_apr": 0.1352,
+    "created_at": "2024-05-30",
+    "expires_at": "2024-06-29"
+  },
+  {
+    "offer_id": "OFF0000063",
+    "customer_id": "C000038",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 16090.06,
+    "offer_apr": 0.1014,
+    "created_at": "2024-07-06",
+    "expires_at": "2024-08-05"
+  },
+  {
+    "offer_id": "OFF0000064",
+    "customer_id": "C000042",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 18161.32,
+    "offer_apr": 0.0597,
+    "created_at": "2024-07-19",
+    "expires_at": "2024-08-18"
+  },
+  {
+    "offer_id": "OFF0000065",
+    "customer_id": "C000044",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 15437.25,
+    "offer_apr": 0.0803,
+    "created_at": "2024-06-06",
+    "expires_at": "2024-07-06"
+  },
+  {
+    "offer_id": "OFF0000066",
+    "customer_id": "C000100",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 13202.28,
+    "offer_apr": 0.1811,
+    "created_at": "2024-06-14",
+    "expires_at": "2024-07-14"
+  },
+  {
+    "offer_id": "OFF0000067",
+    "customer_id": "C000188",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 32304.04,
+    "offer_apr": 0.2079,
+    "created_at": "2024-06-16",
+    "expires_at": "2024-07-16"
+  },
+  {
+    "offer_id": "OFF0000068",
+    "customer_id": "C000208",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 8095.88,
+    "offer_apr": 0.1306,
+    "created_at": "2024-06-12",
+    "expires_at": "2024-07-12"
+  },
+  {
+    "offer_id": "OFF0000069",
+    "customer_id": "C000287",
+    "campaign_id": "CMP0004",
+    "coupon_code": null,
+    "offer_amount": 16822.39,
+    "offer_apr": 0.088,
+    "created_at": "2024-06-13",
+    "expires_at": "2024-07-13"
+  },
+  {
+    "offer_id": "OFF0000070",
+    "customer_id": "C000300",
+    "campaign_id": "CMP0004",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 4254.04,
+    "offer_apr": 0.1462,
+    "created_at": "2024-07-12",
+    "expires_at": "2024-08-11"
+  },
+  {
+    "offer_id": "OFF0000071",
+    "customer_id": "C000004",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 6219.17,
+    "offer_apr": 0.0894,
+    "created_at": "2025-04-19",
+    "expires_at": "2025-05-19"
+  },
+  {
+    "offer_id": "OFF0000072",
+    "customer_id": "C000005",
+    "campaign_id": "CMP0005",
+    "coupon_code": null,
+    "offer_amount": 29833.06,
+    "offer_apr": 0.2307,
+    "created_at": "2025-05-10",
+    "expires_at": "2025-06-09"
+  },
+  {
+    "offer_id": "OFF0000073",
+    "customer_id": "C000028",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 18653.93,
+    "offer_apr": 0.0564,
+    "created_at": "2025-04-12",
+    "expires_at": "2025-05-12"
+  },
+  {
+    "offer_id": "OFF0000074",
+    "customer_id": "C000031",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 28203.66,
+    "offer_apr": 0.0898,
+    "created_at": "2025-04-21",
+    "expires_at": "2025-05-21"
+  },
+  {
+    "offer_id": "OFF0000075",
+    "customer_id": "C000062",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 36393.93,
+    "offer_apr": 0.189,
+    "created_at": "2025-04-15",
+    "expires_at": "2025-05-15"
+  },
+  {
+    "offer_id": "OFF0000076",
+    "customer_id": "C000079",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 14654.46,
+    "offer_apr": 0.1274,
+    "created_at": "2025-03-25",
+    "expires_at": "2025-04-24"
+  },
+  {
+    "offer_id": "OFF0000077",
+    "customer_id": "C000101",
+    "campaign_id": "CMP0005",
+    "coupon_code": null,
+    "offer_amount": 37441.89,
+    "offer_apr": 0.1554,
+    "created_at": "2025-03-30",
+    "expires_at": "2025-04-29"
+  },
+  {
+    "offer_id": "OFF0000078",
+    "customer_id": "C000102",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 32327.69,
+    "offer_apr": 0.1382,
+    "created_at": "2025-03-20",
+    "expires_at": "2025-04-19"
+  },
+  {
+    "offer_id": "OFF0000079",
+    "customer_id": "C000135",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 39834.87,
+    "offer_apr": 0.088,
+    "created_at": "2025-05-13",
+    "expires_at": "2025-06-12"
+  },
+  {
+    "offer_id": "OFF0000080",
+    "customer_id": "C000167",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 26106.21,
+    "offer_apr": 0.2208,
+    "created_at": "2025-04-11",
+    "expires_at": "2025-05-11"
+  },
+  {
+    "offer_id": "OFF0000081",
+    "customer_id": "C000192",
+    "campaign_id": "CMP0005",
+    "coupon_code": null,
+    "offer_amount": 22206.97,
+    "offer_apr": 0.2278,
+    "created_at": "2025-03-18",
+    "expires_at": "2025-04-17"
+  },
+  {
+    "offer_id": "OFF0000082",
+    "customer_id": "C000211",
+    "campaign_id": "CMP0005",
+    "coupon_code": null,
+    "offer_amount": 39732.09,
+    "offer_apr": 0.1326,
+    "created_at": "2025-03-19",
+    "expires_at": "2025-04-18"
+  },
+  {
+    "offer_id": "OFF0000083",
+    "customer_id": "C000269",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 26716.86,
+    "offer_apr": 0.148,
+    "created_at": "2025-03-23",
+    "expires_at": "2025-04-22"
+  },
+  {
+    "offer_id": "OFF0000084",
+    "customer_id": "C000285",
+    "campaign_id": "CMP0005",
+    "coupon_code": "SPRING5",
+    "offer_amount": 35797.09,
+    "offer_apr": 0.0601,
+    "created_at": "2025-05-15",
+    "expires_at": "2025-06-14"
+  },
+  {
+    "offer_id": "OFF0000085",
+    "customer_id": "C000290",
+    "campaign_id": "CMP0005",
+    "coupon_code": null,
+    "offer_amount": 2717.12,
+    "offer_apr": 0.1648,
+    "created_at": "2025-03-20",
+    "expires_at": "2025-04-19"
+  },
+  {
+    "offer_id": "OFF0000086",
+    "customer_id": "C000293",
+    "campaign_id": "CMP0005",
+    "coupon_code": null,
+    "offer_amount": 24206.31,
+    "offer_apr": 0.0784,
+    "created_at": "2025-05-10",
+    "expires_at": "2025-06-09"
+  },
+  {
+    "offer_id": "OFF0000087",
+    "customer_id": "C000003",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 27285.27,
+    "offer_apr": 0.0785,
+    "created_at": "2026-01-14",
+    "expires_at": "2026-02-13"
+  },
+  {
+    "offer_id": "OFF0000088",
+    "customer_id": "C000011",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 35943.25,
+    "offer_apr": 0.0757,
+    "created_at": "2026-03-04",
+    "expires_at": "2026-04-03"
+  },
+  {
+    "offer_id": "OFF0000089",
+    "customer_id": "C000020",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 31373.7,
+    "offer_apr": 0.0944,
+    "created_at": "2026-02-10",
+    "expires_at": "2026-03-12"
+  },
+  {
+    "offer_id": "OFF0000090",
+    "customer_id": "C000031",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 22270.04,
+    "offer_apr": 0.1461,
+    "created_at": "2026-03-10",
+    "expires_at": "2026-04-09"
+  },
+  {
+    "offer_id": "OFF0000091",
+    "customer_id": "C000032",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 22522.9,
+    "offer_apr": 0.0877,
+    "created_at": "2026-03-17",
+    "expires_at": "2026-04-16"
+  },
+  {
+    "offer_id": "OFF0000092",
+    "customer_id": "C000036",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 37281.69,
+    "offer_apr": 0.1261,
+    "created_at": "2026-03-01",
+    "expires_at": "2026-03-31"
+  },
+  {
+    "offer_id": "OFF0000093",
+    "customer_id": "C000037",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 18122.78,
+    "offer_apr": 0.099,
+    "created_at": "2025-12-31",
+    "expires_at": "2026-01-30"
+  },
+  {
+    "offer_id": "OFF0000094",
+    "customer_id": "C000061",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 3037.26,
+    "offer_apr": 0.0839,
+    "created_at": "2026-01-12",
+    "expires_at": "2026-02-11"
+  },
+  {
+    "offer_id": "OFF0000095",
+    "customer_id": "C000088",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 2966.11,
+    "offer_apr": 0.0834,
+    "created_at": "2026-01-04",
+    "expires_at": "2026-02-03"
+  },
+  {
+    "offer_id": "OFF0000096",
+    "customer_id": "C000095",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 18978.87,
+    "offer_apr": 0.1839,
+    "created_at": "2026-03-02",
+    "expires_at": "2026-04-01"
+  },
+  {
+    "offer_id": "OFF0000097",
+    "customer_id": "C000099",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 24428.25,
+    "offer_apr": 0.0887,
+    "created_at": "2026-01-03",
+    "expires_at": "2026-02-02"
+  },
+  {
+    "offer_id": "OFF0000098",
+    "customer_id": "C000136",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 29531.7,
+    "offer_apr": 0.0461,
+    "created_at": "2026-03-07",
+    "expires_at": "2026-04-06"
+  },
+  {
+    "offer_id": "OFF0000099",
+    "customer_id": "C000141",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 30144.4,
+    "offer_apr": 0.1794,
+    "created_at": "2026-01-19",
+    "expires_at": "2026-02-18"
+  },
+  {
+    "offer_id": "OFF0000100",
+    "customer_id": "C000157",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 39435.78,
+    "offer_apr": 0.228,
+    "created_at": "2026-01-30",
+    "expires_at": "2026-03-01"
+  },
+  {
+    "offer_id": "OFF0000101",
+    "customer_id": "C000169",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 21331.94,
+    "offer_apr": 0.1461,
+    "created_at": "2026-01-05",
+    "expires_at": "2026-02-04"
+  },
+  {
+    "offer_id": "OFF0000102",
+    "customer_id": "C000181",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 32529.64,
+    "offer_apr": 0.184,
+    "created_at": "2026-01-17",
+    "expires_at": "2026-02-16"
+  },
+  {
+    "offer_id": "OFF0000103",
+    "customer_id": "C000185",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 33788.32,
+    "offer_apr": 0.0617,
+    "created_at": "2026-01-11",
+    "expires_at": "2026-02-10"
+  },
+  {
+    "offer_id": "OFF0000104",
+    "customer_id": "C000198",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 5209.16,
+    "offer_apr": 0.0722,
+    "created_at": "2025-12-30",
+    "expires_at": "2026-01-29"
+  },
+  {
+    "offer_id": "OFF0000105",
+    "customer_id": "C000202",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 2602.3,
+    "offer_apr": 0.2461,
+    "created_at": "2026-02-11",
+    "expires_at": "2026-03-13"
+  },
+  {
+    "offer_id": "OFF0000106",
+    "customer_id": "C000206",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 3724.04,
+    "offer_apr": 0.1393,
+    "created_at": "2026-01-05",
+    "expires_at": "2026-02-04"
+  },
+  {
+    "offer_id": "OFF0000107",
+    "customer_id": "C000211",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 6862.04,
+    "offer_apr": 0.0909,
+    "created_at": "2026-01-12",
+    "expires_at": "2026-02-11"
+  },
+  {
+    "offer_id": "OFF0000108",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 4324.9,
+    "offer_apr": 0.2283,
+    "created_at": "2026-02-07",
+    "expires_at": "2026-03-09"
+  },
+  {
+    "offer_id": "OFF0000109",
+    "customer_id": "C000218",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 25467.09,
+    "offer_apr": 0.2306,
+    "created_at": "2026-01-26",
+    "expires_at": "2026-02-25"
+  },
+  {
+    "offer_id": "OFF0000110",
+    "customer_id": "C000222",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 37579.08,
+    "offer_apr": 0.0883,
+    "created_at": "2026-02-06",
+    "expires_at": "2026-03-08"
+  },
+  {
+    "offer_id": "OFF0000111",
+    "customer_id": "C000225",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 8901.36,
+    "offer_apr": 0.1415,
+    "created_at": "2026-01-13",
+    "expires_at": "2026-02-12"
+  },
+  {
+    "offer_id": "OFF0000112",
+    "customer_id": "C000232",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 3139.24,
+    "offer_apr": 0.0943,
+    "created_at": "2026-01-07",
+    "expires_at": "2026-02-06"
+  },
+  {
+    "offer_id": "OFF0000113",
+    "customer_id": "C000242",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 36541.27,
+    "offer_apr": 0.0986,
+    "created_at": "2026-01-20",
+    "expires_at": "2026-02-19"
+  },
+  {
+    "offer_id": "OFF0000114",
+    "customer_id": "C000246",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 14600.12,
+    "offer_apr": 0.1422,
+    "created_at": "2026-01-03",
+    "expires_at": "2026-02-02"
+  },
+  {
+    "offer_id": "OFF0000115",
+    "customer_id": "C000255",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 36715.92,
+    "offer_apr": 0.0423,
+    "created_at": "2026-01-10",
+    "expires_at": "2026-02-09"
+  },
+  {
+    "offer_id": "OFF0000116",
+    "customer_id": "C000260",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 29455.86,
+    "offer_apr": 0.0485,
+    "created_at": "2026-03-12",
+    "expires_at": "2026-04-11"
+  },
+  {
+    "offer_id": "OFF0000117",
+    "customer_id": "C000272",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 36093.17,
+    "offer_apr": 0.0864,
+    "created_at": "2026-01-23",
+    "expires_at": "2026-02-22"
+  },
+  {
+    "offer_id": "OFF0000118",
+    "customer_id": "C000283",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 19648.47,
+    "offer_apr": 0.1857,
+    "created_at": "2026-03-21",
+    "expires_at": "2026-04-20"
+  },
+  {
+    "offer_id": "OFF0000119",
+    "customer_id": "C000287",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 32758.15,
+    "offer_apr": 0.04,
+    "created_at": "2026-03-04",
+    "expires_at": "2026-04-03"
+  },
+  {
+    "offer_id": "OFF0000120",
+    "customer_id": "C000291",
+    "campaign_id": "CMP0006",
+    "coupon_code": null,
+    "offer_amount": 6871.55,
+    "offer_apr": 0.2122,
+    "created_at": "2025-12-30",
+    "expires_at": "2026-01-29"
+  },
+  {
+    "offer_id": "OFF0000121",
+    "customer_id": "C000018",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 27400.41,
+    "offer_apr": 0.0448,
+    "created_at": "2024-03-03",
+    "expires_at": "2024-04-02"
+  },
+  {
+    "offer_id": "OFF0000122",
+    "customer_id": "C000042",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 9458.91,
+    "offer_apr": 0.051,
+    "created_at": "2024-04-03",
+    "expires_at": "2024-05-03"
+  },
+  {
+    "offer_id": "OFF0000123",
+    "customer_id": "C000048",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 10570.97,
+    "offer_apr": 0.0441,
+    "created_at": "2024-05-02",
+    "expires_at": "2024-06-01"
+  },
+  {
+    "offer_id": "OFF0000124",
+    "customer_id": "C000049",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 12727.39,
+    "offer_apr": 0.1231,
+    "created_at": "2024-03-11",
+    "expires_at": "2024-04-10"
+  },
+  {
+    "offer_id": "OFF0000125",
+    "customer_id": "C000066",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 9015.82,
+    "offer_apr": 0.1262,
+    "created_at": "2024-03-27",
+    "expires_at": "2024-04-26"
+  },
+  {
+    "offer_id": "OFF0000126",
+    "customer_id": "C000080",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 27397.54,
+    "offer_apr": 0.1164,
+    "created_at": "2024-03-13",
+    "expires_at": "2024-04-12"
+  },
+  {
+    "offer_id": "OFF0000127",
+    "customer_id": "C000105",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 30875.96,
+    "offer_apr": 0.0892,
+    "created_at": "2024-04-30",
+    "expires_at": "2024-05-30"
+  },
+  {
+    "offer_id": "OFF0000128",
+    "customer_id": "C000107",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 7518.4,
+    "offer_apr": 0.1315,
+    "created_at": "2024-03-06",
+    "expires_at": "2024-04-05"
+  },
+  {
+    "offer_id": "OFF0000129",
+    "customer_id": "C000130",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 26011.45,
+    "offer_apr": 0.0797,
+    "created_at": "2024-03-04",
+    "expires_at": "2024-04-03"
+  },
+  {
+    "offer_id": "OFF0000130",
+    "customer_id": "C000175",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 3296.33,
+    "offer_apr": 0.0797,
+    "created_at": "2024-05-08",
+    "expires_at": "2024-06-07"
+  },
+  {
+    "offer_id": "OFF0000131",
+    "customer_id": "C000196",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 2445.08,
+    "offer_apr": 0.1137,
+    "created_at": "2024-05-08",
+    "expires_at": "2024-06-07"
+  },
+  {
+    "offer_id": "OFF0000132",
+    "customer_id": "C000271",
+    "campaign_id": "CMP0007",
+    "coupon_code": null,
+    "offer_amount": 17414.96,
+    "offer_apr": 0.0896,
+    "created_at": "2024-04-16",
+    "expires_at": "2024-05-16"
+  },
+  {
+    "offer_id": "OFF0000133",
+    "customer_id": "C000003",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 6477.13,
+    "offer_apr": 0.054,
+    "created_at": "2026-03-01",
+    "expires_at": "2026-03-31"
+  },
+  {
+    "offer_id": "OFF0000134",
+    "customer_id": "C000025",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 31336.3,
+    "offer_apr": 0.1119,
+    "created_at": "2026-02-02",
+    "expires_at": "2026-03-04"
+  },
+  {
+    "offer_id": "OFF0000135",
+    "customer_id": "C000031",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 11988.81,
+    "offer_apr": 0.1347,
+    "created_at": "2026-03-16",
+    "expires_at": "2026-04-15"
+  },
+  {
+    "offer_id": "OFF0000136",
+    "customer_id": "C000032",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 6796.67,
+    "offer_apr": 0.0514,
+    "created_at": "2026-02-19",
+    "expires_at": "2026-03-21"
+  },
+  {
+    "offer_id": "OFF0000137",
+    "customer_id": "C000033",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 6799.37,
+    "offer_apr": 0.1043,
+    "created_at": "2026-03-19",
+    "expires_at": "2026-04-18"
+  },
+  {
+    "offer_id": "OFF0000138",
+    "customer_id": "C000035",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 5152.76,
+    "offer_apr": 0.1407,
+    "created_at": "2026-03-20",
+    "expires_at": "2026-04-19"
+  },
+  {
+    "offer_id": "OFF0000139",
+    "customer_id": "C000044",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 35653.72,
+    "offer_apr": 0.0655,
+    "created_at": "2026-01-26",
+    "expires_at": "2026-02-25"
+  },
+  {
+    "offer_id": "OFF0000140",
+    "customer_id": "C000049",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 9549.73,
+    "offer_apr": 0.1321,
+    "created_at": "2026-02-21",
+    "expires_at": "2026-03-23"
+  },
+  {
+    "offer_id": "OFF0000141",
+    "customer_id": "C000058",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 22161.34,
+    "offer_apr": 0.0423,
+    "created_at": "2026-03-15",
+    "expires_at": "2026-04-14"
+  },
+  {
+    "offer_id": "OFF0000142",
+    "customer_id": "C000062",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 16229.94,
+    "offer_apr": 0.151,
+    "created_at": "2026-02-16",
+    "expires_at": "2026-03-18"
+  },
+  {
+    "offer_id": "OFF0000143",
+    "customer_id": "C000073",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 10597.78,
+    "offer_apr": 0.0865,
+    "created_at": "2026-03-21",
+    "expires_at": "2026-04-20"
+  },
+  {
+    "offer_id": "OFF0000144",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 25167.29,
+    "offer_apr": 0.1401,
+    "created_at": "2026-03-10",
+    "expires_at": "2026-04-09"
+  },
+  {
+    "offer_id": "OFF0000145",
+    "customer_id": "C000077",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 35962.29,
+    "offer_apr": 0.0634,
+    "created_at": "2026-01-31",
+    "expires_at": "2026-03-02"
+  },
+  {
+    "offer_id": "OFF0000146",
+    "customer_id": "C000078",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 28916.96,
+    "offer_apr": 0.0734,
+    "created_at": "2026-03-16",
+    "expires_at": "2026-04-15"
+  },
+  {
+    "offer_id": "OFF0000147",
+    "customer_id": "C000085",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 38452.48,
+    "offer_apr": 0.0841,
+    "created_at": "2026-02-23",
+    "expires_at": "2026-03-25"
+  },
+  {
+    "offer_id": "OFF0000148",
+    "customer_id": "C000099",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 31054.53,
+    "offer_apr": 0.1365,
+    "created_at": "2026-01-24",
+    "expires_at": "2026-02-23"
+  },
+  {
+    "offer_id": "OFF0000149",
+    "customer_id": "C000108",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 16857.99,
+    "offer_apr": 0.1613,
+    "created_at": "2026-01-26",
+    "expires_at": "2026-02-25"
+  },
+  {
+    "offer_id": "OFF0000150",
+    "customer_id": "C000120",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 6691.91,
+    "offer_apr": 0.1318,
+    "created_at": "2026-01-22",
+    "expires_at": "2026-02-21"
+  },
+  {
+    "offer_id": "OFF0000151",
+    "customer_id": "C000135",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 30902.21,
+    "offer_apr": 0.0405,
+    "created_at": "2026-03-05",
+    "expires_at": "2026-04-04"
+  },
+  {
+    "offer_id": "OFF0000152",
+    "customer_id": "C000136",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 31323.01,
+    "offer_apr": 0.0699,
+    "created_at": "2026-03-27",
+    "expires_at": "2026-04-26"
+  },
+  {
+    "offer_id": "OFF0000153",
+    "customer_id": "C000141",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 22567.86,
+    "offer_apr": 0.2071,
+    "created_at": "2026-02-11",
+    "expires_at": "2026-03-13"
+  },
+  {
+    "offer_id": "OFF0000154",
+    "customer_id": "C000155",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 38080.54,
+    "offer_apr": 0.1445,
+    "created_at": "2026-03-21",
+    "expires_at": "2026-04-20"
+  },
+  {
+    "offer_id": "OFF0000155",
+    "customer_id": "C000162",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 35297.21,
+    "offer_apr": 0.1284,
+    "created_at": "2026-02-21",
+    "expires_at": "2026-03-23"
+  },
+  {
+    "offer_id": "OFF0000156",
+    "customer_id": "C000184",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 11169.12,
+    "offer_apr": 0.1395,
+    "created_at": "2026-03-01",
+    "expires_at": "2026-03-31"
+  },
+  {
+    "offer_id": "OFF0000157",
+    "customer_id": "C000188",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 18023.62,
+    "offer_apr": 0.2102,
+    "created_at": "2026-02-13",
+    "expires_at": "2026-03-15"
+  },
+  {
+    "offer_id": "OFF0000158",
+    "customer_id": "C000209",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 36379.79,
+    "offer_apr": 0.072,
+    "created_at": "2026-03-06",
+    "expires_at": "2026-04-05"
+  },
+  {
+    "offer_id": "OFF0000159",
+    "customer_id": "C000210",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 39357.29,
+    "offer_apr": 0.0442,
+    "created_at": "2026-02-16",
+    "expires_at": "2026-03-18"
+  },
+  {
+    "offer_id": "OFF0000160",
+    "customer_id": "C000211",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 10412.75,
+    "offer_apr": 0.1104,
+    "created_at": "2026-02-03",
+    "expires_at": "2026-03-05"
+  },
+  {
+    "offer_id": "OFF0000161",
+    "customer_id": "C000217",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 25051.86,
+    "offer_apr": 0.0835,
+    "created_at": "2026-02-10",
+    "expires_at": "2026-03-12"
+  },
+  {
+    "offer_id": "OFF0000162",
+    "customer_id": "C000223",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 24433.04,
+    "offer_apr": 0.2273,
+    "created_at": "2026-01-28",
+    "expires_at": "2026-02-27"
+  },
+  {
+    "offer_id": "OFF0000163",
+    "customer_id": "C000240",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 11067.34,
+    "offer_apr": 0.069,
+    "created_at": "2026-03-08",
+    "expires_at": "2026-04-07"
+  },
+  {
+    "offer_id": "OFF0000164",
+    "customer_id": "C000242",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 29294.98,
+    "offer_apr": 0.0828,
+    "created_at": "2026-03-17",
+    "expires_at": "2026-04-16"
+  },
+  {
+    "offer_id": "OFF0000165",
+    "customer_id": "C000246",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 23787.11,
+    "offer_apr": 0.1166,
+    "created_at": "2026-01-31",
+    "expires_at": "2026-03-02"
+  },
+  {
+    "offer_id": "OFF0000166",
+    "customer_id": "C000257",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 2974.34,
+    "offer_apr": 0.2024,
+    "created_at": "2026-02-16",
+    "expires_at": "2026-03-18"
+  },
+  {
+    "offer_id": "OFF0000167",
+    "customer_id": "C000263",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 32472.02,
+    "offer_apr": 0.131,
+    "created_at": "2026-02-15",
+    "expires_at": "2026-03-17"
+  },
+  {
+    "offer_id": "OFF0000168",
+    "customer_id": "C000268",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 12512.03,
+    "offer_apr": 0.1349,
+    "created_at": "2026-01-22",
+    "expires_at": "2026-02-21"
+  },
+  {
+    "offer_id": "OFF0000169",
+    "customer_id": "C000281",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 12000.6,
+    "offer_apr": 0.0797,
+    "created_at": "2026-03-05",
+    "expires_at": "2026-04-04"
+  },
+  {
+    "offer_id": "OFF0000170",
+    "customer_id": "C000289",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 30146.78,
+    "offer_apr": 0.0777,
+    "created_at": "2026-02-01",
+    "expires_at": "2026-03-03"
+  },
+  {
+    "offer_id": "OFF0000171",
+    "customer_id": "C000293",
+    "campaign_id": "CMP0008",
+    "coupon_code": null,
+    "offer_amount": 14683.0,
+    "offer_apr": 0.0708,
+    "created_at": "2026-02-19",
+    "expires_at": "2026-03-21"
+  },
+  {
+    "offer_id": "OFF0000172",
+    "customer_id": "C000298",
+    "campaign_id": "CMP0008",
+    "coupon_code": "LOYALTY15",
+    "offer_amount": 5849.33,
+    "offer_apr": 0.1305,
+    "created_at": "2026-03-02",
+    "expires_at": "2026-04-01"
+  },
+  {
+    "offer_id": "OFF0000173",
+    "customer_id": "C000042",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 25628.39,
+    "offer_apr": 0.072,
+    "created_at": "2024-04-11",
+    "expires_at": "2024-05-11"
+  },
+  {
+    "offer_id": "OFF0000174",
+    "customer_id": "C000056",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 20446.74,
+    "offer_apr": 0.0569,
+    "created_at": "2024-05-29",
+    "expires_at": "2024-06-28"
+  },
+  {
+    "offer_id": "OFF0000175",
+    "customer_id": "C000069",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 30681.29,
+    "offer_apr": 0.2455,
+    "created_at": "2024-04-28",
+    "expires_at": "2024-05-28"
+  },
+  {
+    "offer_id": "OFF0000176",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 9212.01,
+    "offer_apr": 0.1017,
+    "created_at": "2024-04-09",
+    "expires_at": "2024-05-09"
+  },
+  {
+    "offer_id": "OFF0000177",
+    "customer_id": "C000107",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 23298.44,
+    "offer_apr": 0.133,
+    "created_at": "2024-05-21",
+    "expires_at": "2024-06-20"
+  },
+  {
+    "offer_id": "OFF0000178",
+    "customer_id": "C000143",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 25501.9,
+    "offer_apr": 0.0853,
+    "created_at": "2024-04-14",
+    "expires_at": "2024-05-14"
+  },
+  {
+    "offer_id": "OFF0000179",
+    "customer_id": "C000202",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 24722.84,
+    "offer_apr": 0.2365,
+    "created_at": "2024-05-29",
+    "expires_at": "2024-06-28"
+  },
+  {
+    "offer_id": "OFF0000180",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 7539.09,
+    "offer_apr": 0.1774,
+    "created_at": "2024-05-30",
+    "expires_at": "2024-06-29"
+  },
+  {
+    "offer_id": "OFF0000181",
+    "customer_id": "C000255",
+    "campaign_id": "CMP0009",
+    "coupon_code": null,
+    "offer_amount": 37007.82,
+    "offer_apr": 0.0452,
+    "created_at": "2024-05-05",
+    "expires_at": "2024-06-04"
+  },
+  {
+    "offer_id": "OFF0000182",
+    "customer_id": "C000088",
+    "campaign_id": "CMP0010",
+    "coupon_code": null,
+    "offer_amount": 14305.78,
+    "offer_apr": 0.0512,
+    "created_at": "2023-12-11",
+    "expires_at": "2024-01-10"
+  },
+  {
+    "offer_id": "OFF0000183",
+    "customer_id": "C000282",
+    "campaign_id": "CMP0010",
+    "coupon_code": null,
+    "offer_amount": 12403.96,
+    "offer_apr": 0.1146,
+    "created_at": "2023-11-13",
+    "expires_at": "2023-12-13"
+  },
+  {
+    "offer_id": "OFF0000184",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 18733.52,
+    "offer_apr": 0.1368,
+    "created_at": "2025-01-04",
+    "expires_at": "2025-02-03"
+  },
+  {
+    "offer_id": "OFF0000185",
+    "customer_id": "C000099",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 11259.85,
+    "offer_apr": 0.0815,
+    "created_at": "2024-12-30",
+    "expires_at": "2025-01-29"
+  },
+  {
+    "offer_id": "OFF0000186",
+    "customer_id": "C000101",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 17751.98,
+    "offer_apr": 0.2006,
+    "created_at": "2024-12-13",
+    "expires_at": "2025-01-12"
+  },
+  {
+    "offer_id": "OFF0000187",
+    "customer_id": "C000102",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 9070.21,
+    "offer_apr": 0.1163,
+    "created_at": "2025-01-21",
+    "expires_at": "2025-02-20"
+  },
+  {
+    "offer_id": "OFF0000188",
+    "customer_id": "C000113",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 35766.96,
+    "offer_apr": 0.089,
+    "created_at": "2024-12-16",
+    "expires_at": "2025-01-15"
+  },
+  {
+    "offer_id": "OFF0000189",
+    "customer_id": "C000127",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 32278.3,
+    "offer_apr": 0.1055,
+    "created_at": "2025-01-18",
+    "expires_at": "2025-02-17"
+  },
+  {
+    "offer_id": "OFF0000190",
+    "customer_id": "C000147",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 36202.01,
+    "offer_apr": 0.0868,
+    "created_at": "2024-12-28",
+    "expires_at": "2025-01-27"
+  },
+  {
+    "offer_id": "OFF0000191",
+    "customer_id": "C000162",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 4927.54,
+    "offer_apr": 0.1285,
+    "created_at": "2024-12-13",
+    "expires_at": "2025-01-12"
+  },
+  {
+    "offer_id": "OFF0000192",
+    "customer_id": "C000166",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 11382.02,
+    "offer_apr": 0.0669,
+    "created_at": "2025-01-29",
+    "expires_at": "2025-02-28"
+  },
+  {
+    "offer_id": "OFF0000193",
+    "customer_id": "C000197",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 28917.45,
+    "offer_apr": 0.0668,
+    "created_at": "2025-01-18",
+    "expires_at": "2025-02-17"
+  },
+  {
+    "offer_id": "OFF0000194",
+    "customer_id": "C000205",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 10657.33,
+    "offer_apr": 0.1783,
+    "created_at": "2025-01-01",
+    "expires_at": "2025-01-31"
+  },
+  {
+    "offer_id": "OFF0000195",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 33200.95,
+    "offer_apr": 0.1646,
+    "created_at": "2025-01-02",
+    "expires_at": "2025-02-01"
+  },
+  {
+    "offer_id": "OFF0000196",
+    "customer_id": "C000223",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 19489.08,
+    "offer_apr": 0.1882,
+    "created_at": "2025-01-11",
+    "expires_at": "2025-02-10"
+  },
+  {
+    "offer_id": "OFF0000197",
+    "customer_id": "C000244",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 38220.23,
+    "offer_apr": 0.0486,
+    "created_at": "2024-12-19",
+    "expires_at": "2025-01-18"
+  },
+  {
+    "offer_id": "OFF0000198",
+    "customer_id": "C000256",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 26710.55,
+    "offer_apr": 0.0848,
+    "created_at": "2024-12-24",
+    "expires_at": "2025-01-23"
+  },
+  {
+    "offer_id": "OFF0000199",
+    "customer_id": "C000263",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 7619.44,
+    "offer_apr": 0.1277,
+    "created_at": "2025-01-13",
+    "expires_at": "2025-02-12"
+  },
+  {
+    "offer_id": "OFF0000200",
+    "customer_id": "C000299",
+    "campaign_id": "CMP0011",
+    "coupon_code": null,
+    "offer_amount": 12491.43,
+    "offer_apr": 0.0526,
+    "created_at": "2024-12-17",
+    "expires_at": "2025-01-16"
+  },
+  {
+    "offer_id": "OFF0000201",
+    "customer_id": "C000006",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 39475.85,
+    "offer_apr": 0.1637,
+    "created_at": "2025-12-29",
+    "expires_at": "2026-01-28"
+  },
+  {
+    "offer_id": "OFF0000202",
+    "customer_id": "C000009",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 13577.12,
+    "offer_apr": 0.0516,
+    "created_at": "2025-12-26",
+    "expires_at": "2026-01-25"
+  },
+  {
+    "offer_id": "OFF0000203",
+    "customer_id": "C000029",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 34783.89,
+    "offer_apr": 0.2468,
+    "created_at": "2026-01-28",
+    "expires_at": "2026-02-27"
+  },
+  {
+    "offer_id": "OFF0000204",
+    "customer_id": "C000034",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 31435.59,
+    "offer_apr": 0.1478,
+    "created_at": "2026-02-06",
+    "expires_at": "2026-03-08"
+  },
+  {
+    "offer_id": "OFF0000205",
+    "customer_id": "C000066",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 29837.14,
+    "offer_apr": 0.0974,
+    "created_at": "2026-01-18",
+    "expires_at": "2026-02-17"
+  },
+  {
+    "offer_id": "OFF0000206",
+    "customer_id": "C000083",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 3120.53,
+    "offer_apr": 0.145,
+    "created_at": "2026-02-05",
+    "expires_at": "2026-03-07"
+  },
+  {
+    "offer_id": "OFF0000207",
+    "customer_id": "C000093",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 23812.11,
+    "offer_apr": 0.0875,
+    "created_at": "2026-02-04",
+    "expires_at": "2026-03-06"
+  },
+  {
+    "offer_id": "OFF0000208",
+    "customer_id": "C000108",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 7263.36,
+    "offer_apr": 0.1778,
+    "created_at": "2026-01-30",
+    "expires_at": "2026-03-01"
+  },
+  {
+    "offer_id": "OFF0000209",
+    "customer_id": "C000118",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 35404.45,
+    "offer_apr": 0.115,
+    "created_at": "2026-01-14",
+    "expires_at": "2026-02-13"
+  },
+  {
+    "offer_id": "OFF0000210",
+    "customer_id": "C000123",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 39454.17,
+    "offer_apr": 0.2096,
+    "created_at": "2026-01-07",
+    "expires_at": "2026-02-06"
+  },
+  {
+    "offer_id": "OFF0000211",
+    "customer_id": "C000129",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 2775.23,
+    "offer_apr": 0.1224,
+    "created_at": "2025-12-27",
+    "expires_at": "2026-01-26"
+  },
+  {
+    "offer_id": "OFF0000212",
+    "customer_id": "C000150",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 38616.79,
+    "offer_apr": 0.117,
+    "created_at": "2026-02-01",
+    "expires_at": "2026-03-03"
+  },
+  {
+    "offer_id": "OFF0000213",
+    "customer_id": "C000155",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 34655.63,
+    "offer_apr": 0.2451,
+    "created_at": "2026-01-08",
+    "expires_at": "2026-02-07"
+  },
+  {
+    "offer_id": "OFF0000214",
+    "customer_id": "C000167",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 39079.43,
+    "offer_apr": 0.1507,
+    "created_at": "2026-01-03",
+    "expires_at": "2026-02-02"
+  },
+  {
+    "offer_id": "OFF0000215",
+    "customer_id": "C000171",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 23811.43,
+    "offer_apr": 0.2381,
+    "created_at": "2025-12-26",
+    "expires_at": "2026-01-25"
+  },
+  {
+    "offer_id": "OFF0000216",
+    "customer_id": "C000182",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 32945.74,
+    "offer_apr": 0.189,
+    "created_at": "2026-01-06",
+    "expires_at": "2026-02-05"
+  },
+  {
+    "offer_id": "OFF0000217",
+    "customer_id": "C000184",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 32158.6,
+    "offer_apr": 0.0884,
+    "created_at": "2026-02-11",
+    "expires_at": "2026-03-13"
+  },
+  {
+    "offer_id": "OFF0000218",
+    "customer_id": "C000195",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 36208.76,
+    "offer_apr": 0.0649,
+    "created_at": "2026-01-04",
+    "expires_at": "2026-02-03"
+  },
+  {
+    "offer_id": "OFF0000219",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 37637.09,
+    "offer_apr": 0.2421,
+    "created_at": "2026-02-07",
+    "expires_at": "2026-03-09"
+  },
+  {
+    "offer_id": "OFF0000220",
+    "customer_id": "C000230",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 37872.42,
+    "offer_apr": 0.0734,
+    "created_at": "2026-01-25",
+    "expires_at": "2026-02-24"
+  },
+  {
+    "offer_id": "OFF0000221",
+    "customer_id": "C000234",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 38494.71,
+    "offer_apr": 0.194,
+    "created_at": "2026-01-06",
+    "expires_at": "2026-02-05"
+  },
+  {
+    "offer_id": "OFF0000222",
+    "customer_id": "C000257",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 37002.74,
+    "offer_apr": 0.2292,
+    "created_at": "2026-01-24",
+    "expires_at": "2026-02-23"
+  },
+  {
+    "offer_id": "OFF0000223",
+    "customer_id": "C000264",
+    "campaign_id": "CMP0012",
+    "coupon_code": "FLASH25",
+    "offer_amount": 27213.48,
+    "offer_apr": 0.1753,
+    "created_at": "2026-02-04",
+    "expires_at": "2026-03-06"
+  },
+  {
+    "offer_id": "OFF0000224",
+    "customer_id": "C000268",
+    "campaign_id": "CMP0012",
+    "coupon_code": null,
+    "offer_amount": 21823.57,
+    "offer_apr": 0.133,
+    "created_at": "2025-12-30",
+    "expires_at": "2026-01-29"
+  },
+  {
+    "offer_id": "OFF0000225",
+    "customer_id": "C000007",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 14172.02,
+    "offer_apr": 0.1114,
+    "created_at": "2025-10-04",
+    "expires_at": "2025-11-03"
+  },
+  {
+    "offer_id": "OFF0000226",
+    "customer_id": "C000025",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 18200.13,
+    "offer_apr": 0.1105,
+    "created_at": "2025-09-21",
+    "expires_at": "2025-10-21"
+  },
+  {
+    "offer_id": "OFF0000227",
+    "customer_id": "C000029",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 20667.1,
+    "offer_apr": 0.1754,
+    "created_at": "2025-10-11",
+    "expires_at": "2025-11-10"
+  },
+  {
+    "offer_id": "OFF0000228",
+    "customer_id": "C000031",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 13624.11,
+    "offer_apr": 0.1495,
+    "created_at": "2025-10-14",
+    "expires_at": "2025-11-13"
+  },
+  {
+    "offer_id": "OFF0000229",
+    "customer_id": "C000062",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 33587.77,
+    "offer_apr": 0.1607,
+    "created_at": "2025-09-24",
+    "expires_at": "2025-10-24"
+  },
+  {
+    "offer_id": "OFF0000230",
+    "customer_id": "C000066",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 30418.35,
+    "offer_apr": 0.12,
+    "created_at": "2025-10-08",
+    "expires_at": "2025-11-07"
+  },
+  {
+    "offer_id": "OFF0000231",
+    "customer_id": "C000068",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 30091.77,
+    "offer_apr": 0.1174,
+    "created_at": "2025-09-19",
+    "expires_at": "2025-10-19"
+  },
+  {
+    "offer_id": "OFF0000232",
+    "customer_id": "C000070",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 16626.25,
+    "offer_apr": 0.1787,
+    "created_at": "2025-10-13",
+    "expires_at": "2025-11-12"
+  },
+  {
+    "offer_id": "OFF0000233",
+    "customer_id": "C000071",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 35200.8,
+    "offer_apr": 0.1317,
+    "created_at": "2025-10-04",
+    "expires_at": "2025-11-03"
+  },
+  {
+    "offer_id": "OFF0000234",
+    "customer_id": "C000085",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 21332.33,
+    "offer_apr": 0.1277,
+    "created_at": "2025-09-22",
+    "expires_at": "2025-10-22"
+  },
+  {
+    "offer_id": "OFF0000235",
+    "customer_id": "C000090",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 5748.73,
+    "offer_apr": 0.2445,
+    "created_at": "2025-10-03",
+    "expires_at": "2025-11-02"
+  },
+  {
+    "offer_id": "OFF0000236",
+    "customer_id": "C000144",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 29133.31,
+    "offer_apr": 0.0648,
+    "created_at": "2025-10-02",
+    "expires_at": "2025-11-01"
+  },
+  {
+    "offer_id": "OFF0000237",
+    "customer_id": "C000148",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 2592.52,
+    "offer_apr": 0.0861,
+    "created_at": "2025-10-01",
+    "expires_at": "2025-10-31"
+  },
+  {
+    "offer_id": "OFF0000238",
+    "customer_id": "C000178",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 6420.58,
+    "offer_apr": 0.1003,
+    "created_at": "2025-10-15",
+    "expires_at": "2025-11-14"
+  },
+  {
+    "offer_id": "OFF0000239",
+    "customer_id": "C000202",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 39407.27,
+    "offer_apr": 0.2486,
+    "created_at": "2025-09-25",
+    "expires_at": "2025-10-25"
+  },
+  {
+    "offer_id": "OFF0000240",
+    "customer_id": "C000208",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 3700.76,
+    "offer_apr": 0.0899,
+    "created_at": "2025-09-14",
+    "expires_at": "2025-10-14"
+  },
+  {
+    "offer_id": "OFF0000241",
+    "customer_id": "C000210",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 11811.04,
+    "offer_apr": 0.0861,
+    "created_at": "2025-10-19",
+    "expires_at": "2025-11-18"
+  },
+  {
+    "offer_id": "OFF0000242",
+    "customer_id": "C000212",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 34822.25,
+    "offer_apr": 0.1238,
+    "created_at": "2025-09-20",
+    "expires_at": "2025-10-20"
+  },
+  {
+    "offer_id": "OFF0000243",
+    "customer_id": "C000227",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 29992.08,
+    "offer_apr": 0.0991,
+    "created_at": "2025-10-16",
+    "expires_at": "2025-11-15"
+  },
+  {
+    "offer_id": "OFF0000244",
+    "customer_id": "C000244",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 33295.09,
+    "offer_apr": 0.0589,
+    "created_at": "2025-09-24",
+    "expires_at": "2025-10-24"
+  },
+  {
+    "offer_id": "OFF0000245",
+    "customer_id": "C000249",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 11630.17,
+    "offer_apr": 0.0807,
+    "created_at": "2025-09-18",
+    "expires_at": "2025-10-18"
+  },
+  {
+    "offer_id": "OFF0000246",
+    "customer_id": "C000250",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 28448.07,
+    "offer_apr": 0.1114,
+    "created_at": "2025-10-08",
+    "expires_at": "2025-11-07"
+  },
+  {
+    "offer_id": "OFF0000247",
+    "customer_id": "C000251",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 4679.93,
+    "offer_apr": 0.088,
+    "created_at": "2025-10-10",
+    "expires_at": "2025-11-09"
+  },
+  {
+    "offer_id": "OFF0000248",
+    "customer_id": "C000252",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 4527.01,
+    "offer_apr": 0.1176,
+    "created_at": "2025-10-18",
+    "expires_at": "2025-11-17"
+  },
+  {
+    "offer_id": "OFF0000249",
+    "customer_id": "C000255",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 11746.97,
+    "offer_apr": 0.074,
+    "created_at": "2025-09-20",
+    "expires_at": "2025-10-20"
+  },
+  {
+    "offer_id": "OFF0000250",
+    "customer_id": "C000288",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 12884.68,
+    "offer_apr": 0.0828,
+    "created_at": "2025-10-08",
+    "expires_at": "2025-11-07"
+  },
+  {
+    "offer_id": "OFF0000251",
+    "customer_id": "C000290",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 17006.44,
+    "offer_apr": 0.2374,
+    "created_at": "2025-09-23",
+    "expires_at": "2025-10-23"
+  },
+  {
+    "offer_id": "OFF0000252",
+    "customer_id": "C000291",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 23080.5,
+    "offer_apr": 0.1948,
+    "created_at": "2025-09-22",
+    "expires_at": "2025-10-22"
+  },
+  {
+    "offer_id": "OFF0000253",
+    "customer_id": "C000292",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 19820.37,
+    "offer_apr": 0.0455,
+    "created_at": "2025-10-09",
+    "expires_at": "2025-11-08"
+  },
+  {
+    "offer_id": "OFF0000254",
+    "customer_id": "C000293",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 9010.18,
+    "offer_apr": 0.0781,
+    "created_at": "2025-10-08",
+    "expires_at": "2025-11-07"
+  },
+  {
+    "offer_id": "OFF0000255",
+    "customer_id": "C000299",
+    "campaign_id": "CMP0013",
+    "coupon_code": null,
+    "offer_amount": 16094.27,
+    "offer_apr": 0.0769,
+    "created_at": "2025-09-26",
+    "expires_at": "2025-10-26"
+  },
+  {
+    "offer_id": "OFF0000256",
+    "customer_id": "C000001",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 27189.32,
+    "offer_apr": 0.1153,
+    "created_at": "2024-12-18",
+    "expires_at": "2025-01-17"
+  },
+  {
+    "offer_id": "OFF0000257",
+    "customer_id": "C000032",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 23614.45,
+    "offer_apr": 0.0874,
+    "created_at": "2024-12-10",
+    "expires_at": "2025-01-09"
+  },
+  {
+    "offer_id": "OFF0000258",
+    "customer_id": "C000044",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 37029.91,
+    "offer_apr": 0.0575,
+    "created_at": "2024-12-11",
+    "expires_at": "2025-01-10"
+  },
+  {
+    "offer_id": "OFF0000259",
+    "customer_id": "C000053",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 4144.27,
+    "offer_apr": 0.059,
+    "created_at": "2024-12-25",
+    "expires_at": "2025-01-24"
+  },
+  {
+    "offer_id": "OFF0000260",
+    "customer_id": "C000069",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 8990.6,
+    "offer_apr": 0.1614,
+    "created_at": "2024-11-25",
+    "expires_at": "2024-12-25"
+  },
+  {
+    "offer_id": "OFF0000261",
+    "customer_id": "C000076",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 2961.77,
+    "offer_apr": 0.1108,
+    "created_at": "2024-11-28",
+    "expires_at": "2024-12-28"
+  },
+  {
+    "offer_id": "OFF0000262",
+    "customer_id": "C000113",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 23160.42,
+    "offer_apr": 0.0472,
+    "created_at": "2024-12-10",
+    "expires_at": "2025-01-09"
+  },
+  {
+    "offer_id": "OFF0000263",
+    "customer_id": "C000138",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 4474.99,
+    "offer_apr": 0.0659,
+    "created_at": "2024-12-09",
+    "expires_at": "2025-01-08"
+  },
+  {
+    "offer_id": "OFF0000264",
+    "customer_id": "C000139",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 8456.78,
+    "offer_apr": 0.1453,
+    "created_at": "2024-12-17",
+    "expires_at": "2025-01-16"
+  },
+  {
+    "offer_id": "OFF0000265",
+    "customer_id": "C000150",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 36257.75,
+    "offer_apr": 0.1279,
+    "created_at": "2024-12-08",
+    "expires_at": "2025-01-07"
+  },
+  {
+    "offer_id": "OFF0000266",
+    "customer_id": "C000155",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 23383.04,
+    "offer_apr": 0.2295,
+    "created_at": "2024-12-24",
+    "expires_at": "2025-01-23"
+  },
+  {
+    "offer_id": "OFF0000267",
+    "customer_id": "C000195",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 30962.7,
+    "offer_apr": 0.0418,
+    "created_at": "2024-12-15",
+    "expires_at": "2025-01-14"
+  },
+  {
+    "offer_id": "OFF0000268",
+    "customer_id": "C000202",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 26656.78,
+    "offer_apr": 0.2402,
+    "created_at": "2024-12-29",
+    "expires_at": "2025-01-28"
+  },
+  {
+    "offer_id": "OFF0000269",
+    "customer_id": "C000276",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 28053.18,
+    "offer_apr": 0.1825,
+    "created_at": "2024-11-19",
+    "expires_at": "2024-12-19"
+  },
+  {
+    "offer_id": "OFF0000270",
+    "customer_id": "C000283",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 25279.12,
+    "offer_apr": 0.178,
+    "created_at": "2024-11-19",
+    "expires_at": "2024-12-19"
+  },
+  {
+    "offer_id": "OFF0000271",
+    "customer_id": "C000287",
+    "campaign_id": "CMP0014",
+    "coupon_code": null,
+    "offer_amount": 19260.48,
+    "offer_apr": 0.084,
+    "created_at": "2024-11-25",
+    "expires_at": "2024-12-25"
+  },
+  {
+    "offer_id": "OFF0000272",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0015",
+    "coupon_code": null,
+    "offer_amount": 26209.54,
+    "offer_apr": 0.0922,
+    "created_at": "2023-12-12",
+    "expires_at": "2024-01-11"
+  },
+  {
+    "offer_id": "OFF0000273",
+    "customer_id": "C000032",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 7471.38,
+    "offer_apr": 0.063,
+    "created_at": "2026-01-23",
+    "expires_at": "2026-02-22"
+  },
+  {
+    "offer_id": "OFF0000274",
+    "customer_id": "C000034",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 39524.6,
+    "offer_apr": 0.1538,
+    "created_at": "2026-01-23",
+    "expires_at": "2026-02-22"
+  },
+  {
+    "offer_id": "OFF0000275",
+    "customer_id": "C000036",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 18003.34,
+    "offer_apr": 0.1092,
+    "created_at": "2026-01-20",
+    "expires_at": "2026-02-19"
+  },
+  {
+    "offer_id": "OFF0000276",
+    "customer_id": "C000044",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 19613.65,
+    "offer_apr": 0.0569,
+    "created_at": "2026-01-01",
+    "expires_at": "2026-01-31"
+  },
+  {
+    "offer_id": "OFF0000277",
+    "customer_id": "C000051",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 9824.77,
+    "offer_apr": 0.0952,
+    "created_at": "2026-02-13",
+    "expires_at": "2026-03-15"
+  },
+  {
+    "offer_id": "OFF0000278",
+    "customer_id": "C000052",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 29713.66,
+    "offer_apr": 0.0792,
+    "created_at": "2026-01-25",
+    "expires_at": "2026-02-24"
+  },
+  {
+    "offer_id": "OFF0000279",
+    "customer_id": "C000054",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 31031.11,
+    "offer_apr": 0.0604,
+    "created_at": "2026-02-04",
+    "expires_at": "2026-03-06"
+  },
+  {
+    "offer_id": "OFF0000280",
+    "customer_id": "C000056",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 6128.71,
+    "offer_apr": 0.0726,
+    "created_at": "2025-12-30",
+    "expires_at": "2026-01-29"
+  },
+  {
+    "offer_id": "OFF0000281",
+    "customer_id": "C000069",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 10252.77,
+    "offer_apr": 0.2007,
+    "created_at": "2026-02-06",
+    "expires_at": "2026-03-08"
+  },
+  {
+    "offer_id": "OFF0000282",
+    "customer_id": "C000097",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 18407.79,
+    "offer_apr": 0.0872,
+    "created_at": "2026-02-10",
+    "expires_at": "2026-03-12"
+  },
+  {
+    "offer_id": "OFF0000283",
+    "customer_id": "C000101",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 12386.16,
+    "offer_apr": 0.2221,
+    "created_at": "2026-02-01",
+    "expires_at": "2026-03-03"
+  },
+  {
+    "offer_id": "OFF0000284",
+    "customer_id": "C000104",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 23852.63,
+    "offer_apr": 0.2281,
+    "created_at": "2026-02-08",
+    "expires_at": "2026-03-10"
+  },
+  {
+    "offer_id": "OFF0000285",
+    "customer_id": "C000108",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 30979.57,
+    "offer_apr": 0.1935,
+    "created_at": "2026-01-13",
+    "expires_at": "2026-02-12"
+  },
+  {
+    "offer_id": "OFF0000286",
+    "customer_id": "C000113",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 25867.25,
+    "offer_apr": 0.0418,
+    "created_at": "2026-01-29",
+    "expires_at": "2026-02-28"
+  },
+  {
+    "offer_id": "OFF0000287",
+    "customer_id": "C000117",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 36966.53,
+    "offer_apr": 0.1409,
+    "created_at": "2026-01-07",
+    "expires_at": "2026-02-06"
+  },
+  {
+    "offer_id": "OFF0000288",
+    "customer_id": "C000125",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 9714.27,
+    "offer_apr": 0.1566,
+    "created_at": "2026-02-02",
+    "expires_at": "2026-03-04"
+  },
+  {
+    "offer_id": "OFF0000289",
+    "customer_id": "C000134",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 24171.04,
+    "offer_apr": 0.0814,
+    "created_at": "2026-02-04",
+    "expires_at": "2026-03-06"
+  },
+  {
+    "offer_id": "OFF0000290",
+    "customer_id": "C000149",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 5856.98,
+    "offer_apr": 0.1193,
+    "created_at": "2026-02-13",
+    "expires_at": "2026-03-15"
+  },
+  {
+    "offer_id": "OFF0000291",
+    "customer_id": "C000164",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 8014.66,
+    "offer_apr": 0.2008,
+    "created_at": "2026-01-29",
+    "expires_at": "2026-02-28"
+  },
+  {
+    "offer_id": "OFF0000292",
+    "customer_id": "C000177",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 36338.76,
+    "offer_apr": 0.1483,
+    "created_at": "2026-01-27",
+    "expires_at": "2026-02-26"
+  },
+  {
+    "offer_id": "OFF0000293",
+    "customer_id": "C000180",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 5688.62,
+    "offer_apr": 0.0828,
+    "created_at": "2026-01-05",
+    "expires_at": "2026-02-04"
+  },
+  {
+    "offer_id": "OFF0000294",
+    "customer_id": "C000193",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 24274.66,
+    "offer_apr": 0.1491,
+    "created_at": "2026-01-24",
+    "expires_at": "2026-02-23"
+  },
+  {
+    "offer_id": "OFF0000295",
+    "customer_id": "C000205",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 8909.68,
+    "offer_apr": 0.2383,
+    "created_at": "2026-01-03",
+    "expires_at": "2026-02-02"
+  },
+  {
+    "offer_id": "OFF0000296",
+    "customer_id": "C000212",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 35686.65,
+    "offer_apr": 0.0848,
+    "created_at": "2025-12-30",
+    "expires_at": "2026-01-29"
+  },
+  {
+    "offer_id": "OFF0000297",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 36837.03,
+    "offer_apr": 0.1522,
+    "created_at": "2026-01-29",
+    "expires_at": "2026-02-28"
+  },
+  {
+    "offer_id": "OFF0000298",
+    "customer_id": "C000220",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 15479.05,
+    "offer_apr": 0.1488,
+    "created_at": "2026-01-21",
+    "expires_at": "2026-02-20"
+  },
+  {
+    "offer_id": "OFF0000299",
+    "customer_id": "C000226",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 17874.07,
+    "offer_apr": 0.0485,
+    "created_at": "2026-01-08",
+    "expires_at": "2026-02-07"
+  },
+  {
+    "offer_id": "OFF0000300",
+    "customer_id": "C000240",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 36362.64,
+    "offer_apr": 0.0412,
+    "created_at": "2026-01-31",
+    "expires_at": "2026-03-02"
+  },
+  {
+    "offer_id": "OFF0000301",
+    "customer_id": "C000244",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 28619.57,
+    "offer_apr": 0.0532,
+    "created_at": "2025-12-29",
+    "expires_at": "2026-01-28"
+  },
+  {
+    "offer_id": "OFF0000302",
+    "customer_id": "C000256",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 30871.07,
+    "offer_apr": 0.0629,
+    "created_at": "2026-02-13",
+    "expires_at": "2026-03-15"
+  },
+  {
+    "offer_id": "OFF0000303",
+    "customer_id": "C000264",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 29916.37,
+    "offer_apr": 0.1421,
+    "created_at": "2026-01-11",
+    "expires_at": "2026-02-10"
+  },
+  {
+    "offer_id": "OFF0000304",
+    "customer_id": "C000272",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 28420.95,
+    "offer_apr": 0.0989,
+    "created_at": "2026-01-24",
+    "expires_at": "2026-02-23"
+  },
+  {
+    "offer_id": "OFF0000305",
+    "customer_id": "C000277",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 34437.81,
+    "offer_apr": 0.0792,
+    "created_at": "2025-12-27",
+    "expires_at": "2026-01-26"
+  },
+  {
+    "offer_id": "OFF0000306",
+    "customer_id": "C000284",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 29326.45,
+    "offer_apr": 0.1187,
+    "created_at": "2026-01-30",
+    "expires_at": "2026-03-01"
+  },
+  {
+    "offer_id": "OFF0000307",
+    "customer_id": "C000285",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 36913.49,
+    "offer_apr": 0.0442,
+    "created_at": "2026-01-24",
+    "expires_at": "2026-02-23"
+  },
+  {
+    "offer_id": "OFF0000308",
+    "customer_id": "C000289",
+    "campaign_id": "CMP0016",
+    "coupon_code": null,
+    "offer_amount": 36041.13,
+    "offer_apr": 0.0412,
+    "created_at": "2026-01-18",
+    "expires_at": "2026-02-17"
+  },
+  {
+    "offer_id": "OFF0000309",
+    "customer_id": "C000298",
+    "campaign_id": "CMP0016",
+    "coupon_code": "REFER20",
+    "offer_amount": 16188.76,
+    "offer_apr": 0.0908,
+    "created_at": "2026-01-13",
+    "expires_at": "2026-02-12"
+  },
+  {
+    "offer_id": "OFF0000310",
+    "customer_id": "C000022",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 14963.12,
+    "offer_apr": 0.0854,
+    "created_at": "2025-10-07",
+    "expires_at": "2025-11-06"
+  },
+  {
+    "offer_id": "OFF0000311",
+    "customer_id": "C000030",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 35111.28,
+    "offer_apr": 0.1907,
+    "created_at": "2025-10-10",
+    "expires_at": "2025-11-09"
+  },
+  {
+    "offer_id": "OFF0000312",
+    "customer_id": "C000054",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 9581.81,
+    "offer_apr": 0.0773,
+    "created_at": "2025-09-27",
+    "expires_at": "2025-10-27"
+  },
+  {
+    "offer_id": "OFF0000313",
+    "customer_id": "C000057",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 5480.27,
+    "offer_apr": 0.0616,
+    "created_at": "2025-10-14",
+    "expires_at": "2025-11-13"
+  },
+  {
+    "offer_id": "OFF0000314",
+    "customer_id": "C000062",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 16702.24,
+    "offer_apr": 0.2088,
+    "created_at": "2025-09-17",
+    "expires_at": "2025-10-17"
+  },
+  {
+    "offer_id": "OFF0000315",
+    "customer_id": "C000077",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 20821.41,
+    "offer_apr": 0.0753,
+    "created_at": "2025-10-26",
+    "expires_at": "2025-11-25"
+  },
+  {
+    "offer_id": "OFF0000316",
+    "customer_id": "C000086",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 34870.31,
+    "offer_apr": 0.1467,
+    "created_at": "2025-10-08",
+    "expires_at": "2025-11-07"
+  },
+  {
+    "offer_id": "OFF0000317",
+    "customer_id": "C000103",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 12003.94,
+    "offer_apr": 0.0839,
+    "created_at": "2025-09-19",
+    "expires_at": "2025-10-19"
+  },
+  {
+    "offer_id": "OFF0000318",
+    "customer_id": "C000129",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 28708.99,
+    "offer_apr": 0.0853,
+    "created_at": "2025-10-14",
+    "expires_at": "2025-11-13"
+  },
+  {
+    "offer_id": "OFF0000319",
+    "customer_id": "C000139",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 10653.19,
+    "offer_apr": 0.1076,
+    "created_at": "2025-10-25",
+    "expires_at": "2025-11-24"
+  },
+  {
+    "offer_id": "OFF0000320",
+    "customer_id": "C000159",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 12845.31,
+    "offer_apr": 0.1099,
+    "created_at": "2025-10-07",
+    "expires_at": "2025-11-06"
+  },
+  {
+    "offer_id": "OFF0000321",
+    "customer_id": "C000172",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 12695.07,
+    "offer_apr": 0.0481,
+    "created_at": "2025-10-17",
+    "expires_at": "2025-11-16"
+  },
+  {
+    "offer_id": "OFF0000322",
+    "customer_id": "C000183",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 25554.12,
+    "offer_apr": 0.1372,
+    "created_at": "2025-10-26",
+    "expires_at": "2025-11-25"
+  },
+  {
+    "offer_id": "OFF0000323",
+    "customer_id": "C000194",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 14099.13,
+    "offer_apr": 0.2249,
+    "created_at": "2025-10-12",
+    "expires_at": "2025-11-11"
+  },
+  {
+    "offer_id": "OFF0000324",
+    "customer_id": "C000210",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 4503.39,
+    "offer_apr": 0.0531,
+    "created_at": "2025-10-03",
+    "expires_at": "2025-11-02"
+  },
+  {
+    "offer_id": "OFF0000325",
+    "customer_id": "C000224",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 16076.85,
+    "offer_apr": 0.101,
+    "created_at": "2025-10-24",
+    "expires_at": "2025-11-23"
+  },
+  {
+    "offer_id": "OFF0000326",
+    "customer_id": "C000228",
+    "campaign_id": "CMP0017",
+    "coupon_code": null,
+    "offer_amount": 9230.83,
+    "offer_apr": 0.2046,
+    "created_at": "2025-09-22",
+    "expires_at": "2025-10-22"
+  },
+  {
+    "offer_id": "OFF0000327",
+    "customer_id": "C000243",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 14325.98,
+    "offer_apr": 0.1357,
+    "created_at": "2025-10-06",
+    "expires_at": "2025-11-05"
+  },
+  {
+    "offer_id": "OFF0000328",
+    "customer_id": "C000250",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 30038.65,
+    "offer_apr": 0.107,
+    "created_at": "2025-10-12",
+    "expires_at": "2025-11-11"
+  },
+  {
+    "offer_id": "OFF0000329",
+    "customer_id": "C000278",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 2530.11,
+    "offer_apr": 0.1354,
+    "created_at": "2025-10-18",
+    "expires_at": "2025-11-17"
+  },
+  {
+    "offer_id": "OFF0000330",
+    "customer_id": "C000282",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 10245.76,
+    "offer_apr": 0.0811,
+    "created_at": "2025-10-27",
+    "expires_at": "2025-11-26"
+  },
+  {
+    "offer_id": "OFF0000331",
+    "customer_id": "C000288",
+    "campaign_id": "CMP0017",
+    "coupon_code": "REFER20",
+    "offer_amount": 20898.25,
+    "offer_apr": 0.0479,
+    "created_at": "2025-09-27",
+    "expires_at": "2025-10-27"
+  },
+  {
+    "offer_id": "OFF0000332",
+    "customer_id": "C000045",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 20488.32,
+    "offer_apr": 0.2196,
+    "created_at": "2024-07-22",
+    "expires_at": "2024-08-21"
+  },
+  {
+    "offer_id": "OFF0000333",
+    "customer_id": "C000056",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 20519.0,
+    "offer_apr": 0.0733,
+    "created_at": "2024-06-22",
+    "expires_at": "2024-07-22"
+  },
+  {
+    "offer_id": "OFF0000334",
+    "customer_id": "C000060",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 4542.43,
+    "offer_apr": 0.1026,
+    "created_at": "2024-08-15",
+    "expires_at": "2024-09-14"
+  },
+  {
+    "offer_id": "OFF0000335",
+    "customer_id": "C000068",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 7376.16,
+    "offer_apr": 0.1163,
+    "created_at": "2024-07-24",
+    "expires_at": "2024-08-23"
+  },
+  {
+    "offer_id": "OFF0000336",
+    "customer_id": "C000069",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 17821.13,
+    "offer_apr": 0.1414,
+    "created_at": "2024-07-28",
+    "expires_at": "2024-08-27"
+  },
+  {
+    "offer_id": "OFF0000337",
+    "customer_id": "C000080",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 14866.06,
+    "offer_apr": 0.1017,
+    "created_at": "2024-07-04",
+    "expires_at": "2024-08-03"
+  },
+  {
+    "offer_id": "OFF0000338",
+    "customer_id": "C000086",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 6630.2,
+    "offer_apr": 0.1542,
+    "created_at": "2024-06-22",
+    "expires_at": "2024-07-22"
+  },
+  {
+    "offer_id": "OFF0000339",
+    "customer_id": "C000125",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 16187.48,
+    "offer_apr": 0.2157,
+    "created_at": "2024-07-24",
+    "expires_at": "2024-08-23"
+  },
+  {
+    "offer_id": "OFF0000340",
+    "customer_id": "C000131",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 38876.37,
+    "offer_apr": 0.0432,
+    "created_at": "2024-08-05",
+    "expires_at": "2024-09-04"
+  },
+  {
+    "offer_id": "OFF0000341",
+    "customer_id": "C000180",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 11352.17,
+    "offer_apr": 0.1461,
+    "created_at": "2024-08-16",
+    "expires_at": "2024-09-15"
+  },
+  {
+    "offer_id": "OFF0000342",
+    "customer_id": "C000210",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 26087.11,
+    "offer_apr": 0.0851,
+    "created_at": "2024-07-10",
+    "expires_at": "2024-08-09"
+  },
+  {
+    "offer_id": "OFF0000343",
+    "customer_id": "C000211",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 23089.84,
+    "offer_apr": 0.1204,
+    "created_at": "2024-08-23",
+    "expires_at": "2024-09-22"
+  },
+  {
+    "offer_id": "OFF0000344",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 36270.52,
+    "offer_apr": 0.2462,
+    "created_at": "2024-06-04",
+    "expires_at": "2024-07-04"
+  },
+  {
+    "offer_id": "OFF0000345",
+    "customer_id": "C000238",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 28907.99,
+    "offer_apr": 0.1227,
+    "created_at": "2024-08-18",
+    "expires_at": "2024-09-17"
+  },
+  {
+    "offer_id": "OFF0000346",
+    "customer_id": "C000261",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 19850.6,
+    "offer_apr": 0.1421,
+    "created_at": "2024-08-18",
+    "expires_at": "2024-09-17"
+  },
+  {
+    "offer_id": "OFF0000347",
+    "customer_id": "C000276",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 16597.45,
+    "offer_apr": 0.1563,
+    "created_at": "2024-08-29",
+    "expires_at": "2024-09-28"
+  },
+  {
+    "offer_id": "OFF0000348",
+    "customer_id": "C000300",
+    "campaign_id": "CMP0018",
+    "coupon_code": null,
+    "offer_amount": 20655.74,
+    "offer_apr": 0.2063,
+    "created_at": "2024-06-29",
+    "expires_at": "2024-07-29"
+  },
+  {
+    "offer_id": "OFF0000349",
+    "customer_id": "C000035",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 16803.91,
+    "offer_apr": 0.0935,
+    "created_at": "2024-12-25",
+    "expires_at": "2025-01-24"
+  },
+  {
+    "offer_id": "OFF0000350",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 34215.37,
+    "offer_apr": 0.0841,
+    "created_at": "2025-01-05",
+    "expires_at": "2025-02-04"
+  },
+  {
+    "offer_id": "OFF0000351",
+    "customer_id": "C000086",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 2116.02,
+    "offer_apr": 0.1792,
+    "created_at": "2024-11-22",
+    "expires_at": "2024-12-22"
+  },
+  {
+    "offer_id": "OFF0000352",
+    "customer_id": "C000088",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 7552.57,
+    "offer_apr": 0.0536,
+    "created_at": "2024-12-16",
+    "expires_at": "2025-01-15"
+  },
+  {
+    "offer_id": "OFF0000353",
+    "customer_id": "C000114",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 24981.3,
+    "offer_apr": 0.199,
+    "created_at": "2024-12-15",
+    "expires_at": "2025-01-14"
+  },
+  {
+    "offer_id": "OFF0000354",
+    "customer_id": "C000138",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 24993.09,
+    "offer_apr": 0.0548,
+    "created_at": "2024-11-15",
+    "expires_at": "2024-12-15"
+  },
+  {
+    "offer_id": "OFF0000355",
+    "customer_id": "C000139",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 21893.08,
+    "offer_apr": 0.1153,
+    "created_at": "2024-12-16",
+    "expires_at": "2025-01-15"
+  },
+  {
+    "offer_id": "OFF0000356",
+    "customer_id": "C000151",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 18073.67,
+    "offer_apr": 0.1373,
+    "created_at": "2024-12-02",
+    "expires_at": "2025-01-01"
+  },
+  {
+    "offer_id": "OFF0000357",
+    "customer_id": "C000155",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 9761.12,
+    "offer_apr": 0.1726,
+    "created_at": "2024-12-03",
+    "expires_at": "2025-01-02"
+  },
+  {
+    "offer_id": "OFF0000358",
+    "customer_id": "C000162",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 30970.2,
+    "offer_apr": 0.0855,
+    "created_at": "2024-12-22",
+    "expires_at": "2025-01-21"
+  },
+  {
+    "offer_id": "OFF0000359",
+    "customer_id": "C000194",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 18974.03,
+    "offer_apr": 0.182,
+    "created_at": "2024-12-14",
+    "expires_at": "2025-01-13"
+  },
+  {
+    "offer_id": "OFF0000360",
+    "customer_id": "C000196",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 30821.54,
+    "offer_apr": 0.0875,
+    "created_at": "2025-01-05",
+    "expires_at": "2025-02-04"
+  },
+  {
+    "offer_id": "OFF0000361",
+    "customer_id": "C000200",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 9515.67,
+    "offer_apr": 0.2067,
+    "created_at": "2024-11-12",
+    "expires_at": "2024-12-12"
+  },
+  {
+    "offer_id": "OFF0000362",
+    "customer_id": "C000208",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 6884.36,
+    "offer_apr": 0.1469,
+    "created_at": "2024-11-12",
+    "expires_at": "2024-12-12"
+  },
+  {
+    "offer_id": "OFF0000363",
+    "customer_id": "C000261",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 22997.85,
+    "offer_apr": 0.1806,
+    "created_at": "2024-12-14",
+    "expires_at": "2025-01-13"
+  },
+  {
+    "offer_id": "OFF0000364",
+    "customer_id": "C000271",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 16251.1,
+    "offer_apr": 0.0413,
+    "created_at": "2024-11-19",
+    "expires_at": "2024-12-19"
+  },
+  {
+    "offer_id": "OFF0000365",
+    "customer_id": "C000276",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 17030.43,
+    "offer_apr": 0.1759,
+    "created_at": "2024-11-08",
+    "expires_at": "2024-12-08"
+  },
+  {
+    "offer_id": "OFF0000366",
+    "customer_id": "C000296",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 14312.54,
+    "offer_apr": 0.0778,
+    "created_at": "2024-12-18",
+    "expires_at": "2025-01-17"
+  },
+  {
+    "offer_id": "OFF0000367",
+    "customer_id": "C000299",
+    "campaign_id": "CMP0019",
+    "coupon_code": null,
+    "offer_amount": 4122.65,
+    "offer_apr": 0.0759,
+    "created_at": "2024-11-14",
+    "expires_at": "2024-12-14"
+  },
+  {
+    "offer_id": "OFF0000368",
+    "customer_id": "C000157",
+    "campaign_id": "CMP0020",
+    "coupon_code": null,
+    "offer_amount": 37224.05,
+    "offer_apr": 0.1554,
+    "created_at": "2023-10-18",
+    "expires_at": "2023-11-17"
+  },
+  {
+    "offer_id": "OFF0000369",
+    "customer_id": "C000261",
+    "campaign_id": "CMP0020",
+    "coupon_code": null,
+    "offer_amount": 37724.67,
+    "offer_apr": 0.1659,
+    "created_at": "2023-10-17",
+    "expires_at": "2023-11-16"
+  },
+  {
+    "offer_id": "OFF0000370",
+    "customer_id": "C000144",
+    "campaign_id": "CMP0021",
+    "coupon_code": "FLASH25",
+    "offer_amount": 20713.32,
+    "offer_apr": 0.0673,
+    "created_at": "2023-09-09",
+    "expires_at": "2023-10-09"
+  },
+  {
+    "offer_id": "OFF0000371",
+    "customer_id": "C000038",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 32009.69,
+    "offer_apr": 0.1286,
+    "created_at": "2024-07-17",
+    "expires_at": "2024-08-16"
+  },
+  {
+    "offer_id": "OFF0000372",
+    "customer_id": "C000048",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 32945.84,
+    "offer_apr": 0.0624,
+    "created_at": "2024-06-13",
+    "expires_at": "2024-07-13"
+  },
+  {
+    "offer_id": "OFF0000373",
+    "customer_id": "C000056",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 10641.05,
+    "offer_apr": 0.0428,
+    "created_at": "2024-06-01",
+    "expires_at": "2024-07-01"
+  },
+  {
+    "offer_id": "OFF0000374",
+    "customer_id": "C000076",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 3994.36,
+    "offer_apr": 0.139,
+    "created_at": "2024-07-07",
+    "expires_at": "2024-08-06"
+  },
+  {
+    "offer_id": "OFF0000375",
+    "customer_id": "C000086",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 3602.68,
+    "offer_apr": 0.2234,
+    "created_at": "2024-06-14",
+    "expires_at": "2024-07-14"
+  },
+  {
+    "offer_id": "OFF0000376",
+    "customer_id": "C000188",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 14272.11,
+    "offer_apr": 0.2232,
+    "created_at": "2024-06-22",
+    "expires_at": "2024-07-22"
+  },
+  {
+    "offer_id": "OFF0000377",
+    "customer_id": "C000202",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 21389.38,
+    "offer_apr": 0.1719,
+    "created_at": "2024-06-10",
+    "expires_at": "2024-07-10"
+  },
+  {
+    "offer_id": "OFF0000378",
+    "customer_id": "C000208",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 28490.74,
+    "offer_apr": 0.1185,
+    "created_at": "2024-06-05",
+    "expires_at": "2024-07-05"
+  },
+  {
+    "offer_id": "OFF0000379",
+    "customer_id": "C000211",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 3368.21,
+    "offer_apr": 0.0961,
+    "created_at": "2024-06-22",
+    "expires_at": "2024-07-22"
+  },
+  {
+    "offer_id": "OFF0000380",
+    "customer_id": "C000213",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 28669.32,
+    "offer_apr": 0.204,
+    "created_at": "2024-05-16",
+    "expires_at": "2024-06-15"
+  },
+  {
+    "offer_id": "OFF0000381",
+    "customer_id": "C000218",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 17092.9,
+    "offer_apr": 0.1567,
+    "created_at": "2024-07-09",
+    "expires_at": "2024-08-08"
+  },
+  {
+    "offer_id": "OFF0000382",
+    "customer_id": "C000223",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 30281.65,
+    "offer_apr": 0.171,
+    "created_at": "2024-07-15",
+    "expires_at": "2024-08-14"
+  },
+  {
+    "offer_id": "OFF0000383",
+    "customer_id": "C000244",
+    "campaign_id": "CMP0022",
+    "coupon_code": null,
+    "offer_amount": 16759.95,
+    "offer_apr": 0.0817,
+    "created_at": "2024-07-03",
+    "expires_at": "2024-08-02"
+  },
+  {
+    "offer_id": "OFF0000384",
+    "customer_id": "C000001",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 14428.21,
+    "offer_apr": 0.0982,
+    "created_at": "2024-09-09",
+    "expires_at": "2024-10-09"
+  },
+  {
+    "offer_id": "OFF0000385",
+    "customer_id": "C000016",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 19162.69,
+    "offer_apr": 0.1112,
+    "created_at": "2024-09-24",
+    "expires_at": "2024-10-24"
+  },
+  {
+    "offer_id": "OFF0000386",
+    "customer_id": "C000051",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 9774.42,
+    "offer_apr": 0.0879,
+    "created_at": "2024-10-06",
+    "expires_at": "2024-11-05"
+  },
+  {
+    "offer_id": "OFF0000387",
+    "customer_id": "C000071",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 30226.91,
+    "offer_apr": 0.1412,
+    "created_at": "2024-10-09",
+    "expires_at": "2024-11-08"
+  },
+  {
+    "offer_id": "OFF0000388",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 29956.7,
+    "offer_apr": 0.1009,
+    "created_at": "2024-09-08",
+    "expires_at": "2024-10-08"
+  },
+  {
+    "offer_id": "OFF0000389",
+    "customer_id": "C000096",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 35692.78,
+    "offer_apr": 0.23,
+    "created_at": "2024-10-02",
+    "expires_at": "2024-11-01"
+  },
+  {
+    "offer_id": "OFF0000390",
+    "customer_id": "C000113",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 26617.54,
+    "offer_apr": 0.0515,
+    "created_at": "2024-09-12",
+    "expires_at": "2024-10-12"
+  },
+  {
+    "offer_id": "OFF0000391",
+    "customer_id": "C000211",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 13776.26,
+    "offer_apr": 0.0951,
+    "created_at": "2024-10-10",
+    "expires_at": "2024-11-09"
+  },
+  {
+    "offer_id": "OFF0000392",
+    "customer_id": "C000215",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 9841.4,
+    "offer_apr": 0.2441,
+    "created_at": "2024-09-11",
+    "expires_at": "2024-10-11"
+  },
+  {
+    "offer_id": "OFF0000393",
+    "customer_id": "C000244",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 19399.6,
+    "offer_apr": 0.0595,
+    "created_at": "2024-09-20",
+    "expires_at": "2024-10-20"
+  },
+  {
+    "offer_id": "OFF0000394",
+    "customer_id": "C000263",
+    "campaign_id": "CMP0023",
+    "coupon_code": null,
+    "offer_amount": 12843.01,
+    "offer_apr": 0.1491,
+    "created_at": "2024-09-28",
+    "expires_at": "2024-10-28"
+  },
+  {
+    "offer_id": "OFF0000395",
+    "customer_id": "C000018",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 6075.94,
+    "offer_apr": 0.04,
+    "created_at": "2024-06-11",
+    "expires_at": "2024-07-11"
+  },
+  {
+    "offer_id": "OFF0000396",
+    "customer_id": "C000020",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 34572.31,
+    "offer_apr": 0.1463,
+    "created_at": "2024-05-23",
+    "expires_at": "2024-06-22"
+  },
+  {
+    "offer_id": "OFF0000397",
+    "customer_id": "C000049",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 29692.43,
+    "offer_apr": 0.1473,
+    "created_at": "2024-06-02",
+    "expires_at": "2024-07-02"
+  },
+  {
+    "offer_id": "OFF0000398",
+    "customer_id": "C000074",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 10181.73,
+    "offer_apr": 0.0934,
+    "created_at": "2024-06-02",
+    "expires_at": "2024-07-02"
+  },
+  {
+    "offer_id": "OFF0000399",
+    "customer_id": "C000088",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 4891.78,
+    "offer_apr": 0.0609,
+    "created_at": "2024-05-31",
+    "expires_at": "2024-06-30"
+  },
+  {
+    "offer_id": "OFF0000400",
+    "customer_id": "C000101",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 36143.82,
+    "offer_apr": 0.1732,
+    "created_at": "2024-07-15",
+    "expires_at": "2024-08-14"
+  },
+  {
+    "offer_id": "OFF0000401",
+    "customer_id": "C000122",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 6572.35,
+    "offer_apr": 0.0718,
+    "created_at": "2024-07-12",
+    "expires_at": "2024-08-11"
+  },
+  {
+    "offer_id": "OFF0000402",
+    "customer_id": "C000167",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 5271.62,
+    "offer_apr": 0.1658,
+    "created_at": "2024-05-18",
+    "expires_at": "2024-06-17"
+  },
+  {
+    "offer_id": "OFF0000403",
+    "customer_id": "C000210",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 12379.11,
+    "offer_apr": 0.0411,
+    "created_at": "2024-06-17",
+    "expires_at": "2024-07-17"
+  },
+  {
+    "offer_id": "OFF0000404",
+    "customer_id": "C000215",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 29794.49,
+    "offer_apr": 0.1569,
+    "created_at": "2024-06-29",
+    "expires_at": "2024-07-29"
+  },
+  {
+    "offer_id": "OFF0000405",
+    "customer_id": "C000277",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 16342.15,
+    "offer_apr": 0.0419,
+    "created_at": "2024-07-02",
+    "expires_at": "2024-08-01"
+  },
+  {
+    "offer_id": "OFF0000406",
+    "customer_id": "C000282",
+    "campaign_id": "CMP0024",
+    "coupon_code": null,
+    "offer_amount": 17672.12,
+    "offer_apr": 0.1481,
+    "created_at": "2024-07-16",
+    "expires_at": "2024-08-15"
+  },
+  {
+    "offer_id": "OFF0000407",
+    "customer_id": "C000008",
+    "campaign_id": null,
+    "coupon_code": null,
+    "offer_amount": 38458.3,
+    "offer_apr": 0.1413,
+    "created_at": "2025-08-31",
+    "expires_at": "2025-09-30"
+  },
+  {
+    "offer_id": "OFF0000408",
+    "customer_id": "C000026",
+    "campaign_id": null,
+    "coupon_code": null,
+    "offer_amount": 33744.91,
+    "offer_apr": 0.0618,
+    "created_at": "2026-05-17",
+    "expires_at": "2026-06-16"
+  },
+  {
+    "offer_id": "OFF0000409",
+    "customer_id": "C000128",
+    "campaign_id": null,
+    "coupon_code": null,
+    "offer_amount": 36895.35,
+    "offer_apr": 0.1488,
+    "created_at": "2026-04-23",
+    "expires_at": "2026-05-23"
+  },
+  {
+    "offer_id": "OFF0000410",
+    "customer_id": "C000236",
+    "campaign_id": null,
+    "coupon_code": null,
+    "offer_amount": 38832.66,
+    "offer_apr": 0.136,
+    "created_at": "2026-05-12",
+    "expires_at": "2026-06-11"
+  },
+  {
+    "offer_id": "OFF0000411",
+    "customer_id": "C000262",
+    "campaign_id": null,
+    "coupon_code": null,
+    "offer_amount": 6600.87,
+    "offer_apr": 0.1604,
+    "created_at": "2026-04-13",
+    "expires_at": "2026-05-13"
+  }
+]

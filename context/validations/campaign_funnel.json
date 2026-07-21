@@ -1,0 +1,21 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0,
+    "rate": 0.0001
+  },
+  "notes": [
+    "Reconciliation-only. Executed by src/validate_campaign_funnel.py, which independently recomputes every campaign's funnel counts in pandas (never importing src/etl_spark_campaign_funnel.py's Spark logic) and compares against the curated table it wrote.",
+    "The 7 *_reconciliation rules below check PORTFOLIO-WIDE totals (summed across all campaigns + the organic row) -- campaign_funnel_row_counts_match_per_campaign is the stronger check that every individual campaign's row matches exactly, not just the totals."
+  ],
+  "rules": [
+    {"id": "emails_sent_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total emails_sent across all curated campaign_funnel rows must match the count of SENT email_events."},
+    {"id": "emails_opened_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total emails_opened across all curated campaign_funnel rows must match the count of OPENED email_events."},
+    {"id": "emails_clicked_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total emails_clicked across all curated campaign_funnel rows must match the count of CLICKED email_events."},
+    {"id": "offers_created_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total offers_created across all curated campaign_funnel rows must match the total row count of prequal_offers."},
+    {"id": "applications_submitted_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total applications_submitted across all curated campaign_funnel rows must match the total row count of applications."},
+    {"id": "applications_approved_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total applications_approved across all curated campaign_funnel rows must match the count of APPROVED underwriting_decisions."},
+    {"id": "loans_funded_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total loans_funded across all curated campaign_funnel rows must match the total row count of loans."},
+    {"id": "campaign_funnel_row_counts_match_per_campaign", "type": "reconciliation", "tolerance_type": "count", "description": "Every individual campaign_id's (including the organic/NULL row's) funnel counts AND rates (open_rate, click_through_rate, click_to_offer_rate, offer_to_application_rate, application_to_approval_rate, approval_to_funded_rate) must match an independent per-campaign pandas recomputation, not just the portfolio-wide totals -- rates are checked separately from counts because a bug in the rate FORMULA itself (e.g. a swapped numerator/denominator) would not show up in the count-only checks."}
+  ]
+}

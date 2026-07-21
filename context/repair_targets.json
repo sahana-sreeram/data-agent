@@ -15,6 +15,11 @@
       "repair_type": "CODE_CHANGE",
       "editable_symbols": ["compute_portfolio_summary_from_payment_events", "compute_portfolio_summary_with_payment_join"],
       "description": "Two independent ETL functions live in this file and may each be repaired independently, but a repair must touch only ONE of them (the one implicated by its own diagnosis), never both, and never compute_portfolio_summary. compute_portfolio_summary_from_payment_events: collapse SETTLED events to one per payment_id (per business_rules.payment_event_rules.duplicate_policy) before aggregating, refusing to collapse when a payment_id has conflicting SETTLED amounts. compute_portfolio_summary_with_payment_join: preserve every loan by using how='left' (not 'inner') when joining aggregated payment totals onto loans, treating a missing payment total as zero rather than dropping the loan."
+    },
+    "src/etl_spark_loan_portfolio.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_loan_portfolio"],
+      "description": "The lifecycle model's loan_portfolio PySpark ETL. Its only function, compute_loan_portfolio, must preserve every loan by using how='left' (not 'inner') when joining the aggregated net-successful-payment total onto loans, treating a missing/zero net-paid amount as 0.0 rather than dropping the loan from the entire portfolio."
     }
   },
   "notes": [

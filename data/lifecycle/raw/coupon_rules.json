@@ -1,0 +1,74 @@
+[
+  {
+    "coupon_rule_id": "CPN00001",
+    "coupon_code": "LOYALTY15",
+    "campaign_id": "CMP0004",
+    "discount_type": "RATE_DISCOUNT",
+    "discount_value": 0.0259,
+    "valid_from": "2024-05-26",
+    "valid_to": "2024-08-04"
+  },
+  {
+    "coupon_rule_id": "CPN00002",
+    "coupon_code": "SPRING5",
+    "campaign_id": "CMP0005",
+    "discount_type": "FEE_WAIVER",
+    "discount_value": 39.9293,
+    "valid_from": "2025-03-06",
+    "valid_to": "2025-05-12"
+  },
+  {
+    "coupon_rule_id": "CPN00003",
+    "coupon_code": "LOYALTY15",
+    "campaign_id": "CMP0008",
+    "discount_type": "RATE_DISCOUNT",
+    "discount_value": 0.0261,
+    "valid_from": "2026-01-16",
+    "valid_to": "2026-03-18"
+  },
+  {
+    "coupon_rule_id": "CPN00004",
+    "coupon_code": "SPRING5",
+    "campaign_id": "CMP0010",
+    "discount_type": "FEE_WAIVER",
+    "discount_value": 49.5974,
+    "valid_from": "2023-10-03",
+    "valid_to": "2023-12-01"
+  },
+  {
+    "coupon_rule_id": "CPN00005",
+    "coupon_code": "FLASH25",
+    "campaign_id": "CMP0012",
+    "discount_type": "FEE_WAIVER",
+    "discount_value": 88.1951,
+    "valid_from": "2025-12-19",
+    "valid_to": "2026-02-07"
+  },
+  {
+    "coupon_rule_id": "CPN00006",
+    "coupon_code": "REFER20",
+    "campaign_id": "CMP0016",
+    "discount_type": "RATE_DISCOUNT",
+    "discount_value": 0.0263,
+    "valid_from": "2025-12-23",
+    "valid_to": "2026-02-06"
+  },
+  {
+    "coupon_rule_id": "CPN00007",
+    "coupon_code": "REFER20",
+    "campaign_id": "CMP0017",
+    "discount_type": "RATE_DISCOUNT",
+    "discount_value": 0.0217,
+    "valid_from": "2025-09-09",
+    "valid_to": "2025-10-21"
+  },
+  {
+    "coupon_rule_id": "CPN00008",
+    "coupon_code": "FLASH25",
+    "campaign_id": "CMP0021",
+    "discount_type": "RATE_DISCOUNT",
+    "discount_value": 0.0257,
+    "valid_from": "2023-07-29",
+    "valid_to": "2023-10-01"
+  }
+]

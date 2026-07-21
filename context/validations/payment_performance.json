@@ -1,0 +1,22 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0,
+    "rate": 0.0001
+  },
+  "notes": [
+    "Reconciliation-only. Executed by src/validate_payment_performance.py, which independently recomputes every metric in pandas from raw payment_schedule/payment_events (never importing src/etl_spark_payment_performance.py's Spark logic)."
+  ],
+  "rules": [
+    {"id": "expected_payment_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated expected_payment_count must match the count of payment_schedule rows with due_date <= as_of_date."},
+    {"id": "expected_amount_due_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated expected_amount_due must match the sum of scheduled_amount for payment_schedule rows with due_date <= as_of_date."},
+    {"id": "successful_payment_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated successful_payment_count must match the count of payment_events with payment_status in business_rules.successful_payment_statuses."},
+    {"id": "total_collected_amount_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated total_collected_amount must match the sum of amount for payment_events with payment_status in business_rules.successful_payment_statuses plus REVERSED (REVERSAL amounts net out a prior PAID amount)."},
+    {"id": "missed_payment_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated missed_payment_count must match the count of payment_events with payment_status == MISSED."},
+    {"id": "missed_amount_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated missed_amount must match the sum of payment_schedule.scheduled_amount for installments whose payment_event has payment_status == MISSED (payment_events.amount is 0 for MISSED, so this comes from the schedule, not the event)."},
+    {"id": "late_payment_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated late_payment_count must match the count of payment_events with payment_status == LATE."},
+    {"id": "failed_payment_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated failed_payment_count must match the count of payment_events with payment_status == FAILED."},
+    {"id": "collection_rate_reconciliation", "type": "reconciliation", "tolerance_type": "rate", "description": "curated collection_rate must match total_collected_amount / expected_amount_due."},
+    {"id": "prepayment_rate_reconciliation", "type": "reconciliation", "tolerance_type": "rate", "description": "curated prepayment_rate must match the share of successful payments made business_rules.prepayment_threshold_days or more before their due_date."}
+  ]
+}

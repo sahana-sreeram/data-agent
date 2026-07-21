@@ -1,0 +1,352 @@
+[
+  {
+    "delinquency_id": "DLQ0000001",
+    "loan_id": "L000002",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 17,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000002",
+    "loan_id": "L000004",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 108,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000003",
+    "loan_id": "L000007",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 29,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000004",
+    "loan_id": "L000010",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 108,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000005",
+    "loan_id": "L000017",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 100,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000006",
+    "loan_id": "L000021",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 21,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000007",
+    "loan_id": "L000027",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 10,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000008",
+    "loan_id": "L000029",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 114,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000009",
+    "loan_id": "L000030",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 9,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000010",
+    "loan_id": "L000035",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 137,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000011",
+    "loan_id": "L000036",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 46,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000012",
+    "loan_id": "L000041",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 25,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000013",
+    "loan_id": "L000042",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 17,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000014",
+    "loan_id": "L000043",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 10,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000015",
+    "loan_id": "L000044",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 49,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000016",
+    "loan_id": "L000048",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 25,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000017",
+    "loan_id": "L000050",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 29,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000018",
+    "loan_id": "L000051",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 143,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000019",
+    "loan_id": "L000056",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 22,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000020",
+    "loan_id": "L000057",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 20,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000021",
+    "loan_id": "L000059",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 24,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000022",
+    "loan_id": "L000066",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 44,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000023",
+    "loan_id": "L000067",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 48,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000024",
+    "loan_id": "L000068",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 12,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000025",
+    "loan_id": "L000071",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 15,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000026",
+    "loan_id": "L000075",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 6,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000027",
+    "loan_id": "L000078",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 18,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000028",
+    "loan_id": "L000087",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 148,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000029",
+    "loan_id": "L000089",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 58,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000030",
+    "loan_id": "L000091",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 41,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000031",
+    "loan_id": "L000092",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 142,
+    "bucket": "90_PLUS"
+  },
+  {
+    "delinquency_id": "DLQ0000032",
+    "loan_id": "L000093",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 54,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000033",
+    "loan_id": "L000097",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 58,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000034",
+    "loan_id": "L000100",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 16,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000035",
+    "loan_id": "L000101",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 11,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000036",
+    "loan_id": "L000104",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 50,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000037",
+    "loan_id": "L000106",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 23,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000038",
+    "loan_id": "L000111",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 48,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000039",
+    "loan_id": "L000121",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 12,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000040",
+    "loan_id": "L000122",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 25,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000041",
+    "loan_id": "L000123",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 17,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000042",
+    "loan_id": "L000125",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 34,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000043",
+    "loan_id": "L000126",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 17,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000044",
+    "loan_id": "L000130",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 24,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000045",
+    "loan_id": "L000131",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 4,
+    "bucket": "30"
+  },
+  {
+    "delinquency_id": "DLQ0000046",
+    "loan_id": "L000132",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 56,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000047",
+    "loan_id": "L000143",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 48,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000048",
+    "loan_id": "L000148",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 31,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000049",
+    "loan_id": "L000157",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 35,
+    "bucket": "60"
+  },
+  {
+    "delinquency_id": "DLQ0000050",
+    "loan_id": "L000161",
+    "as_of_date": "2026-07-20",
+    "days_past_due": 5,
+    "bucket": "30"
+  }
+]

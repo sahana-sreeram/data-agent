@@ -1,0 +1,12 @@
+{
+  "repair_status": "BLOCKED",
+  "repair_type": "NONE",
+  "target_file": null,
+  "changed_files": [],
+  "original_hashes": {},
+  "repaired_hashes": {},
+  "plan_policy_status": "FAIL",
+  "application_details": "policy validation / patch application failed: patch produced no actual change",
+  "error": null,
+  "workspace_dir": null
+}

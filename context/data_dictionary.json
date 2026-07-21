@@ -86,5 +86,216 @@
       "total_successful_payments": {"type": "float", "description": "Sum of amount_paid across successful payments only."},
       "total_outstanding_balance": {"type": "float", "description": "total_original_principal - total_successful_payments. Answers 'what is today's total outstanding loan balance?'"}
     }
+  },
+  "_lifecycle_model_note": "Entries below (lifecycle_*) describe the 12-table full-lifecycle model produced by src/generate_data.py into data/lifecycle/raw/ -- campaign -> email engagement -> offer -> application -> underwriting decision -> funded loan -> payment schedule -> payment events -> delinquency/default. This is SEPARATE from and does not replace the entries above (customers/loans/payments/portfolio_summary), which describe the original 3-scenario model in data/raw/ and data/processed/ and remain completely unmodified. lifecycle_customers and lifecycle_loans are prefixed because their schemas differ slightly from the entries above (lifecycle_customers adds credit_score; lifecycle_loans adds application_id) -- same table concept, evolved shape.",
+  "lifecycle_customers": {
+    "path": "data/lifecycle/raw/customers.json",
+    "description": "One record per synthetic customer -- same concept as customers above, plus a raw numeric credit_score alongside the existing band.",
+    "fields": {
+      "customer_id": {"type": "string", "description": "Unique customer identifier, format C000001."},
+      "created_at": {"type": "string (ISO date)", "description": "Date the customer record was created."},
+      "state": {"type": "string", "description": "Two-letter US state code."},
+      "income_band": {
+        "type": "enum",
+        "values": ["UNDER_40000", "40000_60000", "60000_80000", "80000_120000", "OVER_120000"],
+        "description": "Coarse income bracket."
+      },
+      "credit_score_band": {
+        "type": "enum",
+        "values": ["UNDER_620", "620_679", "680_719", "720_759", "760_PLUS"],
+        "description": "Coarse credit score bracket, statistically correlated with risk_segment."
+      },
+      "credit_score": {
+        "type": "int",
+        "description": "Raw FICO-style score (300-850), consistent with credit_score_band. Kept alongside the band specifically so a schema-drift scenario (e.g. this field silently changing from int to string) has a real value to corrupt."
+      },
+      "risk_segment": {
+        "type": "enum",
+        "values": ["LOW", "MEDIUM", "HIGH"],
+        "description": "Underwriting risk tier. Drives interest rate range and loan/payment outcome probabilities during generation."
+      }
+    },
+    "foreign_keys": []
+  },
+  "lifecycle_campaigns": {
+    "path": "data/lifecycle/raw/campaigns.json",
+    "description": "One record per marketing campaign.",
+    "fields": {
+      "campaign_id": {"type": "string", "description": "Unique campaign identifier, format CMP0001."},
+      "name": {"type": "string", "description": "Human-readable campaign name."},
+      "channel": {"type": "enum", "values": ["EMAIL", "SOCIAL", "PARTNER"], "description": "Marketing channel."},
+      "start_date": {"type": "string (ISO date)", "description": "Campaign start date."},
+      "end_date": {"type": "string (ISO date)", "description": "Campaign end date."},
+      "target_risk_segment": {
+        "type": "enum or null",
+        "values": ["LOW", "MEDIUM", "HIGH"],
+        "description": "Intended target risk segment, informational only -- not enforced against who actually engaged."
+      }
+    },
+    "foreign_keys": []
+  },
+  "lifecycle_coupon_rules": {
+    "path": "data/lifecycle/raw/coupon_rules.json",
+    "description": "Discount rules attached to campaigns. coupon_code is DELIBERATELY not unique across rows -- the same code string can be reissued across separate campaigns/rows, the way marketing teams reuse code names. coupon_rule_id is the real primary key, not coupon_code.",
+    "fields": {
+      "coupon_rule_id": {"type": "string", "description": "Unique coupon rule identifier, format CPN00001."},
+      "coupon_code": {"type": "string", "description": "Redemption code shown to customers. Not unique -- see table description."},
+      "campaign_id": {"type": "string", "description": "Foreign key into campaigns.campaign_id."},
+      "discount_type": {"type": "enum", "values": ["RATE_DISCOUNT", "FEE_WAIVER"], "description": "What the coupon discounts."},
+      "discount_value": {"type": "float", "description": "Discount magnitude: an APR reduction for RATE_DISCOUNT, a dollar amount for FEE_WAIVER."},
+      "valid_from": {"type": "string (ISO date)", "description": "Matches the parent campaign's start_date."},
+      "valid_to": {"type": "string (ISO date)", "description": "Matches the parent campaign's end_date."}
+    },
+    "foreign_keys": [{"column": "campaign_id", "references": "campaigns.campaign_id"}]
+  },
+  "lifecycle_email_events": {
+    "path": "data/lifecycle/raw/email_events.json",
+    "description": "SENT -> OPENED -> CLICKED funnel events, one row per event per (customer, campaign).",
+    "fields": {
+      "event_id": {"type": "string", "description": "Unique event identifier, format EM00000001."},
+      "campaign_id": {"type": "string", "description": "Foreign key into campaigns.campaign_id."},
+      "customer_id": {"type": "string", "description": "Foreign key into customers.customer_id."},
+      "event_type": {"type": "enum", "values": ["SENT", "OPENED", "CLICKED"], "description": "Funnel stage. A given (customer, campaign) can have at most one of each, in this order."},
+      "event_timestamp": {"type": "string (ISO date)", "description": "When the event occurred."}
+    },
+    "foreign_keys": [
+      {"column": "campaign_id", "references": "campaigns.campaign_id"},
+      {"column": "customer_id", "references": "customers.customer_id"}
+    ]
+  },
+  "lifecycle_prequal_offers": {
+    "path": "data/lifecycle/raw/prequal_offers.json",
+    "description": "Pre-qualified offers, either following a CLICKED email event or organic (no campaign).",
+    "fields": {
+      "offer_id": {"type": "string", "description": "Unique offer identifier, format OFF0000001."},
+      "customer_id": {"type": "string", "description": "Foreign key into customers.customer_id."},
+      "campaign_id": {"type": "string or null", "description": "Foreign key into campaigns.campaign_id, or null for an organic (non-campaign) offer."},
+      "coupon_code": {"type": "string or null", "description": "Redemption reference, if any. NOT a foreign key to coupon_rules.coupon_rule_id -- it's the raw code string a customer would enter, and coupon_code is not unique (see lifecycle_coupon_rules)."},
+      "offer_amount": {"type": "float", "description": "Offered loan amount, in dollars."},
+      "offer_apr": {"type": "float", "description": "Offered interest rate."},
+      "created_at": {"type": "string (ISO date)", "description": "When the offer was created."},
+      "expires_at": {"type": "string (ISO date)", "description": "Offer expiration date, informational only -- not enforced against application eligibility."}
+    },
+    "foreign_keys": [
+      {"column": "customer_id", "references": "customers.customer_id"},
+      {"column": "campaign_id", "references": "campaigns.campaign_id", "nullable": true}
+    ]
+  },
+  "lifecycle_applications": {
+    "path": "data/lifecycle/raw/applications.json",
+    "description": "Loan applications, either following an offer or organic (applied with no prior offer).",
+    "fields": {
+      "application_id": {"type": "string", "description": "Unique application identifier, format APP0000001."},
+      "customer_id": {"type": "string", "description": "Foreign key into customers.customer_id."},
+      "offer_id": {"type": "string or null", "description": "Foreign key into prequal_offers.offer_id, or null for an organic application."},
+      "requested_amount": {"type": "float", "description": "Amount requested, in dollars."},
+      "submitted_at": {"type": "string (ISO date)", "description": "Submission date."},
+      "application_status": {
+        "type": "enum",
+        "values": ["SUBMITTED", "WITHDRAWN", "DECISIONED"],
+        "description": "DECISIONED: an underwriting_decisions row exists for this application. WITHDRAWN/SUBMITTED: no decision was made -- WITHDRAWN means the customer pulled out, SUBMITTED means it's still pending as of as_of_date."
+      }
+    },
+    "foreign_keys": [
+      {"column": "customer_id", "references": "customers.customer_id"},
+      {"column": "offer_id", "references": "prequal_offers.offer_id", "nullable": true}
+    ]
+  },
+  "lifecycle_underwriting_decisions": {
+    "path": "data/lifecycle/raw/underwriting_decisions.json",
+    "description": "One record per DECISIONED application.",
+    "fields": {
+      "decision_id": {"type": "string", "description": "Unique decision identifier, format DEC0000001."},
+      "application_id": {"type": "string", "description": "Foreign key into applications.application_id."},
+      "decision": {"type": "enum", "values": ["APPROVED", "REJECTED", "MANUAL_REVIEW"], "description": "Underwriting outcome. Only APPROVED decisions can lead to a funded loan (and not all do -- see lifecycle_loans)."},
+      "rejection_reason": {"type": "enum or null", "values": ["LOW_CREDIT_SCORE", "HIGH_DEBT_TO_INCOME", "INSUFFICIENT_INCOME", "INCOMPLETE_APPLICATION", "FRAUD_RISK"], "description": "Set only when decision is REJECTED."},
+      "approved_amount": {"type": "float or null", "description": "Set only when decision is APPROVED."},
+      "approved_apr": {"type": "float or null", "description": "Set only when decision is APPROVED."},
+      "model_version": {"type": "string", "description": "Which underwriting model version made this decision (e.g. uw-model-v1, uw-model-v2), deterministic from decided_at relative to a fixed cutover date -- not random."},
+      "decided_at": {"type": "string (ISO date)", "description": "Decision date."}
+    },
+    "foreign_keys": [{"column": "application_id", "references": "applications.application_id"}]
+  },
+  "lifecycle_loans": {
+    "path": "data/lifecycle/raw/loans.json",
+    "description": "Funded loans -- same concept as loans above, plus application_id. One loan per APPROVED decision that actually funds (not all approved decisions fund). loan_status is derived from elapsed time since origination relative to term_months, not assigned independently.",
+    "fields": {
+      "loan_id": {"type": "string", "description": "Unique loan identifier, format L000001."},
+      "application_id": {"type": "string", "description": "Foreign key into applications.application_id."},
+      "customer_id": {"type": "string", "description": "Foreign key into customers.customer_id."},
+      "principal_amount": {"type": "float", "description": "Original loan principal, in dollars. Always positive."},
+      "interest_rate": {"type": "float", "description": "Used in the lifecycle model's accrued-interest metric (unlike the original loans table, where it is descriptive-only)."},
+      "term_months": {"type": "int", "values": [12, 24, 36, 48, 60], "description": "Loan term in months."},
+      "originated_at": {"type": "string (ISO date)", "description": "Date the loan was originated -- always after the parent decision's decided_at."},
+      "loan_status": {
+        "type": "enum",
+        "values": ["ACTIVE", "CLOSED", "DEFAULTED"],
+        "description": "ACTIVE: still within its term. CLOSED: term elapsed, PAID events reconcile to principal within $0.01. DEFAULTED: payment history ends in a LATE/MISSED event."
+      },
+      "scheduled_payment_amount": {"type": "float", "description": "principal_amount / term_months, rounded to 2 decimals."}
+    },
+    "foreign_keys": [
+      {"column": "application_id", "references": "applications.application_id"},
+      {"column": "customer_id", "references": "customers.customer_id"}
+    ]
+  },
+  "lifecycle_payment_schedule": {
+    "path": "data/lifecycle/raw/payment_schedule.json",
+    "description": "Every loan's full set of expected installments -- what SHOULD happen, independent of what actually did (see lifecycle_payment_events for that).",
+    "fields": {
+      "schedule_id": {"type": "string", "description": "Unique schedule entry identifier, format SCH00000001."},
+      "loan_id": {"type": "string", "description": "Foreign key into loans.loan_id."},
+      "installment_number": {"type": "int", "description": "1-indexed position within the loan's term."},
+      "due_date": {"type": "string (ISO date)", "description": "Installment due date."},
+      "scheduled_amount": {"type": "float", "description": "Equal to the parent loan's scheduled_payment_amount."}
+    },
+    "foreign_keys": [{"column": "loan_id", "references": "loans.loan_id"}]
+  },
+  "lifecycle_payment_events": {
+    "path": "data/lifecycle/raw/payment_events.json",
+    "description": "What actually happened per installment -- only realized outcomes are recorded here (a future-dated installment with nothing realized yet simply has no row). Also carries occasional REVERSAL events offsetting an earlier PAID event.",
+    "fields": {
+      "event_id": {"type": "string", "description": "Unique event identifier, format PEV00000001."},
+      "schedule_id": {"type": "string or null", "description": "Foreign key into payment_schedule.schedule_id. Always set in practice for this generator, but nullable in principle."},
+      "loan_id": {"type": "string", "description": "Foreign key into loans.loan_id."},
+      "event_type": {"type": "enum", "values": ["PAYMENT", "REVERSAL"], "description": "REVERSAL rows always have payment_status REVERSED and a negative amount."},
+      "payment_date": {"type": "string (ISO date) or null", "description": "Date the payment (or reversal) actually occurred. Null for MISSED. Never after as_of_date."},
+      "amount": {"type": "float", "description": "Positive for PAID/LATE, 0 for MISSED/FAILED, negative for REVERSAL (offsetting the original PAID amount)."},
+      "payment_status": {
+        "type": "enum",
+        "values": ["PAID", "LATE", "MISSED", "FAILED", "REVERSED"],
+        "description": "Same semantics as the original payments table's payment_status for PAID/LATE/MISSED/FAILED. REVERSED is new -- see event_type."
+      },
+      "payment_method": {"type": "enum", "values": ["ACH", "CARD", "CHECK"], "description": "How the payment was made or attempted."}
+    },
+    "foreign_keys": [
+      {"column": "loan_id", "references": "loans.loan_id"},
+      {"column": "schedule_id", "references": "payment_schedule.schedule_id", "nullable": true}
+    ]
+  },
+  "lifecycle_delinquency_events": {
+    "path": "data/lifecycle/raw/delinquency_events.json",
+    "description": "A snapshot row for any loan with at least one LATE/MISSED payment event.",
+    "fields": {
+      "delinquency_id": {"type": "string", "description": "Unique identifier, format DLQ0000001."},
+      "loan_id": {"type": "string", "description": "Foreign key into loans.loan_id."},
+      "as_of_date": {"type": "string (ISO date)", "description": "The business date this snapshot represents."},
+      "days_past_due": {"type": "int", "description": "Days past due, consistent with bucket."},
+      "bucket": {"type": "enum", "values": ["CURRENT", "30", "60", "90_PLUS"], "description": "CURRENT is defined in the enum but never generated by src/generate_data.py -- a delinquency_events row existing at all means the loan is, by construction, in one of the other three buckets."}
+    },
+    "foreign_keys": [{"column": "loan_id", "references": "loans.loan_id"}]
+  },
+  "lifecycle_defaults": {
+    "path": "data/lifecycle/raw/defaults.json",
+    "description": "One record per DEFAULTED loan.",
+    "fields": {
+      "default_id": {"type": "string", "description": "Unique identifier, format DEF000001."},
+      "loan_id": {"type": "string", "description": "Foreign key into loans.loan_id. At most one default row per loan."},
+      "default_date": {"type": "string (ISO date)", "description": "Date of default."},
+      "balance_at_default": {"type": "float", "description": "principal_amount minus successful payments made before default, floored at 0."},
+      "recovery_amount": {"type": "float", "description": "Amount recovered after default, if any. 0 when recovery_date is null."},
+      "recovery_date": {"type": "string (ISO date) or null", "description": "Date of recovery, if any."}
+    },
+    "foreign_keys": [{"column": "loan_id", "references": "loans.loan_id"}]
   }
 }

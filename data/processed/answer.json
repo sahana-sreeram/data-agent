@@ -1,0 +1,17 @@
+{
+  "answer": {
+    "answer_status": "ANSWERED",
+    "question": "What is the total outstanding balance?",
+    "answer_summary": "The total outstanding balance is 997522.36.",
+    "as_of_date": "2026-07-20",
+    "cited_metrics": [
+      {
+        "metric_name": "total_outstanding_balance",
+        "value": 997522.36,
+        "source_reference": "get_portfolio_summary"
+      }
+    ],
+    "caveats": []
+  },
+  "self_healing": null
+}

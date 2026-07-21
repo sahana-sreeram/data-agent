@@ -1,0 +1,2702 @@
+[
+  {
+    "customer_id": "C000001",
+    "created_at": "2024-05-01",
+    "state": "WV",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 440,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000002",
+    "created_at": "2025-12-01",
+    "state": "AZ",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 829,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000003",
+    "created_at": "2024-08-31",
+    "state": "VA",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 712,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000004",
+    "created_at": "2025-02-09",
+    "state": "AL",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 694,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000005",
+    "created_at": "2024-06-03",
+    "state": "IN",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 516,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000006",
+    "created_at": "2025-07-25",
+    "state": "MN",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 347,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000007",
+    "created_at": "2025-09-03",
+    "state": "CO",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 749,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000008",
+    "created_at": "2025-07-30",
+    "state": "OR",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 759,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000009",
+    "created_at": "2025-03-04",
+    "state": "CO",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 662,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000010",
+    "created_at": "2025-08-06",
+    "state": "HI",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 744,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000011",
+    "created_at": "2023-12-14",
+    "state": "RI",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 697,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000012",
+    "created_at": "2025-09-05",
+    "state": "LA",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 695,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000013",
+    "created_at": "2025-05-15",
+    "state": "WY",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 655,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000014",
+    "created_at": "2025-10-19",
+    "state": "LA",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 316,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000015",
+    "created_at": "2025-04-25",
+    "state": "IN",
+    "income_band": "OVER_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 832,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000016",
+    "created_at": "2024-05-01",
+    "state": "KS",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 709,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000017",
+    "created_at": "2025-10-15",
+    "state": "MS",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 717,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000018",
+    "created_at": "2023-10-25",
+    "state": "DE",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 825,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000019",
+    "created_at": "2025-09-16",
+    "state": "MO",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 707,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000020",
+    "created_at": "2023-08-13",
+    "state": "UT",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 696,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000021",
+    "created_at": "2025-06-16",
+    "state": "DE",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 754,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000022",
+    "created_at": "2025-01-10",
+    "state": "NC",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 680,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000023",
+    "created_at": "2025-03-23",
+    "state": "SD",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 626,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000024",
+    "created_at": "2026-07-11",
+    "state": "AL",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 643,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000025",
+    "created_at": "2025-04-10",
+    "state": "KS",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 687,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000026",
+    "created_at": "2026-04-11",
+    "state": "CA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 770,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000027",
+    "created_at": "2026-03-20",
+    "state": "OK",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 628,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000028",
+    "created_at": "2024-09-26",
+    "state": "OH",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 758,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000029",
+    "created_at": "2025-08-23",
+    "state": "NH",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 665,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000030",
+    "created_at": "2025-06-12",
+    "state": "AK",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 635,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000031",
+    "created_at": "2023-11-18",
+    "state": "IA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 634,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000032",
+    "created_at": "2024-11-19",
+    "state": "LA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 641,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000033",
+    "created_at": "2026-03-15",
+    "state": "KS",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 628,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000034",
+    "created_at": "2025-12-19",
+    "state": "MN",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 692,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000035",
+    "created_at": "2024-02-07",
+    "state": "AR",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 683,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000036",
+    "created_at": "2024-08-16",
+    "state": "IL",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 675,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000037",
+    "created_at": "2024-12-13",
+    "state": "CA",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 631,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000038",
+    "created_at": "2023-08-20",
+    "state": "CO",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 755,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000039",
+    "created_at": "2026-04-01",
+    "state": "IN",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 690,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000040",
+    "created_at": "2025-09-27",
+    "state": "KY",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 730,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000041",
+    "created_at": "2026-04-12",
+    "state": "GA",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 698,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000042",
+    "created_at": "2023-11-22",
+    "state": "WV",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 683,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000043",
+    "created_at": "2026-07-12",
+    "state": "HI",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 650,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000044",
+    "created_at": "2023-12-07",
+    "state": "UT",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 731,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000045",
+    "created_at": "2023-10-10",
+    "state": "SC",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 676,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000046",
+    "created_at": "2025-01-05",
+    "state": "IN",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 832,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000047",
+    "created_at": "2025-03-26",
+    "state": "NJ",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 636,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000048",
+    "created_at": "2024-02-10",
+    "state": "CA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 769,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000049",
+    "created_at": "2023-12-08",
+    "state": "KS",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 688,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000050",
+    "created_at": "2026-07-08",
+    "state": "AL",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 714,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000051",
+    "created_at": "2024-04-21",
+    "state": "KY",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 686,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000052",
+    "created_at": "2025-02-17",
+    "state": "RI",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 715,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000053",
+    "created_at": "2024-12-16",
+    "state": "AR",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 736,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000054",
+    "created_at": "2025-06-03",
+    "state": "WY",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 737,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000055",
+    "created_at": "2025-12-12",
+    "state": "OK",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 780,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000056",
+    "created_at": "2024-05-21",
+    "state": "OH",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 676,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000057",
+    "created_at": "2024-04-07",
+    "state": "AZ",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 755,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000058",
+    "created_at": "2024-09-23",
+    "state": "UT",
+    "income_band": "OVER_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 765,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000059",
+    "created_at": "2025-10-30",
+    "state": "SC",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 715,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000060",
+    "created_at": "2024-07-17",
+    "state": "NE",
+    "income_band": "OVER_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 790,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000061",
+    "created_at": "2025-11-10",
+    "state": "TX",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 802,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000062",
+    "created_at": "2024-02-27",
+    "state": "MO",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 697,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000063",
+    "created_at": "2026-02-17",
+    "state": "MN",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 734,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000064",
+    "created_at": "2024-08-19",
+    "state": "MT",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 789,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000065",
+    "created_at": "2026-05-29",
+    "state": "MT",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 795,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000066",
+    "created_at": "2024-03-13",
+    "state": "KY",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 741,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000067",
+    "created_at": "2025-12-26",
+    "state": "MN",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 793,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000068",
+    "created_at": "2024-03-13",
+    "state": "MO",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 658,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000069",
+    "created_at": "2023-07-24",
+    "state": "ND",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 322,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000070",
+    "created_at": "2024-08-27",
+    "state": "MS",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 666,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000071",
+    "created_at": "2024-04-01",
+    "state": "WA",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 802,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000072",
+    "created_at": "2025-10-22",
+    "state": "VT",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 662,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000073",
+    "created_at": "2025-09-04",
+    "state": "UT",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 706,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000074",
+    "created_at": "2023-07-21",
+    "state": "MD",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 656,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000075",
+    "created_at": "2025-05-10",
+    "state": "NJ",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 757,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000076",
+    "created_at": "2024-07-02",
+    "state": "TX",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 752,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000077",
+    "created_at": "2024-11-13",
+    "state": "UT",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 759,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000078",
+    "created_at": "2024-12-03",
+    "state": "NM",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 778,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000079",
+    "created_at": "2024-08-22",
+    "state": "VA",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 749,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000080",
+    "created_at": "2023-08-01",
+    "state": "WI",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 695,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000081",
+    "created_at": "2026-06-15",
+    "state": "NJ",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 747,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000082",
+    "created_at": "2026-02-26",
+    "state": "TX",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 687,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000083",
+    "created_at": "2026-01-12",
+    "state": "SC",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 700,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000084",
+    "created_at": "2026-01-19",
+    "state": "HI",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 747,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000085",
+    "created_at": "2025-02-07",
+    "state": "WY",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 696,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000086",
+    "created_at": "2023-12-26",
+    "state": "VA",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 635,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000087",
+    "created_at": "2024-01-02",
+    "state": "FL",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 700,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000088",
+    "created_at": "2023-11-29",
+    "state": "NE",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 729,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000089",
+    "created_at": "2025-11-27",
+    "state": "MO",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 706,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000090",
+    "created_at": "2025-09-07",
+    "state": "NM",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 664,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000091",
+    "created_at": "2025-11-25",
+    "state": "OH",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 744,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000092",
+    "created_at": "2026-04-15",
+    "state": "IA",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 718,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000093",
+    "created_at": "2025-10-26",
+    "state": "WA",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 744,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000094",
+    "created_at": "2026-07-18",
+    "state": "AK",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 728,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000095",
+    "created_at": "2025-12-14",
+    "state": "FL",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 662,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000096",
+    "created_at": "2024-09-26",
+    "state": "NJ",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 433,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000097",
+    "created_at": "2025-11-30",
+    "state": "KY",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 808,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000098",
+    "created_at": "2025-07-06",
+    "state": "IA",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 667,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000099",
+    "created_at": "2024-12-08",
+    "state": "IL",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 722,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000100",
+    "created_at": "2024-03-11",
+    "state": "OR",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 635,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000101",
+    "created_at": "2024-06-28",
+    "state": "RI",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 636,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000102",
+    "created_at": "2024-06-20",
+    "state": "MD",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 727,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000103",
+    "created_at": "2025-08-27",
+    "state": "MT",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 639,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000104",
+    "created_at": "2024-11-29",
+    "state": "CT",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 603,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000105",
+    "created_at": "2024-03-24",
+    "state": "OR",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 663,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000106",
+    "created_at": "2023-12-09",
+    "state": "NC",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 519,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000107",
+    "created_at": "2024-02-22",
+    "state": "NV",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 515,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000108",
+    "created_at": "2024-05-29",
+    "state": "NV",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 673,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000109",
+    "created_at": "2026-04-06",
+    "state": "NJ",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 737,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000110",
+    "created_at": "2024-12-04",
+    "state": "CO",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 737,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000111",
+    "created_at": "2025-09-04",
+    "state": "MI",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 749,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000112",
+    "created_at": "2025-07-16",
+    "state": "KY",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 783,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000113",
+    "created_at": "2023-08-10",
+    "state": "ND",
+    "income_band": "OVER_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 849,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000114",
+    "created_at": "2024-11-24",
+    "state": "VT",
+    "income_band": "60000_80000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 508,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000115",
+    "created_at": "2024-01-27",
+    "state": "ME",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 748,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000116",
+    "created_at": "2025-08-14",
+    "state": "NM",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 799,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000117",
+    "created_at": "2025-07-10",
+    "state": "VT",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 667,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000118",
+    "created_at": "2024-08-18",
+    "state": "MA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 634,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000119",
+    "created_at": "2026-04-07",
+    "state": "LA",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 731,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000120",
+    "created_at": "2024-02-11",
+    "state": "IL",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 827,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000121",
+    "created_at": "2026-07-18",
+    "state": "FL",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 739,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000122",
+    "created_at": "2024-04-04",
+    "state": "SD",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 830,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000123",
+    "created_at": "2025-02-22",
+    "state": "NM",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 675,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000124",
+    "created_at": "2026-03-25",
+    "state": "DE",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 623,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000125",
+    "created_at": "2023-11-07",
+    "state": "GA",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 624,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000126",
+    "created_at": "2024-12-10",
+    "state": "DE",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 739,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000127",
+    "created_at": "2024-10-25",
+    "state": "WY",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 718,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000128",
+    "created_at": "2025-12-15",
+    "state": "MD",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 708,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000129",
+    "created_at": "2024-09-18",
+    "state": "SD",
+    "income_band": "OVER_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 350,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000130",
+    "created_at": "2023-12-21",
+    "state": "HI",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 780,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000131",
+    "created_at": "2023-09-25",
+    "state": "IA",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 758,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000132",
+    "created_at": "2024-11-10",
+    "state": "KY",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 709,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000133",
+    "created_at": "2024-08-29",
+    "state": "NV",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 662,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000134",
+    "created_at": "2024-05-07",
+    "state": "CA",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 689,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000135",
+    "created_at": "2025-03-03",
+    "state": "NH",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 836,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000136",
+    "created_at": "2025-01-28",
+    "state": "NC",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 849,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000137",
+    "created_at": "2025-12-21",
+    "state": "WV",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 718,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000138",
+    "created_at": "2023-09-01",
+    "state": "WI",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 685,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000139",
+    "created_at": "2024-07-13",
+    "state": "NM",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 622,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000140",
+    "created_at": "2025-12-29",
+    "state": "SD",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 697,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000141",
+    "created_at": "2025-06-02",
+    "state": "MA",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 820,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000142",
+    "created_at": "2026-04-30",
+    "state": "ME",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 741,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000143",
+    "created_at": "2024-01-17",
+    "state": "MA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 715,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000144",
+    "created_at": "2023-07-23",
+    "state": "TX",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 705,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000145",
+    "created_at": "2025-07-30",
+    "state": "SC",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 623,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000146",
+    "created_at": "2025-01-17",
+    "state": "OK",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 668,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000147",
+    "created_at": "2024-11-22",
+    "state": "VA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 711,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000148",
+    "created_at": "2024-10-23",
+    "state": "DE",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 755,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000149",
+    "created_at": "2025-03-09",
+    "state": "NC",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 673,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000150",
+    "created_at": "2024-12-01",
+    "state": "NJ",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 710,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000151",
+    "created_at": "2024-04-25",
+    "state": "CA",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 718,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000152",
+    "created_at": "2026-05-25",
+    "state": "LA",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 813,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000153",
+    "created_at": "2026-04-18",
+    "state": "GA",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 452,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000154",
+    "created_at": "2025-08-31",
+    "state": "NJ",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 701,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000155",
+    "created_at": "2024-11-10",
+    "state": "WY",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 735,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000156",
+    "created_at": "2025-09-08",
+    "state": "MO",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 650,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000157",
+    "created_at": "2023-10-04",
+    "state": "FL",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 689,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000158",
+    "created_at": "2026-01-07",
+    "state": "CT",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 686,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000159",
+    "created_at": "2024-06-01",
+    "state": "CA",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 689,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000160",
+    "created_at": "2025-10-12",
+    "state": "TN",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 803,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000161",
+    "created_at": "2025-04-29",
+    "state": "SD",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 754,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000162",
+    "created_at": "2023-12-08",
+    "state": "KS",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 754,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000163",
+    "created_at": "2025-12-25",
+    "state": "CT",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 789,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000164",
+    "created_at": "2025-03-25",
+    "state": "AK",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 686,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000165",
+    "created_at": "2025-12-19",
+    "state": "GA",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 797,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000166",
+    "created_at": "2023-12-29",
+    "state": "SC",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 731,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000167",
+    "created_at": "2024-05-09",
+    "state": "IA",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 635,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000168",
+    "created_at": "2026-02-27",
+    "state": "ME",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 636,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000169",
+    "created_at": "2025-03-24",
+    "state": "SD",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 648,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000170",
+    "created_at": "2024-08-31",
+    "state": "MO",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 649,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000171",
+    "created_at": "2025-03-17",
+    "state": "VT",
+    "income_band": "60000_80000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 495,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000172",
+    "created_at": "2023-08-06",
+    "state": "OR",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 844,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000173",
+    "created_at": "2026-05-03",
+    "state": "ME",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 683,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000174",
+    "created_at": "2024-08-13",
+    "state": "SC",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 480,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000175",
+    "created_at": "2024-04-26",
+    "state": "SD",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 844,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000176",
+    "created_at": "2026-01-08",
+    "state": "AZ",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 722,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000177",
+    "created_at": "2025-05-20",
+    "state": "WV",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 725,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000178",
+    "created_at": "2025-08-08",
+    "state": "ND",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 670,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000179",
+    "created_at": "2026-04-02",
+    "state": "ME",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 630,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000180",
+    "created_at": "2023-12-22",
+    "state": "GA",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 627,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000181",
+    "created_at": "2025-08-08",
+    "state": "CO",
+    "income_band": "OVER_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 503,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000182",
+    "created_at": "2025-08-13",
+    "state": "UT",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 574,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000183",
+    "created_at": "2025-08-19",
+    "state": "CT",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 644,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000184",
+    "created_at": "2025-05-22",
+    "state": "SC",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 719,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000185",
+    "created_at": "2025-03-30",
+    "state": "TN",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 672,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000186",
+    "created_at": "2026-04-24",
+    "state": "DE",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 622,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000187",
+    "created_at": "2025-08-18",
+    "state": "TX",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 777,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000188",
+    "created_at": "2024-06-01",
+    "state": "NE",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 654,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000189",
+    "created_at": "2025-02-12",
+    "state": "AZ",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 759,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000190",
+    "created_at": "2025-08-01",
+    "state": "CT",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 648,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000191",
+    "created_at": "2025-02-05",
+    "state": "IL",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 483,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000192",
+    "created_at": "2024-09-27",
+    "state": "TN",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 749,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000193",
+    "created_at": "2024-11-30",
+    "state": "FL",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 766,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000194",
+    "created_at": "2024-10-05",
+    "state": "IA",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 583,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000195",
+    "created_at": "2024-05-12",
+    "state": "FL",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 718,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000196",
+    "created_at": "2023-09-11",
+    "state": "FL",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 727,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000197",
+    "created_at": "2023-08-22",
+    "state": "ID",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 790,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000198",
+    "created_at": "2023-11-28",
+    "state": "NM",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 706,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000199",
+    "created_at": "2026-05-17",
+    "state": "IA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 717,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000200",
+    "created_at": "2023-09-22",
+    "state": "AR",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 566,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000201",
+    "created_at": "2026-04-20",
+    "state": "VA",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 707,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000202",
+    "created_at": "2024-05-19",
+    "state": "CA",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 341,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000203",
+    "created_at": "2025-05-16",
+    "state": "MO",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 757,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000204",
+    "created_at": "2025-12-18",
+    "state": "CT",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 649,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000205",
+    "created_at": "2024-10-03",
+    "state": "NV",
+    "income_band": "80000_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 582,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000206",
+    "created_at": "2025-10-14",
+    "state": "NE",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 641,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000207",
+    "created_at": "2025-08-25",
+    "state": "GA",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 640,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000208",
+    "created_at": "2024-01-27",
+    "state": "NV",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 685,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000209",
+    "created_at": "2025-05-26",
+    "state": "TX",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 776,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000210",
+    "created_at": "2023-11-03",
+    "state": "ME",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 747,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000211",
+    "created_at": "2024-06-01",
+    "state": "TX",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 716,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000212",
+    "created_at": "2025-08-11",
+    "state": "DE",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 742,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000213",
+    "created_at": "2023-09-12",
+    "state": "RI",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 671,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000214",
+    "created_at": "2025-01-30",
+    "state": "VT",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 697,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000215",
+    "created_at": "2024-05-09",
+    "state": "OR",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 742,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000216",
+    "created_at": "2026-07-11",
+    "state": "IN",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 315,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000217",
+    "created_at": "2025-05-15",
+    "state": "WY",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 730,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000218",
+    "created_at": "2024-06-07",
+    "state": "WI",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 676,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000219",
+    "created_at": "2025-12-05",
+    "state": "NY",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 737,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000220",
+    "created_at": "2024-03-10",
+    "state": "MN",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 693,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000221",
+    "created_at": "2026-07-04",
+    "state": "TX",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 663,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000222",
+    "created_at": "2024-09-11",
+    "state": "MD",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 718,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000223",
+    "created_at": "2024-03-22",
+    "state": "AL",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 696,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000224",
+    "created_at": "2024-11-03",
+    "state": "NC",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 688,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000225",
+    "created_at": "2023-10-15",
+    "state": "NV",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 742,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000226",
+    "created_at": "2025-10-26",
+    "state": "VA",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 800,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000227",
+    "created_at": "2025-05-16",
+    "state": "HI",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 645,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000228",
+    "created_at": "2025-07-31",
+    "state": "CO",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 673,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000229",
+    "created_at": "2026-06-28",
+    "state": "CO",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 647,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000230",
+    "created_at": "2024-06-29",
+    "state": "CA",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 741,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000231",
+    "created_at": "2025-07-05",
+    "state": "MN",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 652,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000232",
+    "created_at": "2024-05-15",
+    "state": "KY",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 729,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000233",
+    "created_at": "2026-04-27",
+    "state": "NJ",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 724,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000234",
+    "created_at": "2025-05-12",
+    "state": "SD",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 708,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000235",
+    "created_at": "2025-04-01",
+    "state": "LA",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 750,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000236",
+    "created_at": "2026-01-31",
+    "state": "AZ",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 684,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000237",
+    "created_at": "2024-01-21",
+    "state": "SC",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 769,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000238",
+    "created_at": "2023-10-13",
+    "state": "NH",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 717,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000239",
+    "created_at": "2026-03-21",
+    "state": "NC",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 632,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000240",
+    "created_at": "2025-06-23",
+    "state": "VA",
+    "income_band": "80000_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 626,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000241",
+    "created_at": "2026-01-02",
+    "state": "NH",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 722,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000242",
+    "created_at": "2025-02-19",
+    "state": "MO",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 703,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000243",
+    "created_at": "2025-06-05",
+    "state": "CA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 658,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000244",
+    "created_at": "2024-05-23",
+    "state": "MI",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 744,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000245",
+    "created_at": "2025-09-30",
+    "state": "FL",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 804,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000246",
+    "created_at": "2025-05-23",
+    "state": "FL",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 799,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000247",
+    "created_at": "2025-12-04",
+    "state": "NC",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 753,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000248",
+    "created_at": "2025-06-19",
+    "state": "WY",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 731,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000249",
+    "created_at": "2025-03-17",
+    "state": "CT",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 628,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000250",
+    "created_at": "2025-06-09",
+    "state": "WY",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 713,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000251",
+    "created_at": "2024-06-24",
+    "state": "WA",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 689,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000252",
+    "created_at": "2025-02-23",
+    "state": "WI",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 695,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000253",
+    "created_at": "2026-03-07",
+    "state": "IL",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 714,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000254",
+    "created_at": "2025-02-17",
+    "state": "WY",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 816,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000255",
+    "created_at": "2024-04-29",
+    "state": "KY",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 730,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000256",
+    "created_at": "2024-02-16",
+    "state": "VA",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 743,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000257",
+    "created_at": "2024-06-13",
+    "state": "LA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 738,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000258",
+    "created_at": "2024-10-17",
+    "state": "NH",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 707,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000259",
+    "created_at": "2026-05-14",
+    "state": "MS",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 746,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000260",
+    "created_at": "2025-05-03",
+    "state": "CT",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 807,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000261",
+    "created_at": "2023-10-07",
+    "state": "ME",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 670,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000262",
+    "created_at": "2026-03-07",
+    "state": "NH",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 673,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000263",
+    "created_at": "2024-05-22",
+    "state": "OK",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 762,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000264",
+    "created_at": "2025-03-02",
+    "state": "KS",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 647,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000265",
+    "created_at": "2026-02-11",
+    "state": "CA",
+    "income_band": "60000_80000",
+    "credit_score_band": "620_679",
+    "credit_score": 646,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000266",
+    "created_at": "2026-06-10",
+    "state": "OR",
+    "income_band": "60000_80000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 836,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000267",
+    "created_at": "2025-07-12",
+    "state": "KS",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 707,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000268",
+    "created_at": "2025-07-28",
+    "state": "CA",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 662,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000269",
+    "created_at": "2023-08-31",
+    "state": "MO",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 670,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000270",
+    "created_at": "2024-12-21",
+    "state": "WV",
+    "income_band": "OVER_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 498,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000271",
+    "created_at": "2024-02-18",
+    "state": "WY",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 804,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000272",
+    "created_at": "2025-06-13",
+    "state": "TN",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 728,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000273",
+    "created_at": "2026-03-27",
+    "state": "SD",
+    "income_band": "OVER_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 819,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000274",
+    "created_at": "2024-09-05",
+    "state": "AZ",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 709,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000275",
+    "created_at": "2026-06-10",
+    "state": "MT",
+    "income_band": "OVER_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 740,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000276",
+    "created_at": "2024-08-15",
+    "state": "ME",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 636,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000277",
+    "created_at": "2024-03-31",
+    "state": "MS",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 843,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000278",
+    "created_at": "2025-09-19",
+    "state": "MI",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 708,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000279",
+    "created_at": "2026-06-18",
+    "state": "LA",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 651,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000280",
+    "created_at": "2024-07-24",
+    "state": "OH",
+    "income_band": "60000_80000",
+    "credit_score_band": "680_719",
+    "credit_score": 685,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000281",
+    "created_at": "2025-04-08",
+    "state": "NH",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 700,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000282",
+    "created_at": "2023-10-15",
+    "state": "WA",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 708,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000283",
+    "created_at": "2023-11-15",
+    "state": "CA",
+    "income_band": "40000_60000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 522,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000284",
+    "created_at": "2024-06-12",
+    "state": "AK",
+    "income_band": "80000_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 712,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000285",
+    "created_at": "2023-12-05",
+    "state": "KS",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "720_759",
+    "credit_score": 748,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000286",
+    "created_at": "2023-09-25",
+    "state": "RI",
+    "income_band": "OVER_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 496,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000287",
+    "created_at": "2023-12-25",
+    "state": "OR",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 743,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000288",
+    "created_at": "2024-12-13",
+    "state": "DE",
+    "income_band": "60000_80000",
+    "credit_score_band": "720_759",
+    "credit_score": 740,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000289",
+    "created_at": "2024-03-18",
+    "state": "KY",
+    "income_band": "40000_60000",
+    "credit_score_band": "680_719",
+    "credit_score": 713,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000290",
+    "created_at": "2025-02-24",
+    "state": "VT",
+    "income_band": "OVER_120000",
+    "credit_score_band": "680_719",
+    "credit_score": 693,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000291",
+    "created_at": "2023-12-19",
+    "state": "NH",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "620_679",
+    "credit_score": 627,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000292",
+    "created_at": "2025-05-05",
+    "state": "TX",
+    "income_band": "80000_120000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 771,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000293",
+    "created_at": "2025-03-26",
+    "state": "HI",
+    "income_band": "40000_60000",
+    "credit_score_band": "620_679",
+    "credit_score": 654,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000294",
+    "created_at": "2025-07-30",
+    "state": "NC",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 841,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000295",
+    "created_at": "2026-04-27",
+    "state": "AK",
+    "income_band": "40000_60000",
+    "credit_score_band": "760_PLUS",
+    "credit_score": 777,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000296",
+    "created_at": "2024-04-11",
+    "state": "SC",
+    "income_band": "80000_120000",
+    "credit_score_band": "720_759",
+    "credit_score": 749,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000297",
+    "created_at": "2026-03-27",
+    "state": "ND",
+    "income_band": "OVER_120000",
+    "credit_score_band": "UNDER_620",
+    "credit_score": 503,
+    "risk_segment": "HIGH"
+  },
+  {
+    "customer_id": "C000298",
+    "created_at": "2025-04-30",
+    "state": "TN",
+    "income_band": "UNDER_40000",
+    "credit_score_band": "680_719",
+    "credit_score": 716,
+    "risk_segment": "MEDIUM"
+  },
+  {
+    "customer_id": "C000299",
+    "created_at": "2024-07-27",
+    "state": "WY",
+    "income_band": "40000_60000",
+    "credit_score_band": "720_759",
+    "credit_score": 753,
+    "risk_segment": "LOW"
+  },
+  {
+    "customer_id": "C000300",
+    "created_at": "2024-03-31",
+    "state": "ND",
+    "income_band": "OVER_120000",
+    "credit_score_band": "620_679",
+    "credit_score": 678,
+    "risk_segment": "HIGH"
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0,
+    "rate": 0.0001
+  },
+  "notes": [
+    "Reconciliation-only -- schema/enum/referential integrity for the underlying raw tables are already covered by context/validations/lifecycle_raw.json.",
+    "Executed by src/validate_loan_portfolio.py, which independently recomputes every metric in pandas from raw Parquet (never importing src/etl_spark_loan_portfolio.py's Spark logic) and compares against the curated summary it wrote."
+  ],
+  "rules": [
+    {"id": "loan_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated loan_portfolio.loan_count must match the number of raw loans records."},
+    {"id": "active_loan_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated loan_portfolio.active_loan_count must match the count of raw loans with loan_status == ACTIVE."},
+    {"id": "closed_loan_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated loan_portfolio.closed_loan_count must match the count of raw loans with loan_status == CLOSED."},
+    {"id": "defaulted_loan_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated loan_portfolio.defaulted_loan_count must match the count of raw loans with loan_status == DEFAULTED."},
+    {"id": "total_funded_principal_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_funded_principal must match the sum of principal_amount across raw loans."},
+    {"id": "total_outstanding_principal_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_outstanding_principal must match, per loan, principal_amount minus net successful payment_events amount (PAID net of any REVERSED), floored at 0, summed across all loans."},
+    {"id": "avg_interest_rate_reconciliation", "type": "reconciliation", "tolerance_type": "rate", "description": "curated loan_portfolio.avg_interest_rate must match the mean interest_rate across raw loans."},
+    {"id": "total_accrued_interest_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_accrued_interest must match, per ACTIVE loan (business_rules.interest_accrual.accrues_on_statuses), principal_amount * interest_rate * (days since originated_at) / 365, summed."}
+  ]
+}

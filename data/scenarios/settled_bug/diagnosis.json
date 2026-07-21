@@ -1,0 +1,74 @@
+{
+  "diagnosis_status": "DIAGNOSED",
+  "incident_summary": "Raw payments contain a new payment_status value 'SETTLED' that is not in the approved vocabulary. This violates the business rules/data dictionary enum and triggers the payment_status_enum_valid check. Downstream portfolio_summary reconciliations still pass because successful_payment_statuses currently only includes 'PAID', so 'SETTLED' rows are ignored by both ETL and the independent validator. The initiating event is an upstream status vocabulary change; the root cause is our business rules/data dictionary (and possibly ETL mapping) not updated to accept/handle 'SETTLED'.",
+  "affected_metrics": [],
+  "root_cause_category": "BUSINESS_RULE_MISMATCH",
+  "initiating_event": "Upstream payments source introduced a new status value 'SETTLED' for paid transactions.",
+  "root_cause": "context/business_rules.json and data_dictionary for payments.payment_status are stale and do not include the new upstream value 'SETTLED'; ETL/success rules only treat 'PAID' as successful, leaving 'SETTLED' unrecognized.",
+  "reasoning_summary": "Validation fails specifically due to an unrecognized enum value. Business rules and the payments data dictionary list allowed statuses without 'SETTLED'. Raw data show many 'SETTLED' rows with paid-in-full characteristics. Counts and samples confirm it's systematic, indicating an upstream vocabulary change. Reconciliation checks pass because current rules only count 'PAID' as successful; they don't test whether 'SETTLED' should be counted. Therefore, the smallest root cause is a business-rule/data-contract mismatch with the upstream change.",
+  "evidence": [
+    {
+      "source_type": "VALIDATION",
+      "source_reference": "get_failed_checks",
+      "finding": "payment_status_enum_valid failed due to unexpected value 'SETTLED'.",
+      "expected": "['FAILED', 'LATE', 'MISSED', 'PAID', 'SCHEDULED']",
+      "actual": "['FAILED', 'LATE', 'MISSED', 'PAID', 'SCHEDULED', 'SETTLED']"
+    },
+    {
+      "source_type": "BUSINESS_RULE",
+      "source_reference": "get_business_rules",
+      "finding": "valid_payment_statuses excludes 'SETTLED'; successful_payment_statuses is only ['PAID'].",
+      "expected": "valid_payment_statuses should include all actual upstream statuses.",
+      "actual": "valid_payment_statuses=['SCHEDULED','PAID','LATE','MISSED','FAILED']; successful_payment_statuses=['PAID']"
+    },
+    {
+      "source_type": "BUSINESS_RULE",
+      "source_reference": "get_data_dictionary_entry",
+      "finding": "payments.payment_status enum values exclude 'SETTLED'.",
+      "expected": "Enum should include all valid upstream statuses.",
+      "actual": "['SCHEDULED','PAID','LATE','MISSED','FAILED']"
+    },
+    {
+      "source_type": "RAW_DATA",
+      "source_reference": "get_payment_status_counts",
+      "finding": "Raw payments contain 119 records with status 'SETTLED' among others.",
+      "expected": "No statuses outside the approved set.",
+      "actual": "{'PAID': 477, 'SETTLED': 119, 'SCHEDULED': 101, 'LATE': 28, 'MISSED': 12, 'FAILED': 3}"
+    },
+    {
+      "source_type": "RAW_DATA",
+      "source_reference": "get_payment_amount_totals_by_status",
+      "finding": "'SETTLED' payments sum to 112,101.51 amount_paid.",
+      "expected": "No totals for unrecognized statuses.",
+      "actual": "{'SETTLED': 112101.51, 'PAID': 471463.75, 'LATE': 45936.72, 'MISSED': 0.0, 'FAILED': 0.0, 'SCHEDULED': 0.0}"
+    },
+    {
+      "source_type": "RAW_DATA",
+      "source_reference": "get_payment_samples_by_status",
+      "finding": "Sample 'SETTLED' rows show amount_paid equals amount_due with payment_date before due_date (behavior consistent with paid-in-full).",
+      "expected": "No rows with unrecognized status.",
+      "actual": "Examples include P0000008, P0000013, P0000034, P0000038, P0000051 with payment_status='SETTLED'."
+    },
+    {
+      "source_type": "PIPELINE_METADATA",
+      "source_reference": "get_pipeline_run_metadata",
+      "finding": "ETL reported SUCCESS; validation failed due to enum mismatch, illustrating execution success does not imply rule alignment.",
+      "expected": "N/A",
+      "actual": "etl_status='SUCCESS', validation_status='FAIL'"
+    }
+  ],
+  "recommended_fix": {
+    "target_file": "context/business_rules.json",
+    "change_summary": "Add 'SETTLED' to valid_payment_statuses and update payments data dictionary to include 'SETTLED'. Coordinate with product to decide whether 'SETTLED' should be treated as successful: either add 'SETTLED' to successful_payment_statuses or map 'SETTLED' to 'PAID' in the ETL. Until that decision, at minimum include 'SETTLED' in valid_payment_statuses to restore enum validation.",
+    "scope": "MINIMAL"
+  },
+  "confidence": "HIGH",
+  "uncertainties": [
+    "Whether 'SETTLED' is intended to be a synonym for 'PAID' and should count toward successful payments.",
+    "Whether upstream will retain both 'PAID' and 'SETTLED' or fully migrate to 'SETTLED'."
+  ],
+  "additional_evidence_needed": [
+    "Confirmation from the source system or product owner on the intended semantics of 'SETTLED' and whether it should be counted as a successful payment.",
+    "Any upstream changelog or contract update documenting the introduction of 'SETTLED'."
+  ]
+}

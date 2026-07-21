@@ -1,0 +1,14 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0,
+    "rate": 0.0001
+  },
+  "notes": [
+    "Reconciliation-only. Executed by src/validate_underwriting_performance.py, which independently recomputes both breakdowns and the rejection distribution in pandas (never importing src/etl_spark_underwriting_performance.py's Spark logic)."
+  ],
+  "rules": [
+    {"id": "underwriting_performance_breakdown_rows_match", "type": "reconciliation", "tolerance_type": "count", "description": "Every (breakdown_type, breakdown_value) row in curated/underwriting_performance.parquet (both the risk_segment and model_version breakdowns) must match an independent pandas recomputation of decision_count, approved_count, rejected_count, manual_review_count, approval_rate, avg_approved_amount, and avg_approved_apr."},
+    {"id": "underwriting_performance_rejection_distribution_matches", "type": "reconciliation", "tolerance_type": "count", "description": "curated/underwriting_performance_rejections.parquet's rejection_reason counts must match an independent pandas recomputation from raw underwriting_decisions."}
+  ]
+}

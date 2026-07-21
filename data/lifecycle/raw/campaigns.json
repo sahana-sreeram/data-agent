@@ -1,0 +1,194 @@
+[
+  {
+    "campaign_id": "CMP0001",
+    "name": "Holiday Rates 2024",
+    "channel": "EMAIL",
+    "start_date": "2024-05-27",
+    "end_date": "2024-07-05",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0002",
+    "name": "New Year Fresh Start 2025",
+    "channel": "PARTNER",
+    "start_date": "2025-01-02",
+    "end_date": "2025-02-23",
+    "target_risk_segment": null
+  },
+  {
+    "campaign_id": "CMP0003",
+    "name": "Referral Boost 2025",
+    "channel": "PARTNER",
+    "start_date": "2025-05-01",
+    "end_date": "2025-06-12",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0004",
+    "name": "Referral Boost 2024",
+    "channel": "SOCIAL",
+    "start_date": "2024-05-26",
+    "end_date": "2024-08-04",
+    "target_risk_segment": null
+  },
+  {
+    "campaign_id": "CMP0005",
+    "name": "Spring Save 2025",
+    "channel": "EMAIL",
+    "start_date": "2025-03-06",
+    "end_date": "2025-05-12",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0006",
+    "name": "New Year Fresh Start 2025",
+    "channel": "EMAIL",
+    "start_date": "2025-12-21",
+    "end_date": "2026-03-13",
+    "target_risk_segment": null
+  },
+  {
+    "campaign_id": "CMP0007",
+    "name": "Spring Save 2024",
+    "channel": "SOCIAL",
+    "start_date": "2024-02-21",
+    "end_date": "2024-05-02",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0008",
+    "name": "New Year Fresh Start 2026",
+    "channel": "SOCIAL",
+    "start_date": "2026-01-16",
+    "end_date": "2026-03-18",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0009",
+    "name": "New Year Fresh Start 2024",
+    "channel": "SOCIAL",
+    "start_date": "2024-03-27",
+    "end_date": "2024-05-26",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0010",
+    "name": "Loyalty Bonus 2023",
+    "channel": "SOCIAL",
+    "start_date": "2023-10-03",
+    "end_date": "2023-12-01",
+    "target_risk_segment": "LOW"
+  },
+  {
+    "campaign_id": "CMP0011",
+    "name": "Referral Boost 2024",
+    "channel": "EMAIL",
+    "start_date": "2024-11-27",
+    "end_date": "2025-01-22",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0012",
+    "name": "Partner Rewards 2025",
+    "channel": "SOCIAL",
+    "start_date": "2025-12-19",
+    "end_date": "2026-02-07",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0013",
+    "name": "Back to School 2025",
+    "channel": "EMAIL",
+    "start_date": "2025-09-06",
+    "end_date": "2025-10-14",
+    "target_risk_segment": null
+  },
+  {
+    "campaign_id": "CMP0014",
+    "name": "Holiday Rates 2024",
+    "channel": "EMAIL",
+    "start_date": "2024-11-09",
+    "end_date": "2024-12-24",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0015",
+    "name": "Partner Rewards 2023",
+    "channel": "EMAIL",
+    "start_date": "2023-10-28",
+    "end_date": "2023-12-06",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0016",
+    "name": "Back to School 2025",
+    "channel": "PARTNER",
+    "start_date": "2025-12-23",
+    "end_date": "2026-02-06",
+    "target_risk_segment": "MEDIUM"
+  },
+  {
+    "campaign_id": "CMP0017",
+    "name": "Loyalty Bonus 2025",
+    "channel": "EMAIL",
+    "start_date": "2025-09-09",
+    "end_date": "2025-10-21",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0018",
+    "name": "Partner Rewards 2024",
+    "channel": "EMAIL",
+    "start_date": "2024-05-31",
+    "end_date": "2024-08-25",
+    "target_risk_segment": null
+  },
+  {
+    "campaign_id": "CMP0019",
+    "name": "Back to School 2024",
+    "channel": "PARTNER",
+    "start_date": "2024-10-31",
+    "end_date": "2025-01-01",
+    "target_risk_segment": "LOW"
+  },
+  {
+    "campaign_id": "CMP0020",
+    "name": "New Year Fresh Start 2023",
+    "channel": "EMAIL",
+    "start_date": "2023-09-10",
+    "end_date": "2023-10-13",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0021",
+    "name": "Referral Boost 2023",
+    "channel": "SOCIAL",
+    "start_date": "2023-07-29",
+    "end_date": "2023-10-01",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0022",
+    "name": "Back to School 2024",
+    "channel": "SOCIAL",
+    "start_date": "2024-04-16",
+    "end_date": "2024-07-11",
+    "target_risk_segment": "HIGH"
+  },
+  {
+    "campaign_id": "CMP0023",
+    "name": "Back to School 2024",
+    "channel": "EMAIL",
+    "start_date": "2024-09-03",
+    "end_date": "2024-10-05",
+    "target_risk_segment": "LOW"
+  },
+  {
+    "campaign_id": "CMP0024",
+    "name": "New Year Fresh Start 2024",
+    "channel": "EMAIL",
+    "start_date": "2024-05-11",
+    "end_date": "2024-07-15",
+    "target_risk_segment": "HIGH"
+  }
+]

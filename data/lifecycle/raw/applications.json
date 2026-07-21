@@ -1,0 +1,2378 @@
+[
+  {
+    "application_id": "APP0000001",
+    "customer_id": "C000011",
+    "offer_id": "OFF0000001",
+    "requested_amount": 21430.75,
+    "submitted_at": "2024-06-24",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000002",
+    "customer_id": "C000031",
+    "offer_id": "OFF0000002",
+    "requested_amount": 35236.71,
+    "submitted_at": "2024-06-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000003",
+    "customer_id": "C000088",
+    "offer_id": "OFF0000003",
+    "requested_amount": 4462.89,
+    "submitted_at": "2024-06-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000004",
+    "customer_id": "C000159",
+    "offer_id": "OFF0000004",
+    "requested_amount": 11311.78,
+    "submitted_at": "2024-06-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000005",
+    "customer_id": "C000251",
+    "offer_id": "OFF0000006",
+    "requested_amount": 38574.01,
+    "submitted_at": "2024-07-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000006",
+    "customer_id": "C000255",
+    "offer_id": "OFF0000007",
+    "requested_amount": 17441.17,
+    "submitted_at": "2024-07-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000007",
+    "customer_id": "C000284",
+    "offer_id": "OFF0000008",
+    "requested_amount": 4673.89,
+    "submitted_at": "2024-06-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000008",
+    "customer_id": "C000005",
+    "offer_id": "OFF0000009",
+    "requested_amount": 22418.97,
+    "submitted_at": "2025-02-07",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000009",
+    "customer_id": "C000053",
+    "offer_id": "OFF0000011",
+    "requested_amount": 33475.69,
+    "submitted_at": "2025-01-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000010",
+    "customer_id": "C000058",
+    "offer_id": "OFF0000012",
+    "requested_amount": 29231.74,
+    "submitted_at": "2025-02-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000011",
+    "customer_id": "C000076",
+    "offer_id": "OFF0000013",
+    "requested_amount": 31922.09,
+    "submitted_at": "2025-02-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000012",
+    "customer_id": "C000127",
+    "offer_id": "OFF0000015",
+    "requested_amount": 36693.03,
+    "submitted_at": "2025-01-31",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000013",
+    "customer_id": "C000130",
+    "offer_id": "OFF0000016",
+    "requested_amount": 14540.98,
+    "submitted_at": "2025-03-05",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000014",
+    "customer_id": "C000136",
+    "offer_id": "OFF0000017",
+    "requested_amount": 20679.92,
+    "submitted_at": "2025-02-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000015",
+    "customer_id": "C000138",
+    "offer_id": "OFF0000018",
+    "requested_amount": 28189.38,
+    "submitted_at": "2025-01-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000016",
+    "customer_id": "C000155",
+    "offer_id": "OFF0000021",
+    "requested_amount": 13066.3,
+    "submitted_at": "2025-02-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000017",
+    "customer_id": "C000159",
+    "offer_id": "OFF0000022",
+    "requested_amount": 13580.17,
+    "submitted_at": "2025-02-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000018",
+    "customer_id": "C000195",
+    "offer_id": "OFF0000024",
+    "requested_amount": 34647.61,
+    "submitted_at": "2025-03-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000019",
+    "customer_id": "C000197",
+    "offer_id": "OFF0000025",
+    "requested_amount": 24162.75,
+    "submitted_at": "2025-02-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000020",
+    "customer_id": "C000242",
+    "offer_id": "OFF0000027",
+    "requested_amount": 36200.15,
+    "submitted_at": "2025-03-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000021",
+    "customer_id": "C000261",
+    "offer_id": "OFF0000028",
+    "requested_amount": 34399.2,
+    "submitted_at": "2025-02-01",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000022",
+    "customer_id": "C000277",
+    "offer_id": "OFF0000029",
+    "requested_amount": 26638.31,
+    "submitted_at": "2025-01-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000023",
+    "customer_id": "C000285",
+    "offer_id": "OFF0000030",
+    "requested_amount": 36091.08,
+    "submitted_at": "2025-01-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000024",
+    "customer_id": "C000025",
+    "offer_id": "OFF0000032",
+    "requested_amount": 31992.42,
+    "submitted_at": "2025-06-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000025",
+    "customer_id": "C000037",
+    "offer_id": "OFF0000033",
+    "requested_amount": 23637.5,
+    "submitted_at": "2025-05-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000026",
+    "customer_id": "C000071",
+    "offer_id": "OFF0000035",
+    "requested_amount": 30172.36,
+    "submitted_at": "2025-05-26",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000027",
+    "customer_id": "C000078",
+    "offer_id": "OFF0000036",
+    "requested_amount": 5755.92,
+    "submitted_at": "2025-06-17",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000028",
+    "customer_id": "C000085",
+    "offer_id": "OFF0000037",
+    "requested_amount": 38542.93,
+    "submitted_at": "2025-05-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000029",
+    "customer_id": "C000126",
+    "offer_id": "OFF0000040",
+    "requested_amount": 34585.86,
+    "submitted_at": "2025-05-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000030",
+    "customer_id": "C000133",
+    "offer_id": "OFF0000042",
+    "requested_amount": 30238.2,
+    "submitted_at": "2025-06-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000031",
+    "customer_id": "C000149",
+    "offer_id": "OFF0000043",
+    "requested_amount": 4312.87,
+    "submitted_at": "2025-06-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000032",
+    "customer_id": "C000157",
+    "offer_id": "OFF0000044",
+    "requested_amount": 20136.73,
+    "submitted_at": "2025-05-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000033",
+    "customer_id": "C000171",
+    "offer_id": "OFF0000045",
+    "requested_amount": 4776.07,
+    "submitted_at": "2025-05-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000034",
+    "customer_id": "C000184",
+    "offer_id": "OFF0000046",
+    "requested_amount": 9501.06,
+    "submitted_at": "2025-06-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000035",
+    "customer_id": "C000192",
+    "offer_id": "OFF0000047",
+    "requested_amount": 13398.52,
+    "submitted_at": "2025-05-28",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000036",
+    "customer_id": "C000195",
+    "offer_id": "OFF0000049",
+    "requested_amount": 32619.1,
+    "submitted_at": "2025-05-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000037",
+    "customer_id": "C000196",
+    "offer_id": "OFF0000050",
+    "requested_amount": 11566.42,
+    "submitted_at": "2025-05-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000038",
+    "customer_id": "C000208",
+    "offer_id": "OFF0000052",
+    "requested_amount": 13386.22,
+    "submitted_at": "2025-06-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000039",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000054",
+    "requested_amount": 39134.7,
+    "submitted_at": "2025-05-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000040",
+    "customer_id": "C000230",
+    "offer_id": "OFF0000055",
+    "requested_amount": 35947.95,
+    "submitted_at": "2025-06-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000041",
+    "customer_id": "C000232",
+    "offer_id": "OFF0000056",
+    "requested_amount": 4491.26,
+    "submitted_at": "2025-05-26",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000042",
+    "customer_id": "C000243",
+    "offer_id": "OFF0000057",
+    "requested_amount": 15012.41,
+    "submitted_at": "2025-06-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000043",
+    "customer_id": "C000255",
+    "offer_id": "OFF0000058",
+    "requested_amount": 30988.4,
+    "submitted_at": "2025-06-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000044",
+    "customer_id": "C000269",
+    "offer_id": "OFF0000059",
+    "requested_amount": 31123.98,
+    "submitted_at": "2025-06-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000045",
+    "customer_id": "C000286",
+    "offer_id": "OFF0000061",
+    "requested_amount": 31123.1,
+    "submitted_at": "2025-06-11",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000046",
+    "customer_id": "C000038",
+    "offer_id": "OFF0000063",
+    "requested_amount": 16090.06,
+    "submitted_at": "2024-07-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000047",
+    "customer_id": "C000042",
+    "offer_id": "OFF0000064",
+    "requested_amount": 18161.32,
+    "submitted_at": "2024-07-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000048",
+    "customer_id": "C000044",
+    "offer_id": "OFF0000065",
+    "requested_amount": 15437.25,
+    "submitted_at": "2024-06-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000049",
+    "customer_id": "C000100",
+    "offer_id": "OFF0000066",
+    "requested_amount": 13202.28,
+    "submitted_at": "2024-06-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000050",
+    "customer_id": "C000188",
+    "offer_id": "OFF0000067",
+    "requested_amount": 32304.04,
+    "submitted_at": "2024-06-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000051",
+    "customer_id": "C000287",
+    "offer_id": "OFF0000069",
+    "requested_amount": 16822.39,
+    "submitted_at": "2024-06-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000052",
+    "customer_id": "C000005",
+    "offer_id": "OFF0000072",
+    "requested_amount": 29833.06,
+    "submitted_at": "2025-05-11",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000053",
+    "customer_id": "C000028",
+    "offer_id": "OFF0000073",
+    "requested_amount": 18653.93,
+    "submitted_at": "2025-04-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000054",
+    "customer_id": "C000031",
+    "offer_id": "OFF0000074",
+    "requested_amount": 28203.66,
+    "submitted_at": "2025-04-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000055",
+    "customer_id": "C000062",
+    "offer_id": "OFF0000075",
+    "requested_amount": 36393.93,
+    "submitted_at": "2025-04-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000056",
+    "customer_id": "C000079",
+    "offer_id": "OFF0000076",
+    "requested_amount": 14654.46,
+    "submitted_at": "2025-03-26",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000057",
+    "customer_id": "C000101",
+    "offer_id": "OFF0000077",
+    "requested_amount": 37441.89,
+    "submitted_at": "2025-04-03",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000058",
+    "customer_id": "C000102",
+    "offer_id": "OFF0000078",
+    "requested_amount": 32327.69,
+    "submitted_at": "2025-03-23",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000059",
+    "customer_id": "C000167",
+    "offer_id": "OFF0000080",
+    "requested_amount": 26106.21,
+    "submitted_at": "2025-04-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000060",
+    "customer_id": "C000192",
+    "offer_id": "OFF0000081",
+    "requested_amount": 22206.97,
+    "submitted_at": "2025-03-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000061",
+    "customer_id": "C000211",
+    "offer_id": "OFF0000082",
+    "requested_amount": 39732.09,
+    "submitted_at": "2025-03-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000062",
+    "customer_id": "C000293",
+    "offer_id": "OFF0000086",
+    "requested_amount": 24206.31,
+    "submitted_at": "2025-05-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000063",
+    "customer_id": "C000003",
+    "offer_id": "OFF0000087",
+    "requested_amount": 27285.27,
+    "submitted_at": "2026-01-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000064",
+    "customer_id": "C000011",
+    "offer_id": "OFF0000088",
+    "requested_amount": 35943.25,
+    "submitted_at": "2026-03-06",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000065",
+    "customer_id": "C000031",
+    "offer_id": "OFF0000090",
+    "requested_amount": 22270.04,
+    "submitted_at": "2026-03-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000066",
+    "customer_id": "C000036",
+    "offer_id": "OFF0000092",
+    "requested_amount": 37281.69,
+    "submitted_at": "2026-03-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000067",
+    "customer_id": "C000037",
+    "offer_id": "OFF0000093",
+    "requested_amount": 18122.78,
+    "submitted_at": "2026-01-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000068",
+    "customer_id": "C000061",
+    "offer_id": "OFF0000094",
+    "requested_amount": 3037.26,
+    "submitted_at": "2026-01-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000069",
+    "customer_id": "C000088",
+    "offer_id": "OFF0000095",
+    "requested_amount": 2966.11,
+    "submitted_at": "2026-01-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000070",
+    "customer_id": "C000095",
+    "offer_id": "OFF0000096",
+    "requested_amount": 18978.87,
+    "submitted_at": "2026-03-02",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000071",
+    "customer_id": "C000099",
+    "offer_id": "OFF0000097",
+    "requested_amount": 24428.25,
+    "submitted_at": "2026-01-05",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000072",
+    "customer_id": "C000136",
+    "offer_id": "OFF0000098",
+    "requested_amount": 29531.7,
+    "submitted_at": "2026-03-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000073",
+    "customer_id": "C000169",
+    "offer_id": "OFF0000101",
+    "requested_amount": 21331.94,
+    "submitted_at": "2026-01-07",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000074",
+    "customer_id": "C000181",
+    "offer_id": "OFF0000102",
+    "requested_amount": 32529.64,
+    "submitted_at": "2026-01-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000075",
+    "customer_id": "C000185",
+    "offer_id": "OFF0000103",
+    "requested_amount": 33788.32,
+    "submitted_at": "2026-01-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000076",
+    "customer_id": "C000198",
+    "offer_id": "OFF0000104",
+    "requested_amount": 5209.16,
+    "submitted_at": "2025-12-31",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000077",
+    "customer_id": "C000206",
+    "offer_id": "OFF0000106",
+    "requested_amount": 3724.04,
+    "submitted_at": "2026-01-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000078",
+    "customer_id": "C000211",
+    "offer_id": "OFF0000107",
+    "requested_amount": 6862.04,
+    "submitted_at": "2026-01-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000079",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000108",
+    "requested_amount": 4324.9,
+    "submitted_at": "2026-02-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000080",
+    "customer_id": "C000218",
+    "offer_id": "OFF0000109",
+    "requested_amount": 25467.09,
+    "submitted_at": "2026-01-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000081",
+    "customer_id": "C000225",
+    "offer_id": "OFF0000111",
+    "requested_amount": 8901.36,
+    "submitted_at": "2026-01-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000082",
+    "customer_id": "C000246",
+    "offer_id": "OFF0000114",
+    "requested_amount": 14600.12,
+    "submitted_at": "2026-01-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000083",
+    "customer_id": "C000255",
+    "offer_id": "OFF0000115",
+    "requested_amount": 36715.92,
+    "submitted_at": "2026-01-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000084",
+    "customer_id": "C000260",
+    "offer_id": "OFF0000116",
+    "requested_amount": 29455.86,
+    "submitted_at": "2026-03-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000085",
+    "customer_id": "C000272",
+    "offer_id": "OFF0000117",
+    "requested_amount": 36093.17,
+    "submitted_at": "2026-01-25",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000086",
+    "customer_id": "C000283",
+    "offer_id": "OFF0000118",
+    "requested_amount": 19648.47,
+    "submitted_at": "2026-03-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000087",
+    "customer_id": "C000291",
+    "offer_id": "OFF0000120",
+    "requested_amount": 6871.55,
+    "submitted_at": "2025-12-31",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000088",
+    "customer_id": "C000018",
+    "offer_id": "OFF0000121",
+    "requested_amount": 27400.41,
+    "submitted_at": "2024-03-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000089",
+    "customer_id": "C000048",
+    "offer_id": "OFF0000123",
+    "requested_amount": 10570.97,
+    "submitted_at": "2024-05-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000090",
+    "customer_id": "C000049",
+    "offer_id": "OFF0000124",
+    "requested_amount": 12727.39,
+    "submitted_at": "2024-03-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000091",
+    "customer_id": "C000066",
+    "offer_id": "OFF0000125",
+    "requested_amount": 9015.82,
+    "submitted_at": "2024-03-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000092",
+    "customer_id": "C000080",
+    "offer_id": "OFF0000126",
+    "requested_amount": 27397.54,
+    "submitted_at": "2024-03-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000093",
+    "customer_id": "C000105",
+    "offer_id": "OFF0000127",
+    "requested_amount": 30875.96,
+    "submitted_at": "2024-04-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000094",
+    "customer_id": "C000130",
+    "offer_id": "OFF0000129",
+    "requested_amount": 26011.45,
+    "submitted_at": "2024-03-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000095",
+    "customer_id": "C000175",
+    "offer_id": "OFF0000130",
+    "requested_amount": 3296.33,
+    "submitted_at": "2024-05-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000096",
+    "customer_id": "C000196",
+    "offer_id": "OFF0000131",
+    "requested_amount": 2445.08,
+    "submitted_at": "2024-05-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000097",
+    "customer_id": "C000271",
+    "offer_id": "OFF0000132",
+    "requested_amount": 17414.96,
+    "submitted_at": "2024-04-21",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000098",
+    "customer_id": "C000003",
+    "offer_id": "OFF0000133",
+    "requested_amount": 6477.13,
+    "submitted_at": "2026-03-03",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000099",
+    "customer_id": "C000031",
+    "offer_id": "OFF0000135",
+    "requested_amount": 11988.81,
+    "submitted_at": "2026-03-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000100",
+    "customer_id": "C000032",
+    "offer_id": "OFF0000136",
+    "requested_amount": 6796.67,
+    "submitted_at": "2026-02-23",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000101",
+    "customer_id": "C000035",
+    "offer_id": "OFF0000138",
+    "requested_amount": 5152.76,
+    "submitted_at": "2026-03-21",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000102",
+    "customer_id": "C000044",
+    "offer_id": "OFF0000139",
+    "requested_amount": 35653.72,
+    "submitted_at": "2026-01-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000103",
+    "customer_id": "C000049",
+    "offer_id": "OFF0000140",
+    "requested_amount": 9549.73,
+    "submitted_at": "2026-02-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000104",
+    "customer_id": "C000058",
+    "offer_id": "OFF0000141",
+    "requested_amount": 22161.34,
+    "submitted_at": "2026-03-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000105",
+    "customer_id": "C000074",
+    "offer_id": "OFF0000144",
+    "requested_amount": 25167.29,
+    "submitted_at": "2026-03-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000106",
+    "customer_id": "C000077",
+    "offer_id": "OFF0000145",
+    "requested_amount": 35962.29,
+    "submitted_at": "2026-02-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000107",
+    "customer_id": "C000078",
+    "offer_id": "OFF0000146",
+    "requested_amount": 28916.96,
+    "submitted_at": "2026-03-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000108",
+    "customer_id": "C000099",
+    "offer_id": "OFF0000148",
+    "requested_amount": 31054.53,
+    "submitted_at": "2026-01-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000109",
+    "customer_id": "C000108",
+    "offer_id": "OFF0000149",
+    "requested_amount": 16857.99,
+    "submitted_at": "2026-01-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000110",
+    "customer_id": "C000135",
+    "offer_id": "OFF0000151",
+    "requested_amount": 30902.21,
+    "submitted_at": "2026-03-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000111",
+    "customer_id": "C000136",
+    "offer_id": "OFF0000152",
+    "requested_amount": 31323.01,
+    "submitted_at": "2026-04-01",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000112",
+    "customer_id": "C000141",
+    "offer_id": "OFF0000153",
+    "requested_amount": 22567.86,
+    "submitted_at": "2026-02-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000113",
+    "customer_id": "C000162",
+    "offer_id": "OFF0000155",
+    "requested_amount": 35297.21,
+    "submitted_at": "2026-02-23",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000114",
+    "customer_id": "C000184",
+    "offer_id": "OFF0000156",
+    "requested_amount": 11169.12,
+    "submitted_at": "2026-03-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000115",
+    "customer_id": "C000188",
+    "offer_id": "OFF0000157",
+    "requested_amount": 18023.62,
+    "submitted_at": "2026-02-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000116",
+    "customer_id": "C000209",
+    "offer_id": "OFF0000158",
+    "requested_amount": 36379.79,
+    "submitted_at": "2026-03-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000117",
+    "customer_id": "C000210",
+    "offer_id": "OFF0000159",
+    "requested_amount": 39357.29,
+    "submitted_at": "2026-02-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000118",
+    "customer_id": "C000211",
+    "offer_id": "OFF0000160",
+    "requested_amount": 10412.75,
+    "submitted_at": "2026-02-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000119",
+    "customer_id": "C000217",
+    "offer_id": "OFF0000161",
+    "requested_amount": 25051.86,
+    "submitted_at": "2026-02-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000120",
+    "customer_id": "C000223",
+    "offer_id": "OFF0000162",
+    "requested_amount": 24433.04,
+    "submitted_at": "2026-01-31",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000121",
+    "customer_id": "C000246",
+    "offer_id": "OFF0000165",
+    "requested_amount": 23787.11,
+    "submitted_at": "2026-02-03",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000122",
+    "customer_id": "C000257",
+    "offer_id": "OFF0000166",
+    "requested_amount": 2974.34,
+    "submitted_at": "2026-02-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000123",
+    "customer_id": "C000263",
+    "offer_id": "OFF0000167",
+    "requested_amount": 32472.02,
+    "submitted_at": "2026-02-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000124",
+    "customer_id": "C000268",
+    "offer_id": "OFF0000168",
+    "requested_amount": 12512.03,
+    "submitted_at": "2026-01-26",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000125",
+    "customer_id": "C000281",
+    "offer_id": "OFF0000169",
+    "requested_amount": 12000.6,
+    "submitted_at": "2026-03-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000126",
+    "customer_id": "C000289",
+    "offer_id": "OFF0000170",
+    "requested_amount": 30146.78,
+    "submitted_at": "2026-02-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000127",
+    "customer_id": "C000293",
+    "offer_id": "OFF0000171",
+    "requested_amount": 14683.0,
+    "submitted_at": "2026-02-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000128",
+    "customer_id": "C000042",
+    "offer_id": "OFF0000173",
+    "requested_amount": 25628.39,
+    "submitted_at": "2024-04-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000129",
+    "customer_id": "C000069",
+    "offer_id": "OFF0000175",
+    "requested_amount": 30681.29,
+    "submitted_at": "2024-05-02",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000130",
+    "customer_id": "C000074",
+    "offer_id": "OFF0000176",
+    "requested_amount": 9212.01,
+    "submitted_at": "2024-04-09",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000131",
+    "customer_id": "C000107",
+    "offer_id": "OFF0000177",
+    "requested_amount": 23298.44,
+    "submitted_at": "2024-05-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000132",
+    "customer_id": "C000202",
+    "offer_id": "OFF0000179",
+    "requested_amount": 24722.84,
+    "submitted_at": "2024-06-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000133",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000180",
+    "requested_amount": 7539.09,
+    "submitted_at": "2024-06-03",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000134",
+    "customer_id": "C000255",
+    "offer_id": "OFF0000181",
+    "requested_amount": 37007.82,
+    "submitted_at": "2024-05-07",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000135",
+    "customer_id": "C000088",
+    "offer_id": "OFF0000182",
+    "requested_amount": 14305.78,
+    "submitted_at": "2023-12-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000136",
+    "customer_id": "C000282",
+    "offer_id": "OFF0000183",
+    "requested_amount": 12403.96,
+    "submitted_at": "2023-11-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000137",
+    "customer_id": "C000099",
+    "offer_id": "OFF0000185",
+    "requested_amount": 11259.85,
+    "submitted_at": "2025-01-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000138",
+    "customer_id": "C000127",
+    "offer_id": "OFF0000189",
+    "requested_amount": 32278.3,
+    "submitted_at": "2025-01-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000139",
+    "customer_id": "C000147",
+    "offer_id": "OFF0000190",
+    "requested_amount": 36202.01,
+    "submitted_at": "2024-12-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000140",
+    "customer_id": "C000166",
+    "offer_id": "OFF0000192",
+    "requested_amount": 11382.02,
+    "submitted_at": "2025-02-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000141",
+    "customer_id": "C000205",
+    "offer_id": "OFF0000194",
+    "requested_amount": 10657.33,
+    "submitted_at": "2025-01-02",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000142",
+    "customer_id": "C000223",
+    "offer_id": "OFF0000196",
+    "requested_amount": 19489.08,
+    "submitted_at": "2025-01-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000143",
+    "customer_id": "C000244",
+    "offer_id": "OFF0000197",
+    "requested_amount": 38220.23,
+    "submitted_at": "2024-12-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000144",
+    "customer_id": "C000256",
+    "offer_id": "OFF0000198",
+    "requested_amount": 26710.55,
+    "submitted_at": "2024-12-25",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000145",
+    "customer_id": "C000263",
+    "offer_id": "OFF0000199",
+    "requested_amount": 7619.44,
+    "submitted_at": "2025-01-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000146",
+    "customer_id": "C000006",
+    "offer_id": "OFF0000201",
+    "requested_amount": 39475.85,
+    "submitted_at": "2025-12-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000147",
+    "customer_id": "C000009",
+    "offer_id": "OFF0000202",
+    "requested_amount": 13577.12,
+    "submitted_at": "2025-12-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000148",
+    "customer_id": "C000029",
+    "offer_id": "OFF0000203",
+    "requested_amount": 34783.89,
+    "submitted_at": "2026-01-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000149",
+    "customer_id": "C000034",
+    "offer_id": "OFF0000204",
+    "requested_amount": 31435.59,
+    "submitted_at": "2026-02-07",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000150",
+    "customer_id": "C000093",
+    "offer_id": "OFF0000207",
+    "requested_amount": 23812.11,
+    "submitted_at": "2026-02-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000151",
+    "customer_id": "C000108",
+    "offer_id": "OFF0000208",
+    "requested_amount": 7263.36,
+    "submitted_at": "2026-02-02",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000152",
+    "customer_id": "C000118",
+    "offer_id": "OFF0000209",
+    "requested_amount": 35404.45,
+    "submitted_at": "2026-01-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000153",
+    "customer_id": "C000123",
+    "offer_id": "OFF0000210",
+    "requested_amount": 39454.17,
+    "submitted_at": "2026-01-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000154",
+    "customer_id": "C000155",
+    "offer_id": "OFF0000213",
+    "requested_amount": 34655.63,
+    "submitted_at": "2026-01-13",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000155",
+    "customer_id": "C000167",
+    "offer_id": "OFF0000214",
+    "requested_amount": 39079.43,
+    "submitted_at": "2026-01-07",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000156",
+    "customer_id": "C000182",
+    "offer_id": "OFF0000216",
+    "requested_amount": 32945.74,
+    "submitted_at": "2026-01-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000157",
+    "customer_id": "C000184",
+    "offer_id": "OFF0000217",
+    "requested_amount": 32158.6,
+    "submitted_at": "2026-02-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000158",
+    "customer_id": "C000195",
+    "offer_id": "OFF0000218",
+    "requested_amount": 36208.76,
+    "submitted_at": "2026-01-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000159",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000219",
+    "requested_amount": 37637.09,
+    "submitted_at": "2026-02-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000160",
+    "customer_id": "C000230",
+    "offer_id": "OFF0000220",
+    "requested_amount": 37872.42,
+    "submitted_at": "2026-01-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000161",
+    "customer_id": "C000234",
+    "offer_id": "OFF0000221",
+    "requested_amount": 38494.71,
+    "submitted_at": "2026-01-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000162",
+    "customer_id": "C000257",
+    "offer_id": "OFF0000222",
+    "requested_amount": 37002.74,
+    "submitted_at": "2026-01-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000163",
+    "customer_id": "C000007",
+    "offer_id": "OFF0000225",
+    "requested_amount": 14172.02,
+    "submitted_at": "2025-10-08",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000164",
+    "customer_id": "C000029",
+    "offer_id": "OFF0000227",
+    "requested_amount": 20667.1,
+    "submitted_at": "2025-10-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000165",
+    "customer_id": "C000031",
+    "offer_id": "OFF0000228",
+    "requested_amount": 13624.11,
+    "submitted_at": "2025-10-15",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000166",
+    "customer_id": "C000062",
+    "offer_id": "OFF0000229",
+    "requested_amount": 33587.77,
+    "submitted_at": "2025-09-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000167",
+    "customer_id": "C000066",
+    "offer_id": "OFF0000230",
+    "requested_amount": 30418.35,
+    "submitted_at": "2025-10-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000168",
+    "customer_id": "C000068",
+    "offer_id": "OFF0000231",
+    "requested_amount": 30091.77,
+    "submitted_at": "2025-09-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000169",
+    "customer_id": "C000070",
+    "offer_id": "OFF0000232",
+    "requested_amount": 16626.25,
+    "submitted_at": "2025-10-18",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000170",
+    "customer_id": "C000071",
+    "offer_id": "OFF0000233",
+    "requested_amount": 35200.8,
+    "submitted_at": "2025-10-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000171",
+    "customer_id": "C000148",
+    "offer_id": "OFF0000237",
+    "requested_amount": 2592.52,
+    "submitted_at": "2025-10-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000172",
+    "customer_id": "C000178",
+    "offer_id": "OFF0000238",
+    "requested_amount": 6420.58,
+    "submitted_at": "2025-10-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000173",
+    "customer_id": "C000210",
+    "offer_id": "OFF0000241",
+    "requested_amount": 11811.04,
+    "submitted_at": "2025-10-21",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000174",
+    "customer_id": "C000227",
+    "offer_id": "OFF0000243",
+    "requested_amount": 29992.08,
+    "submitted_at": "2025-10-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000175",
+    "customer_id": "C000249",
+    "offer_id": "OFF0000245",
+    "requested_amount": 11630.17,
+    "submitted_at": "2025-09-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000176",
+    "customer_id": "C000250",
+    "offer_id": "OFF0000246",
+    "requested_amount": 28448.07,
+    "submitted_at": "2025-10-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000177",
+    "customer_id": "C000251",
+    "offer_id": "OFF0000247",
+    "requested_amount": 4679.93,
+    "submitted_at": "2025-10-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000178",
+    "customer_id": "C000252",
+    "offer_id": "OFF0000248",
+    "requested_amount": 4527.01,
+    "submitted_at": "2025-10-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000179",
+    "customer_id": "C000288",
+    "offer_id": "OFF0000250",
+    "requested_amount": 12884.68,
+    "submitted_at": "2025-10-11",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000180",
+    "customer_id": "C000290",
+    "offer_id": "OFF0000251",
+    "requested_amount": 17006.44,
+    "submitted_at": "2025-09-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000181",
+    "customer_id": "C000293",
+    "offer_id": "OFF0000254",
+    "requested_amount": 9010.18,
+    "submitted_at": "2025-10-08",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000182",
+    "customer_id": "C000299",
+    "offer_id": "OFF0000255",
+    "requested_amount": 16094.27,
+    "submitted_at": "2025-09-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000183",
+    "customer_id": "C000044",
+    "offer_id": "OFF0000258",
+    "requested_amount": 37029.91,
+    "submitted_at": "2024-12-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000184",
+    "customer_id": "C000069",
+    "offer_id": "OFF0000260",
+    "requested_amount": 8990.6,
+    "submitted_at": "2024-11-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000185",
+    "customer_id": "C000076",
+    "offer_id": "OFF0000261",
+    "requested_amount": 2961.77,
+    "submitted_at": "2024-11-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000186",
+    "customer_id": "C000138",
+    "offer_id": "OFF0000263",
+    "requested_amount": 4474.99,
+    "submitted_at": "2024-12-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000187",
+    "customer_id": "C000155",
+    "offer_id": "OFF0000266",
+    "requested_amount": 23383.04,
+    "submitted_at": "2024-12-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000188",
+    "customer_id": "C000202",
+    "offer_id": "OFF0000268",
+    "requested_amount": 26656.78,
+    "submitted_at": "2024-12-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000189",
+    "customer_id": "C000276",
+    "offer_id": "OFF0000269",
+    "requested_amount": 28053.18,
+    "submitted_at": "2024-11-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000190",
+    "customer_id": "C000283",
+    "offer_id": "OFF0000270",
+    "requested_amount": 25279.12,
+    "submitted_at": "2024-11-22",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000191",
+    "customer_id": "C000287",
+    "offer_id": "OFF0000271",
+    "requested_amount": 19260.48,
+    "submitted_at": "2024-11-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000192",
+    "customer_id": "C000074",
+    "offer_id": "OFF0000272",
+    "requested_amount": 26209.54,
+    "submitted_at": "2023-12-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000193",
+    "customer_id": "C000032",
+    "offer_id": "OFF0000273",
+    "requested_amount": 7471.38,
+    "submitted_at": "2026-01-28",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000194",
+    "customer_id": "C000044",
+    "offer_id": "OFF0000276",
+    "requested_amount": 19613.65,
+    "submitted_at": "2026-01-05",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000195",
+    "customer_id": "C000054",
+    "offer_id": "OFF0000279",
+    "requested_amount": 31031.11,
+    "submitted_at": "2026-02-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000196",
+    "customer_id": "C000056",
+    "offer_id": "OFF0000280",
+    "requested_amount": 6128.71,
+    "submitted_at": "2026-01-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000197",
+    "customer_id": "C000069",
+    "offer_id": "OFF0000281",
+    "requested_amount": 10252.77,
+    "submitted_at": "2026-02-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000198",
+    "customer_id": "C000097",
+    "offer_id": "OFF0000282",
+    "requested_amount": 18407.79,
+    "submitted_at": "2026-02-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000199",
+    "customer_id": "C000101",
+    "offer_id": "OFF0000283",
+    "requested_amount": 12386.16,
+    "submitted_at": "2026-02-05",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000200",
+    "customer_id": "C000113",
+    "offer_id": "OFF0000286",
+    "requested_amount": 25867.25,
+    "submitted_at": "2026-02-02",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000201",
+    "customer_id": "C000125",
+    "offer_id": "OFF0000288",
+    "requested_amount": 9714.27,
+    "submitted_at": "2026-02-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000202",
+    "customer_id": "C000149",
+    "offer_id": "OFF0000290",
+    "requested_amount": 5856.98,
+    "submitted_at": "2026-02-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000203",
+    "customer_id": "C000164",
+    "offer_id": "OFF0000291",
+    "requested_amount": 8014.66,
+    "submitted_at": "2026-01-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000204",
+    "customer_id": "C000177",
+    "offer_id": "OFF0000292",
+    "requested_amount": 36338.76,
+    "submitted_at": "2026-01-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000205",
+    "customer_id": "C000180",
+    "offer_id": "OFF0000293",
+    "requested_amount": 5688.62,
+    "submitted_at": "2026-01-07",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000206",
+    "customer_id": "C000193",
+    "offer_id": "OFF0000294",
+    "requested_amount": 24274.66,
+    "submitted_at": "2026-01-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000207",
+    "customer_id": "C000212",
+    "offer_id": "OFF0000296",
+    "requested_amount": 35686.65,
+    "submitted_at": "2026-01-01",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000208",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000297",
+    "requested_amount": 36837.03,
+    "submitted_at": "2026-02-01",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000209",
+    "customer_id": "C000220",
+    "offer_id": "OFF0000298",
+    "requested_amount": 15479.05,
+    "submitted_at": "2026-01-24",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000210",
+    "customer_id": "C000226",
+    "offer_id": "OFF0000299",
+    "requested_amount": 17874.07,
+    "submitted_at": "2026-01-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000211",
+    "customer_id": "C000240",
+    "offer_id": "OFF0000300",
+    "requested_amount": 36362.64,
+    "submitted_at": "2026-02-03",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000212",
+    "customer_id": "C000244",
+    "offer_id": "OFF0000301",
+    "requested_amount": 28619.57,
+    "submitted_at": "2025-12-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000213",
+    "customer_id": "C000264",
+    "offer_id": "OFF0000303",
+    "requested_amount": 29916.37,
+    "submitted_at": "2026-01-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000214",
+    "customer_id": "C000272",
+    "offer_id": "OFF0000304",
+    "requested_amount": 28420.95,
+    "submitted_at": "2026-01-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000215",
+    "customer_id": "C000277",
+    "offer_id": "OFF0000305",
+    "requested_amount": 34437.81,
+    "submitted_at": "2025-12-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000216",
+    "customer_id": "C000284",
+    "offer_id": "OFF0000306",
+    "requested_amount": 29326.45,
+    "submitted_at": "2026-02-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000217",
+    "customer_id": "C000285",
+    "offer_id": "OFF0000307",
+    "requested_amount": 36913.49,
+    "submitted_at": "2026-01-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000218",
+    "customer_id": "C000022",
+    "offer_id": "OFF0000310",
+    "requested_amount": 14963.12,
+    "submitted_at": "2025-10-08",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000219",
+    "customer_id": "C000030",
+    "offer_id": "OFF0000311",
+    "requested_amount": 35111.28,
+    "submitted_at": "2025-10-11",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000220",
+    "customer_id": "C000054",
+    "offer_id": "OFF0000312",
+    "requested_amount": 9581.81,
+    "submitted_at": "2025-09-29",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000221",
+    "customer_id": "C000062",
+    "offer_id": "OFF0000314",
+    "requested_amount": 16702.24,
+    "submitted_at": "2025-09-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000222",
+    "customer_id": "C000077",
+    "offer_id": "OFF0000315",
+    "requested_amount": 20821.41,
+    "submitted_at": "2025-10-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000223",
+    "customer_id": "C000086",
+    "offer_id": "OFF0000316",
+    "requested_amount": 34870.31,
+    "submitted_at": "2025-10-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000224",
+    "customer_id": "C000103",
+    "offer_id": "OFF0000317",
+    "requested_amount": 12003.94,
+    "submitted_at": "2025-09-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000225",
+    "customer_id": "C000129",
+    "offer_id": "OFF0000318",
+    "requested_amount": 28708.99,
+    "submitted_at": "2025-10-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000226",
+    "customer_id": "C000159",
+    "offer_id": "OFF0000320",
+    "requested_amount": 12845.31,
+    "submitted_at": "2025-10-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000227",
+    "customer_id": "C000172",
+    "offer_id": "OFF0000321",
+    "requested_amount": 12695.07,
+    "submitted_at": "2025-10-21",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000228",
+    "customer_id": "C000183",
+    "offer_id": "OFF0000322",
+    "requested_amount": 25554.12,
+    "submitted_at": "2025-10-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000229",
+    "customer_id": "C000194",
+    "offer_id": "OFF0000323",
+    "requested_amount": 14099.13,
+    "submitted_at": "2025-10-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000230",
+    "customer_id": "C000224",
+    "offer_id": "OFF0000325",
+    "requested_amount": 16076.85,
+    "submitted_at": "2025-10-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000231",
+    "customer_id": "C000228",
+    "offer_id": "OFF0000326",
+    "requested_amount": 9230.83,
+    "submitted_at": "2025-09-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000232",
+    "customer_id": "C000243",
+    "offer_id": "OFF0000327",
+    "requested_amount": 14325.98,
+    "submitted_at": "2025-10-07",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000233",
+    "customer_id": "C000278",
+    "offer_id": "OFF0000329",
+    "requested_amount": 2530.11,
+    "submitted_at": "2025-10-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000234",
+    "customer_id": "C000282",
+    "offer_id": "OFF0000330",
+    "requested_amount": 10245.76,
+    "submitted_at": "2025-10-30",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000235",
+    "customer_id": "C000060",
+    "offer_id": "OFF0000334",
+    "requested_amount": 4542.43,
+    "submitted_at": "2024-08-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000236",
+    "customer_id": "C000068",
+    "offer_id": "OFF0000335",
+    "requested_amount": 7376.16,
+    "submitted_at": "2024-07-25",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000237",
+    "customer_id": "C000069",
+    "offer_id": "OFF0000336",
+    "requested_amount": 17821.13,
+    "submitted_at": "2024-07-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000238",
+    "customer_id": "C000086",
+    "offer_id": "OFF0000338",
+    "requested_amount": 6630.2,
+    "submitted_at": "2024-06-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000239",
+    "customer_id": "C000131",
+    "offer_id": "OFF0000340",
+    "requested_amount": 38876.37,
+    "submitted_at": "2024-08-09",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000240",
+    "customer_id": "C000180",
+    "offer_id": "OFF0000341",
+    "requested_amount": 11352.17,
+    "submitted_at": "2024-08-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000241",
+    "customer_id": "C000210",
+    "offer_id": "OFF0000342",
+    "requested_amount": 26087.11,
+    "submitted_at": "2024-07-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000242",
+    "customer_id": "C000211",
+    "offer_id": "OFF0000343",
+    "requested_amount": 23089.84,
+    "submitted_at": "2024-08-28",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000243",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000344",
+    "requested_amount": 36270.52,
+    "submitted_at": "2024-06-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000244",
+    "customer_id": "C000238",
+    "offer_id": "OFF0000345",
+    "requested_amount": 28907.99,
+    "submitted_at": "2024-08-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000245",
+    "customer_id": "C000261",
+    "offer_id": "OFF0000346",
+    "requested_amount": 19850.6,
+    "submitted_at": "2024-08-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000246",
+    "customer_id": "C000300",
+    "offer_id": "OFF0000348",
+    "requested_amount": 20655.74,
+    "submitted_at": "2024-07-02",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000247",
+    "customer_id": "C000074",
+    "offer_id": "OFF0000350",
+    "requested_amount": 34215.37,
+    "submitted_at": "2025-01-07",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000248",
+    "customer_id": "C000088",
+    "offer_id": "OFF0000352",
+    "requested_amount": 7552.57,
+    "submitted_at": "2024-12-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000249",
+    "customer_id": "C000114",
+    "offer_id": "OFF0000353",
+    "requested_amount": 24981.3,
+    "submitted_at": "2024-12-16",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000250",
+    "customer_id": "C000138",
+    "offer_id": "OFF0000354",
+    "requested_amount": 24993.09,
+    "submitted_at": "2024-11-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000251",
+    "customer_id": "C000139",
+    "offer_id": "OFF0000355",
+    "requested_amount": 21893.08,
+    "submitted_at": "2024-12-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000252",
+    "customer_id": "C000151",
+    "offer_id": "OFF0000356",
+    "requested_amount": 18073.67,
+    "submitted_at": "2024-12-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000253",
+    "customer_id": "C000155",
+    "offer_id": "OFF0000357",
+    "requested_amount": 9761.12,
+    "submitted_at": "2024-12-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000254",
+    "customer_id": "C000162",
+    "offer_id": "OFF0000358",
+    "requested_amount": 30970.2,
+    "submitted_at": "2024-12-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000255",
+    "customer_id": "C000200",
+    "offer_id": "OFF0000361",
+    "requested_amount": 9515.67,
+    "submitted_at": "2024-11-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000256",
+    "customer_id": "C000271",
+    "offer_id": "OFF0000364",
+    "requested_amount": 16251.1,
+    "submitted_at": "2024-11-20",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000257",
+    "customer_id": "C000276",
+    "offer_id": "OFF0000365",
+    "requested_amount": 17030.43,
+    "submitted_at": "2024-11-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000258",
+    "customer_id": "C000296",
+    "offer_id": "OFF0000366",
+    "requested_amount": 14312.54,
+    "submitted_at": "2024-12-21",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000259",
+    "customer_id": "C000157",
+    "offer_id": "OFF0000368",
+    "requested_amount": 37224.05,
+    "submitted_at": "2023-10-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000260",
+    "customer_id": "C000038",
+    "offer_id": "OFF0000371",
+    "requested_amount": 32009.69,
+    "submitted_at": "2024-07-22",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000261",
+    "customer_id": "C000048",
+    "offer_id": "OFF0000372",
+    "requested_amount": 32945.84,
+    "submitted_at": "2024-06-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000262",
+    "customer_id": "C000056",
+    "offer_id": "OFF0000373",
+    "requested_amount": 10641.05,
+    "submitted_at": "2024-06-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000263",
+    "customer_id": "C000086",
+    "offer_id": "OFF0000375",
+    "requested_amount": 3602.68,
+    "submitted_at": "2024-06-17",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000264",
+    "customer_id": "C000202",
+    "offer_id": "OFF0000377",
+    "requested_amount": 21389.38,
+    "submitted_at": "2024-06-11",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000265",
+    "customer_id": "C000211",
+    "offer_id": "OFF0000379",
+    "requested_amount": 3368.21,
+    "submitted_at": "2024-06-24",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000266",
+    "customer_id": "C000213",
+    "offer_id": "OFF0000380",
+    "requested_amount": 28669.32,
+    "submitted_at": "2024-05-16",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000267",
+    "customer_id": "C000218",
+    "offer_id": "OFF0000381",
+    "requested_amount": 17092.9,
+    "submitted_at": "2024-07-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000268",
+    "customer_id": "C000223",
+    "offer_id": "OFF0000382",
+    "requested_amount": 30281.65,
+    "submitted_at": "2024-07-19",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000269",
+    "customer_id": "C000244",
+    "offer_id": "OFF0000383",
+    "requested_amount": 16759.95,
+    "submitted_at": "2024-07-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000270",
+    "customer_id": "C000001",
+    "offer_id": "OFF0000384",
+    "requested_amount": 14428.21,
+    "submitted_at": "2024-09-09",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000271",
+    "customer_id": "C000051",
+    "offer_id": "OFF0000386",
+    "requested_amount": 9774.42,
+    "submitted_at": "2024-10-10",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000272",
+    "customer_id": "C000071",
+    "offer_id": "OFF0000387",
+    "requested_amount": 30226.91,
+    "submitted_at": "2024-10-14",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000273",
+    "customer_id": "C000074",
+    "offer_id": "OFF0000388",
+    "requested_amount": 29956.7,
+    "submitted_at": "2024-09-10",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000274",
+    "customer_id": "C000096",
+    "offer_id": "OFF0000389",
+    "requested_amount": 35692.78,
+    "submitted_at": "2024-10-05",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000275",
+    "customer_id": "C000113",
+    "offer_id": "OFF0000390",
+    "requested_amount": 26617.54,
+    "submitted_at": "2024-09-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000276",
+    "customer_id": "C000263",
+    "offer_id": "OFF0000394",
+    "requested_amount": 12843.01,
+    "submitted_at": "2024-10-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000277",
+    "customer_id": "C000018",
+    "offer_id": "OFF0000395",
+    "requested_amount": 6075.94,
+    "submitted_at": "2024-06-12",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000278",
+    "customer_id": "C000020",
+    "offer_id": "OFF0000396",
+    "requested_amount": 34572.31,
+    "submitted_at": "2024-05-25",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000279",
+    "customer_id": "C000074",
+    "offer_id": "OFF0000398",
+    "requested_amount": 10181.73,
+    "submitted_at": "2024-06-03",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000280",
+    "customer_id": "C000101",
+    "offer_id": "OFF0000400",
+    "requested_amount": 36143.82,
+    "submitted_at": "2024-07-17",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000281",
+    "customer_id": "C000122",
+    "offer_id": "OFF0000401",
+    "requested_amount": 6572.35,
+    "submitted_at": "2024-07-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000282",
+    "customer_id": "C000167",
+    "offer_id": "OFF0000402",
+    "requested_amount": 5271.62,
+    "submitted_at": "2024-05-18",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000283",
+    "customer_id": "C000210",
+    "offer_id": "OFF0000403",
+    "requested_amount": 12379.11,
+    "submitted_at": "2024-06-21",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000284",
+    "customer_id": "C000215",
+    "offer_id": "OFF0000404",
+    "requested_amount": 29794.49,
+    "submitted_at": "2024-06-29",
+    "application_status": "SUBMITTED"
+  },
+  {
+    "application_id": "APP0000285",
+    "customer_id": "C000008",
+    "offer_id": "OFF0000407",
+    "requested_amount": 38458.3,
+    "submitted_at": "2025-09-01",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000286",
+    "customer_id": "C000236",
+    "offer_id": "OFF0000410",
+    "requested_amount": 38832.66,
+    "submitted_at": "2026-05-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000287",
+    "customer_id": "C000262",
+    "offer_id": "OFF0000411",
+    "requested_amount": 6600.87,
+    "submitted_at": "2026-04-13",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000288",
+    "customer_id": "C000040",
+    "offer_id": null,
+    "requested_amount": 21839.29,
+    "submitted_at": "2025-11-03",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000289",
+    "customer_id": "C000075",
+    "offer_id": null,
+    "requested_amount": 26966.98,
+    "submitted_at": "2026-05-26",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000290",
+    "customer_id": "C000090",
+    "offer_id": null,
+    "requested_amount": 23695.69,
+    "submitted_at": "2026-04-26",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000291",
+    "customer_id": "C000091",
+    "offer_id": null,
+    "requested_amount": 26651.24,
+    "submitted_at": "2026-05-14",
+    "application_status": "WITHDRAWN"
+  },
+  {
+    "application_id": "APP0000292",
+    "customer_id": "C000124",
+    "offer_id": null,
+    "requested_amount": 22409.1,
+    "submitted_at": "2026-05-04",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000293",
+    "customer_id": "C000132",
+    "offer_id": null,
+    "requested_amount": 13407.79,
+    "submitted_at": "2025-02-27",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000294",
+    "customer_id": "C000146",
+    "offer_id": null,
+    "requested_amount": 20934.91,
+    "submitted_at": "2025-10-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000295",
+    "customer_id": "C000153",
+    "offer_id": null,
+    "requested_amount": 29048.41,
+    "submitted_at": "2026-05-06",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000296",
+    "customer_id": "C000222",
+    "offer_id": null,
+    "requested_amount": 14664.13,
+    "submitted_at": "2025-11-15",
+    "application_status": "DECISIONED"
+  },
+  {
+    "application_id": "APP0000297",
+    "customer_id": "C000237",
+    "offer_id": null,
+    "requested_amount": 32761.02,
+    "submitted_at": "2025-05-23",
+    "application_status": "DECISIONED"
+  }
+]

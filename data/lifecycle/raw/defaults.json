@@ -1,0 +1,66 @@
+[
+  {
+    "default_id": "DEF000001",
+    "loan_id": "L000004",
+    "default_date": "2026-01-09",
+    "balance_at_default": 22584.43,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  },
+  {
+    "default_id": "DEF000002",
+    "loan_id": "L000010",
+    "default_date": "2026-02-15",
+    "balance_at_default": 8943.78,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  },
+  {
+    "default_id": "DEF000003",
+    "loan_id": "L000017",
+    "default_date": "2026-02-26",
+    "balance_at_default": 24492.92,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  },
+  {
+    "default_id": "DEF000004",
+    "loan_id": "L000029",
+    "default_date": "2025-07-18",
+    "balance_at_default": 9866.28,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  },
+  {
+    "default_id": "DEF000005",
+    "loan_id": "L000035",
+    "default_date": "2026-03-08",
+    "balance_at_default": 17354.74,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  },
+  {
+    "default_id": "DEF000006",
+    "loan_id": "L000051",
+    "default_date": "2025-02-26",
+    "balance_at_default": 17654.9,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  },
+  {
+    "default_id": "DEF000007",
+    "loan_id": "L000087",
+    "default_date": "2026-01-21",
+    "balance_at_default": 15849.32,
+    "recovery_amount": 3145.3,
+    "recovery_date": "2026-03-09"
+  },
+  {
+    "default_id": "DEF000008",
+    "loan_id": "L000092",
+    "default_date": "2026-06-30",
+    "balance_at_default": 28953.0,
+    "recovery_amount": 0.0,
+    "recovery_date": null
+  }
+]

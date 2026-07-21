@@ -1,0 +1,94 @@
+{
+  "pipeline": "loan_portfolio",
+  "produced_by": "src/etl_spark_loan_portfolio.py",
+  "curated_path": "s3://data-agent/curated/loan_portfolio.parquet",
+  "grain": "single row -- portfolio-wide, as of business_rules-independent as_of_date",
+  "source_tables": ["lifecycle.loans", "lifecycle.payment_events"],
+  "metrics": {
+    "loan_count": {
+      "business_definition": "Total number of funded loans in the portfolio.",
+      "formula": "count(loans)",
+      "source_tables": ["lifecycle.loans"],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true
+    },
+    "active_loan_count": {
+      "business_definition": "Loans still within their term as of as_of_date.",
+      "formula": "count(loans where loan_status == 'ACTIVE')",
+      "source_tables": ["lifecycle.loans"],
+      "filters": ["loan_status == 'ACTIVE'"],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true
+    },
+    "closed_loan_count": {
+      "business_definition": "Loans whose full term has elapsed and were repaid.",
+      "formula": "count(loans where loan_status == 'CLOSED')",
+      "source_tables": ["lifecycle.loans"],
+      "filters": ["loan_status == 'CLOSED'"],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true
+    },
+    "defaulted_loan_count": {
+      "business_definition": "Loans that defaulted (see lifecycle.defaults for detail).",
+      "formula": "count(loans where loan_status == 'DEFAULTED')",
+      "source_tables": ["lifecycle.loans"],
+      "filters": ["loan_status == 'DEFAULTED'"],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true
+    },
+    "total_funded_principal": {
+      "business_definition": "Total original principal across all funded loans.",
+      "formula": "sum(loans.principal_amount)",
+      "source_tables": ["lifecycle.loans"],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": "> 0",
+      "caveats": [],
+      "qa_supported": true
+    },
+    "total_outstanding_principal": {
+      "business_definition": "Total remaining principal owed across the portfolio, net of successful payments and any reversals.",
+      "formula": "sum over loans of max(principal_amount - net_successful_payment_amount, 0), where net_successful_payment_amount = sum(payment_events.amount where payment_status in business_rules.successful_payment_statuses + ['REVERSED'])",
+      "source_tables": ["lifecycle.loans", "lifecycle.payment_events"],
+      "filters": ["payment_status in ['PAID', 'REVERSED']"],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0, <= total_funded_principal",
+      "caveats": [
+        "Deliberately nets REVERSED events against their original PAID amount (REVERSAL rows carry a negative amount by construction) -- a naive filter of payment_status == 'PAID' alone would overstate how much has actually been collected. See the 'reversed payments counted as successful' failure category this guards against."
+      ],
+      "qa_supported": true
+    },
+    "avg_interest_rate": {
+      "business_definition": "Average interest rate across all funded loans.",
+      "formula": "mean(loans.interest_rate)",
+      "source_tables": ["lifecycle.loans"],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": "0.04 - 0.25 (see generate_data.py's INTEREST_RATE_RANGE_BY_RISK)",
+      "caveats": [],
+      "qa_supported": true
+    },
+    "total_accrued_interest": {
+      "business_definition": "Simple interest accrued since origination, ACTIVE loans only.",
+      "formula": "sum over ACTIVE loans of principal_amount * interest_rate * (days since originated_at) / 365",
+      "source_tables": ["lifecycle.loans"],
+      "filters": ["loan_status in business_rules.interest_accrual.accrues_on_statuses"],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [
+        "CLOSED/DEFAULTED loans do not contribute -- their interest is treated as already realized/resolved, not separately tracked, per business_rules.interest_accrual.",
+        "ACT/365 simple-interest day-count convention, per business_rules.interest_accrual.day_count_convention -- not compounding, not the loan's actual amortization schedule."
+      ],
+      "qa_supported": true
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "verification_status": "BLOCKED",
+  "diagnosis_status": null,
+  "repair_status": "BLOCKED",
+  "tests": {
+    "targeted": "NOT_RUN",
+    "full_relevant_suite": "NOT_RUN"
+  },
+  "etl_status_after": "NOT_RUN",
+  "validation_before": null,
+  "validation_after": "NOT_RUN",
+  "failed_checks_before": [],
+  "failed_checks_after": [],
+  "metrics_before": {},
+  "metrics_after": {},
+  "changed_files": [],
+  "unchanged_protected_files_verified": true,
+  "raw_data_unchanged": true,
+  "rollback_performed": false,
+  "summary": "Nothing to verify -- repair_status was 'BLOCKED', not APPLIED."
+}

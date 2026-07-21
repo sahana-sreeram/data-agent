@@ -1,0 +1,19 @@
+{
+  "answer": {
+    "answer_status": "UNRELIABLE_DATA",
+    "question": "What is today's total outstanding loan balance?",
+    "answer_summary": "I can't give a reliable number right now -- the underlying data failed validation and could not be automatically repaired.",
+    "as_of_date": null,
+    "cited_metrics": [],
+    "caveats": [
+      "Validation failed (BUSINESS_RULE_MISMATCH): Raw payments contain a new payment_status value 'SETTLED' that is not in the approved vocabulary. This violates the business rules/data dictionary enum and triggers the payment_status_enum_valid check. Downstream portfolio_summary reconciliations still pass because successful_payment_statuses currently only includes 'PAID', so 'SETTLED' rows are ignored by both ETL and the independent validator. The initiating event is an upstream status vocabulary change; the root cause is our business rules/data dictionary (and possibly ETL mapping) not updated to accept/handle 'SETTLED'. Automated repair was blocked -- human review is required before this number can be trusted."
+    ]
+  },
+  "self_healing": {
+    "attempted": true,
+    "diagnosis_status": "DIAGNOSED",
+    "root_cause_category": "BUSINESS_RULE_MISMATCH",
+    "repair_status": "BLOCKED",
+    "verification_status": "BLOCKED"
+  }
+}

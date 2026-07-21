@@ -1,0 +1,2672 @@
+[
+  {
+    "decision_id": "DEC0000001",
+    "application_id": "APP0000002",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-25"
+  },
+  {
+    "decision_id": "DEC0000002",
+    "application_id": "APP0000003",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 3953.87,
+    "approved_apr": 0.0707,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-22"
+  },
+  {
+    "decision_id": "DEC0000003",
+    "application_id": "APP0000004",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10243.45,
+    "approved_apr": 0.1041,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-15"
+  },
+  {
+    "decision_id": "DEC0000004",
+    "application_id": "APP0000005",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-18"
+  },
+  {
+    "decision_id": "DEC0000005",
+    "application_id": "APP0000006",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 14821.61,
+    "approved_apr": 0.0828,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-18"
+  },
+  {
+    "decision_id": "DEC0000006",
+    "application_id": "APP0000007",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-22"
+  },
+  {
+    "decision_id": "DEC0000007",
+    "application_id": "APP0000009",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30112.57,
+    "approved_apr": 0.0889,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-26"
+  },
+  {
+    "decision_id": "DEC0000008",
+    "application_id": "APP0000010",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27751.36,
+    "approved_apr": 0.0746,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-12"
+  },
+  {
+    "decision_id": "DEC0000009",
+    "application_id": "APP0000011",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29628.94,
+    "approved_apr": 0.0884,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-24"
+  },
+  {
+    "decision_id": "DEC0000010",
+    "application_id": "APP0000012",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34572.67,
+    "approved_apr": 0.0962,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-05"
+  },
+  {
+    "decision_id": "DEC0000011",
+    "application_id": "APP0000013",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13759.41,
+    "approved_apr": 0.0742,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-06"
+  },
+  {
+    "decision_id": "DEC0000012",
+    "application_id": "APP0000014",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-18"
+  },
+  {
+    "decision_id": "DEC0000013",
+    "application_id": "APP0000015",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26226.57,
+    "approved_apr": 0.0759,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-18"
+  },
+  {
+    "decision_id": "DEC0000014",
+    "application_id": "APP0000016",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10732.54,
+    "approved_apr": 0.1627,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-24"
+  },
+  {
+    "decision_id": "DEC0000015",
+    "application_id": "APP0000017",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12624.03,
+    "approved_apr": 0.0886,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-25"
+  },
+  {
+    "decision_id": "DEC0000016",
+    "application_id": "APP0000018",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30567.0,
+    "approved_apr": 0.073,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-06"
+  },
+  {
+    "decision_id": "DEC0000017",
+    "application_id": "APP0000019",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 22534.76,
+    "approved_apr": 0.0829,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-08"
+  },
+  {
+    "decision_id": "DEC0000018",
+    "application_id": "APP0000020",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 31517.14,
+    "approved_apr": 0.1409,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-05"
+  },
+  {
+    "decision_id": "DEC0000019",
+    "application_id": "APP0000021",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30883.01,
+    "approved_apr": 0.1701,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-06"
+  },
+  {
+    "decision_id": "DEC0000020",
+    "application_id": "APP0000022",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23619.09,
+    "approved_apr": 0.0479,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-22"
+  },
+  {
+    "decision_id": "DEC0000021",
+    "application_id": "APP0000023",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 32657.24,
+    "approved_apr": 0.0502,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-19"
+  },
+  {
+    "decision_id": "DEC0000022",
+    "application_id": "APP0000024",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-16"
+  },
+  {
+    "decision_id": "DEC0000023",
+    "application_id": "APP0000025",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 22545.7,
+    "approved_apr": 0.1131,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-21"
+  },
+  {
+    "decision_id": "DEC0000024",
+    "application_id": "APP0000026",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26880.13,
+    "approved_apr": 0.1012,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-30"
+  },
+  {
+    "decision_id": "DEC0000025",
+    "application_id": "APP0000028",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 36141.17,
+    "approved_apr": 0.0993,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-16"
+  },
+  {
+    "decision_id": "DEC0000026",
+    "application_id": "APP0000029",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-17"
+  },
+  {
+    "decision_id": "DEC0000027",
+    "application_id": "APP0000030",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29662.5,
+    "approved_apr": 0.1419,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-25"
+  },
+  {
+    "decision_id": "DEC0000028",
+    "application_id": "APP0000031",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 3782.03,
+    "approved_apr": 0.1491,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-13"
+  },
+  {
+    "decision_id": "DEC0000029",
+    "application_id": "APP0000032",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-03"
+  },
+  {
+    "decision_id": "DEC0000030",
+    "application_id": "APP0000033",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 4509.8,
+    "approved_apr": 0.1974,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-30"
+  },
+  {
+    "decision_id": "DEC0000031",
+    "application_id": "APP0000034",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9238.84,
+    "approved_apr": 0.1162,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-20"
+  },
+  {
+    "decision_id": "DEC0000032",
+    "application_id": "APP0000036",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26227.71,
+    "approved_apr": 0.0684,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-20"
+  },
+  {
+    "decision_id": "DEC0000033",
+    "application_id": "APP0000037",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9907.36,
+    "approved_apr": 0.1367,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-29"
+  },
+  {
+    "decision_id": "DEC0000034",
+    "application_id": "APP0000038",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-19"
+  },
+  {
+    "decision_id": "DEC0000035",
+    "application_id": "APP0000039",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-14"
+  },
+  {
+    "decision_id": "DEC0000036",
+    "application_id": "APP0000040",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 35785.84,
+    "approved_apr": 0.0402,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-13"
+  },
+  {
+    "decision_id": "DEC0000037",
+    "application_id": "APP0000041",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 4212.48,
+    "approved_apr": 0.1188,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-26"
+  },
+  {
+    "decision_id": "DEC0000038",
+    "application_id": "APP0000042",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13454.18,
+    "approved_apr": 0.0931,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-20"
+  },
+  {
+    "decision_id": "DEC0000039",
+    "application_id": "APP0000043",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29526.75,
+    "approved_apr": 0.0526,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-14"
+  },
+  {
+    "decision_id": "DEC0000040",
+    "application_id": "APP0000044",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-18"
+  },
+  {
+    "decision_id": "DEC0000041",
+    "application_id": "APP0000045",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-06-16"
+  },
+  {
+    "decision_id": "DEC0000042",
+    "application_id": "APP0000046",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 14094.64,
+    "approved_apr": 0.1237,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-13"
+  },
+  {
+    "decision_id": "DEC0000043",
+    "application_id": "APP0000047",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 17644.8,
+    "approved_apr": 0.0578,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-21"
+  },
+  {
+    "decision_id": "DEC0000044",
+    "application_id": "APP0000048",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13872.38,
+    "approved_apr": 0.0615,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-11"
+  },
+  {
+    "decision_id": "DEC0000045",
+    "application_id": "APP0000049",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10763.21,
+    "approved_apr": 0.2022,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-23"
+  },
+  {
+    "decision_id": "DEC0000046",
+    "application_id": "APP0000050",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 31441.86,
+    "approved_apr": 0.1625,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-17"
+  },
+  {
+    "decision_id": "DEC0000047",
+    "application_id": "APP0000051",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 15942.97,
+    "approved_apr": 0.0451,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-17"
+  },
+  {
+    "decision_id": "DEC0000048",
+    "application_id": "APP0000052",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-15"
+  },
+  {
+    "decision_id": "DEC0000049",
+    "application_id": "APP0000053",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 15723.52,
+    "approved_apr": 0.0585,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-04-16"
+  },
+  {
+    "decision_id": "DEC0000050",
+    "application_id": "APP0000054",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27742.27,
+    "approved_apr": 0.1086,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-04-24"
+  },
+  {
+    "decision_id": "DEC0000051",
+    "application_id": "APP0000055",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-04-19"
+  },
+  {
+    "decision_id": "DEC0000052",
+    "application_id": "APP0000056",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 14430.44,
+    "approved_apr": 0.1228,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-27"
+  },
+  {
+    "decision_id": "DEC0000053",
+    "application_id": "APP0000058",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-23"
+  },
+  {
+    "decision_id": "DEC0000054",
+    "application_id": "APP0000059",
+    "decision": "REJECTED",
+    "rejection_reason": "FRAUD_RISK",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-04-19"
+  },
+  {
+    "decision_id": "DEC0000055",
+    "application_id": "APP0000060",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 20825.68,
+    "approved_apr": 0.1995,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-19"
+  },
+  {
+    "decision_id": "DEC0000056",
+    "application_id": "APP0000061",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-03-24"
+  },
+  {
+    "decision_id": "DEC0000057",
+    "application_id": "APP0000062",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23441.62,
+    "approved_apr": 0.0809,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-17"
+  },
+  {
+    "decision_id": "DEC0000058",
+    "application_id": "APP0000063",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26671.18,
+    "approved_apr": 0.045,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-17"
+  },
+  {
+    "decision_id": "DEC0000059",
+    "application_id": "APP0000065",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 21935.15,
+    "approved_apr": 0.0994,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-17"
+  },
+  {
+    "decision_id": "DEC0000060",
+    "application_id": "APP0000066",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-09"
+  },
+  {
+    "decision_id": "DEC0000061",
+    "application_id": "APP0000067",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-06"
+  },
+  {
+    "decision_id": "DEC0000062",
+    "application_id": "APP0000068",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2446.15,
+    "approved_apr": 0.0449,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-19"
+  },
+  {
+    "decision_id": "DEC0000063",
+    "application_id": "APP0000069",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2768.74,
+    "approved_apr": 0.0496,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-11"
+  },
+  {
+    "decision_id": "DEC0000064",
+    "application_id": "APP0000070",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 15354.68,
+    "approved_apr": 0.1597,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-03"
+  },
+  {
+    "decision_id": "DEC0000065",
+    "application_id": "APP0000071",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 20983.87,
+    "approved_apr": 0.0843,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-06"
+  },
+  {
+    "decision_id": "DEC0000066",
+    "application_id": "APP0000072",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 24419.85,
+    "approved_apr": 0.0459,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-11"
+  },
+  {
+    "decision_id": "DEC0000067",
+    "application_id": "APP0000074",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30103.78,
+    "approved_apr": 0.2368,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-24"
+  },
+  {
+    "decision_id": "DEC0000068",
+    "application_id": "APP0000075",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29948.77,
+    "approved_apr": 0.0744,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-15"
+  },
+  {
+    "decision_id": "DEC0000069",
+    "application_id": "APP0000076",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 4175.27,
+    "approved_apr": 0.0587,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-01"
+  },
+  {
+    "decision_id": "DEC0000070",
+    "application_id": "APP0000077",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 3607.04,
+    "approved_apr": 0.1094,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-14"
+  },
+  {
+    "decision_id": "DEC0000071",
+    "application_id": "APP0000078",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-14"
+  },
+  {
+    "decision_id": "DEC0000072",
+    "application_id": "APP0000079",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 3818.93,
+    "approved_apr": 0.1878,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-09"
+  },
+  {
+    "decision_id": "DEC0000073",
+    "application_id": "APP0000080",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-01"
+  },
+  {
+    "decision_id": "DEC0000074",
+    "application_id": "APP0000081",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-18"
+  },
+  {
+    "decision_id": "DEC0000075",
+    "application_id": "APP0000082",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 14310.79,
+    "approved_apr": 0.1214,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-13"
+  },
+  {
+    "decision_id": "DEC0000076",
+    "application_id": "APP0000083",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-17"
+  },
+  {
+    "decision_id": "DEC0000077",
+    "application_id": "APP0000084",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27065.63,
+    "approved_apr": 0.073,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-17"
+  },
+  {
+    "decision_id": "DEC0000078",
+    "application_id": "APP0000085",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-26"
+  },
+  {
+    "decision_id": "DEC0000079",
+    "application_id": "APP0000086",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-28"
+  },
+  {
+    "decision_id": "DEC0000080",
+    "application_id": "APP0000087",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 5791.54,
+    "approved_apr": 0.2207,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-02"
+  },
+  {
+    "decision_id": "DEC0000081",
+    "application_id": "APP0000088",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23539.88,
+    "approved_apr": 0.0786,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-03-06"
+  },
+  {
+    "decision_id": "DEC0000082",
+    "application_id": "APP0000089",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-07"
+  },
+  {
+    "decision_id": "DEC0000083",
+    "application_id": "APP0000090",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 11949.79,
+    "approved_apr": 0.1431,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-03-17"
+  },
+  {
+    "decision_id": "DEC0000084",
+    "application_id": "APP0000091",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-03-31"
+  },
+  {
+    "decision_id": "DEC0000085",
+    "application_id": "APP0000092",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-03-20"
+  },
+  {
+    "decision_id": "DEC0000086",
+    "application_id": "APP0000093",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 28712.51,
+    "approved_apr": 0.1299,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-03"
+  },
+  {
+    "decision_id": "DEC0000087",
+    "application_id": "APP0000094",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 21744.49,
+    "approved_apr": 0.0838,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-03-05"
+  },
+  {
+    "decision_id": "DEC0000088",
+    "application_id": "APP0000095",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2670.53,
+    "approved_apr": 0.0829,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-11"
+  },
+  {
+    "decision_id": "DEC0000089",
+    "application_id": "APP0000096",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-17"
+  },
+  {
+    "decision_id": "DEC0000090",
+    "application_id": "APP0000097",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 15760.8,
+    "approved_apr": 0.0447,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-04-25"
+  },
+  {
+    "decision_id": "DEC0000091",
+    "application_id": "APP0000099",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9917.58,
+    "approved_apr": 0.0925,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-19"
+  },
+  {
+    "decision_id": "DEC0000092",
+    "application_id": "APP0000100",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 6576.32,
+    "approved_apr": 0.047,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-26"
+  },
+  {
+    "decision_id": "DEC0000093",
+    "application_id": "APP0000101",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-22"
+  },
+  {
+    "decision_id": "DEC0000094",
+    "application_id": "APP0000102",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 32978.55,
+    "approved_apr": 0.0436,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-28"
+  },
+  {
+    "decision_id": "DEC0000095",
+    "application_id": "APP0000103",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 7792.88,
+    "approved_apr": 0.1332,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-01"
+  },
+  {
+    "decision_id": "DEC0000096",
+    "application_id": "APP0000104",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 18953.76,
+    "approved_apr": 0.0824,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-19"
+  },
+  {
+    "decision_id": "DEC0000097",
+    "application_id": "APP0000105",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 20191.87,
+    "approved_apr": 0.0819,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-13"
+  },
+  {
+    "decision_id": "DEC0000098",
+    "application_id": "APP0000106",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34976.1,
+    "approved_apr": 0.0762,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-08"
+  },
+  {
+    "decision_id": "DEC0000099",
+    "application_id": "APP0000107",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27514.83,
+    "approved_apr": 0.0804,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-17"
+  },
+  {
+    "decision_id": "DEC0000100",
+    "application_id": "APP0000108",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29116.46,
+    "approved_apr": 0.1137,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-28"
+  },
+  {
+    "decision_id": "DEC0000101",
+    "application_id": "APP0000109",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-30"
+  },
+  {
+    "decision_id": "DEC0000102",
+    "application_id": "APP0000110",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 25075.58,
+    "approved_apr": 0.0715,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-10"
+  },
+  {
+    "decision_id": "DEC0000103",
+    "application_id": "APP0000111",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 25996.69,
+    "approved_apr": 0.0577,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-04-05"
+  },
+  {
+    "decision_id": "DEC0000104",
+    "application_id": "APP0000112",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-17"
+  },
+  {
+    "decision_id": "DEC0000105",
+    "application_id": "APP0000113",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 33550.21,
+    "approved_apr": 0.0983,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-27"
+  },
+  {
+    "decision_id": "DEC0000106",
+    "application_id": "APP0000114",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9265.78,
+    "approved_apr": 0.1268,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-04"
+  },
+  {
+    "decision_id": "DEC0000107",
+    "application_id": "APP0000115",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-19"
+  },
+  {
+    "decision_id": "DEC0000108",
+    "application_id": "APP0000116",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34691.67,
+    "approved_apr": 0.0475,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-12"
+  },
+  {
+    "decision_id": "DEC0000109",
+    "application_id": "APP0000117",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 37690.98,
+    "approved_apr": 0.0557,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-20"
+  },
+  {
+    "decision_id": "DEC0000110",
+    "application_id": "APP0000118",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9235.46,
+    "approved_apr": 0.0818,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-11"
+  },
+  {
+    "decision_id": "DEC0000111",
+    "application_id": "APP0000119",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23358.54,
+    "approved_apr": 0.0843,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-17"
+  },
+  {
+    "decision_id": "DEC0000112",
+    "application_id": "APP0000120",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 21215.16,
+    "approved_apr": 0.1798,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-03"
+  },
+  {
+    "decision_id": "DEC0000113",
+    "application_id": "APP0000122",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2468.68,
+    "approved_apr": 0.1815,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-24"
+  },
+  {
+    "decision_id": "DEC0000114",
+    "application_id": "APP0000123",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26947.06,
+    "approved_apr": 0.0989,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-18"
+  },
+  {
+    "decision_id": "DEC0000115",
+    "application_id": "APP0000124",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-27"
+  },
+  {
+    "decision_id": "DEC0000116",
+    "application_id": "APP0000125",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 11572.37,
+    "approved_apr": 0.0793,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-03-08"
+  },
+  {
+    "decision_id": "DEC0000117",
+    "application_id": "APP0000126",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27448.9,
+    "approved_apr": 0.042,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-07"
+  },
+  {
+    "decision_id": "DEC0000118",
+    "application_id": "APP0000127",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12356.97,
+    "approved_apr": 0.0605,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-23"
+  },
+  {
+    "decision_id": "DEC0000119",
+    "application_id": "APP0000128",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23670.85,
+    "approved_apr": 0.0793,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-04-16"
+  },
+  {
+    "decision_id": "DEC0000120",
+    "application_id": "APP0000129",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-02"
+  },
+  {
+    "decision_id": "DEC0000121",
+    "application_id": "APP0000131",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 18939.37,
+    "approved_apr": 0.0987,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-26"
+  },
+  {
+    "decision_id": "DEC0000122",
+    "application_id": "APP0000132",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-03"
+  },
+  {
+    "decision_id": "DEC0000123",
+    "application_id": "APP0000134",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30526.01,
+    "approved_apr": 0.0678,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-09"
+  },
+  {
+    "decision_id": "DEC0000124",
+    "application_id": "APP0000135",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12193.12,
+    "approved_apr": 0.0767,
+    "model_version": "uw-model-v1",
+    "decided_at": "2023-12-16"
+  },
+  {
+    "decision_id": "DEC0000125",
+    "application_id": "APP0000136",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12276.06,
+    "approved_apr": 0.1149,
+    "model_version": "uw-model-v1",
+    "decided_at": "2023-11-22"
+  },
+  {
+    "decision_id": "DEC0000126",
+    "application_id": "APP0000137",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9859.32,
+    "approved_apr": 0.1335,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-04"
+  },
+  {
+    "decision_id": "DEC0000127",
+    "application_id": "APP0000138",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 28403.02,
+    "approved_apr": 0.097,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-26"
+  },
+  {
+    "decision_id": "DEC0000128",
+    "application_id": "APP0000139",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34005.59,
+    "approved_apr": 0.071,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-03"
+  },
+  {
+    "decision_id": "DEC0000129",
+    "application_id": "APP0000140",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10293.27,
+    "approved_apr": 0.0723,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-05"
+  },
+  {
+    "decision_id": "DEC0000130",
+    "application_id": "APP0000141",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-07"
+  },
+  {
+    "decision_id": "DEC0000131",
+    "application_id": "APP0000142",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 19019.18,
+    "approved_apr": 0.2232,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-14"
+  },
+  {
+    "decision_id": "DEC0000132",
+    "application_id": "APP0000143",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 36119.86,
+    "approved_apr": 0.0664,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-21"
+  },
+  {
+    "decision_id": "DEC0000133",
+    "application_id": "APP0000144",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26501.0,
+    "approved_apr": 0.0526,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-26"
+  },
+  {
+    "decision_id": "DEC0000134",
+    "application_id": "APP0000145",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-16"
+  },
+  {
+    "decision_id": "DEC0000135",
+    "application_id": "APP0000146",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-01"
+  },
+  {
+    "decision_id": "DEC0000136",
+    "application_id": "APP0000147",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12899.06,
+    "approved_apr": 0.0779,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-12-28"
+  },
+  {
+    "decision_id": "DEC0000137",
+    "application_id": "APP0000148",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 33313.64,
+    "approved_apr": 0.2193,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-30"
+  },
+  {
+    "decision_id": "DEC0000138",
+    "application_id": "APP0000149",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29443.73,
+    "approved_apr": 0.1723,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-09"
+  },
+  {
+    "decision_id": "DEC0000139",
+    "application_id": "APP0000150",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 19452.62,
+    "approved_apr": 0.0589,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-13"
+  },
+  {
+    "decision_id": "DEC0000140",
+    "application_id": "APP0000151",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-05"
+  },
+  {
+    "decision_id": "DEC0000141",
+    "application_id": "APP0000152",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34092.52,
+    "approved_apr": 0.1154,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-22"
+  },
+  {
+    "decision_id": "DEC0000142",
+    "application_id": "APP0000153",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-10"
+  },
+  {
+    "decision_id": "DEC0000143",
+    "application_id": "APP0000155",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 36714.39,
+    "approved_apr": 0.1971,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-09"
+  },
+  {
+    "decision_id": "DEC0000144",
+    "application_id": "APP0000156",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 32764.38,
+    "approved_apr": 0.1912,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-10"
+  },
+  {
+    "decision_id": "DEC0000145",
+    "application_id": "APP0000157",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30153.56,
+    "approved_apr": 0.0826,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-20"
+  },
+  {
+    "decision_id": "DEC0000146",
+    "application_id": "APP0000158",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 36158.98,
+    "approved_apr": 0.0546,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-09"
+  },
+  {
+    "decision_id": "DEC0000147",
+    "application_id": "APP0000159",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-10"
+  },
+  {
+    "decision_id": "DEC0000148",
+    "application_id": "APP0000160",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34283.72,
+    "approved_apr": 0.0694,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-30"
+  },
+  {
+    "decision_id": "DEC0000149",
+    "application_id": "APP0000161",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 36404.07,
+    "approved_apr": 0.2287,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-11"
+  },
+  {
+    "decision_id": "DEC0000150",
+    "application_id": "APP0000162",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34866.24,
+    "approved_apr": 0.19,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-24"
+  },
+  {
+    "decision_id": "DEC0000151",
+    "application_id": "APP0000163",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-11"
+  },
+  {
+    "decision_id": "DEC0000152",
+    "application_id": "APP0000164",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-13"
+  },
+  {
+    "decision_id": "DEC0000153",
+    "application_id": "APP0000166",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27484.33,
+    "approved_apr": 0.2147,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-28"
+  },
+  {
+    "decision_id": "DEC0000154",
+    "application_id": "APP0000167",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26798.53,
+    "approved_apr": 0.1026,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-12"
+  },
+  {
+    "decision_id": "DEC0000155",
+    "application_id": "APP0000168",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26520.76,
+    "approved_apr": 0.0824,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-20"
+  },
+  {
+    "decision_id": "DEC0000156",
+    "application_id": "APP0000170",
+    "decision": "REJECTED",
+    "rejection_reason": "FRAUD_RISK",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-04"
+  },
+  {
+    "decision_id": "DEC0000157",
+    "application_id": "APP0000171",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2331.54,
+    "approved_apr": 0.0881,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-07"
+  },
+  {
+    "decision_id": "DEC0000158",
+    "application_id": "APP0000172",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 6370.17,
+    "approved_apr": 0.1401,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-21"
+  },
+  {
+    "decision_id": "DEC0000159",
+    "application_id": "APP0000173",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10687.75,
+    "approved_apr": 0.0404,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-25"
+  },
+  {
+    "decision_id": "DEC0000160",
+    "application_id": "APP0000174",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 24153.04,
+    "approved_apr": 0.1367,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-17"
+  },
+  {
+    "decision_id": "DEC0000161",
+    "application_id": "APP0000175",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 11115.26,
+    "approved_apr": 0.0878,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-22"
+  },
+  {
+    "decision_id": "DEC0000162",
+    "application_id": "APP0000176",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-11"
+  },
+  {
+    "decision_id": "DEC0000163",
+    "application_id": "APP0000177",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 4097.08,
+    "approved_apr": 0.1131,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-14"
+  },
+  {
+    "decision_id": "DEC0000164",
+    "application_id": "APP0000178",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 4281.88,
+    "approved_apr": 0.1376,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-25"
+  },
+  {
+    "decision_id": "DEC0000165",
+    "application_id": "APP0000179",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12175.45,
+    "approved_apr": 0.0608,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-15"
+  },
+  {
+    "decision_id": "DEC0000166",
+    "application_id": "APP0000180",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-27"
+  },
+  {
+    "decision_id": "DEC0000167",
+    "application_id": "APP0000182",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 15425.01,
+    "approved_apr": 0.0467,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-02"
+  },
+  {
+    "decision_id": "DEC0000168",
+    "application_id": "APP0000183",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34094.86,
+    "approved_apr": 0.0804,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-12"
+  },
+  {
+    "decision_id": "DEC0000169",
+    "application_id": "APP0000184",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-02"
+  },
+  {
+    "decision_id": "DEC0000170",
+    "application_id": "APP0000185",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2503.2,
+    "approved_apr": 0.1078,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-28"
+  },
+  {
+    "decision_id": "DEC0000171",
+    "application_id": "APP0000186",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 3603.6,
+    "approved_apr": 0.047,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-16"
+  },
+  {
+    "decision_id": "DEC0000172",
+    "application_id": "APP0000187",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 22517.62,
+    "approved_apr": 0.1573,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-31"
+  },
+  {
+    "decision_id": "DEC0000173",
+    "application_id": "APP0000188",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-30"
+  },
+  {
+    "decision_id": "DEC0000174",
+    "application_id": "APP0000189",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23985.58,
+    "approved_apr": 0.1771,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-24"
+  },
+  {
+    "decision_id": "DEC0000175",
+    "application_id": "APP0000191",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 19005.39,
+    "approved_apr": 0.0748,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-30"
+  },
+  {
+    "decision_id": "DEC0000176",
+    "application_id": "APP0000192",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23691.75,
+    "approved_apr": 0.1085,
+    "model_version": "uw-model-v1",
+    "decided_at": "2023-12-20"
+  },
+  {
+    "decision_id": "DEC0000177",
+    "application_id": "APP0000194",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 17129.92,
+    "approved_apr": 0.0411,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-10"
+  },
+  {
+    "decision_id": "DEC0000178",
+    "application_id": "APP0000195",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30631.38,
+    "approved_apr": 0.0614,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-08"
+  },
+  {
+    "decision_id": "DEC0000179",
+    "application_id": "APP0000196",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 5753.25,
+    "approved_apr": 0.0458,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-09"
+  },
+  {
+    "decision_id": "DEC0000180",
+    "application_id": "APP0000197",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-11"
+  },
+  {
+    "decision_id": "DEC0000181",
+    "application_id": "APP0000198",
+    "decision": "REJECTED",
+    "rejection_reason": "FRAUD_RISK",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-10"
+  },
+  {
+    "decision_id": "DEC0000182",
+    "application_id": "APP0000199",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-05"
+  },
+  {
+    "decision_id": "DEC0000183",
+    "application_id": "APP0000200",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23836.3,
+    "approved_apr": 0.0809,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-05"
+  },
+  {
+    "decision_id": "DEC0000184",
+    "application_id": "APP0000201",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9102.09,
+    "approved_apr": 0.148,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-03"
+  },
+  {
+    "decision_id": "DEC0000185",
+    "application_id": "APP0000202",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 5801.67,
+    "approved_apr": 0.1337,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-19"
+  },
+  {
+    "decision_id": "DEC0000186",
+    "application_id": "APP0000203",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-31"
+  },
+  {
+    "decision_id": "DEC0000187",
+    "application_id": "APP0000204",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 30403.94,
+    "approved_apr": 0.12,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-02"
+  },
+  {
+    "decision_id": "DEC0000188",
+    "application_id": "APP0000205",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 5103.0,
+    "approved_apr": 0.1334,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-10"
+  },
+  {
+    "decision_id": "DEC0000189",
+    "application_id": "APP0000206",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-02"
+  },
+  {
+    "decision_id": "DEC0000190",
+    "application_id": "APP0000208",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-05"
+  },
+  {
+    "decision_id": "DEC0000191",
+    "application_id": "APP0000210",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 15386.02,
+    "approved_apr": 0.0677,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-10"
+  },
+  {
+    "decision_id": "DEC0000192",
+    "application_id": "APP0000212",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-03"
+  },
+  {
+    "decision_id": "DEC0000193",
+    "application_id": "APP0000213",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26786.44,
+    "approved_apr": 0.2134,
+    "model_version": "uw-model-v1",
+    "decided_at": "2026-01-17"
+  },
+  {
+    "decision_id": "DEC0000194",
+    "application_id": "APP0000214",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-01"
+  },
+  {
+    "decision_id": "DEC0000195",
+    "application_id": "APP0000215",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27867.91,
+    "approved_apr": 0.0517,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-12-31"
+  },
+  {
+    "decision_id": "DEC0000196",
+    "application_id": "APP0000216",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 24189.26,
+    "approved_apr": 0.0872,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-02-06"
+  },
+  {
+    "decision_id": "DEC0000197",
+    "application_id": "APP0000217",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 34654.14,
+    "approved_apr": 0.0703,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-01-29"
+  },
+  {
+    "decision_id": "DEC0000198",
+    "application_id": "APP0000219",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-11"
+  },
+  {
+    "decision_id": "DEC0000199",
+    "application_id": "APP0000220",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 7789.7,
+    "approved_apr": 0.0545,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-03"
+  },
+  {
+    "decision_id": "DEC0000200",
+    "application_id": "APP0000221",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13414.48,
+    "approved_apr": 0.2495,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-26"
+  },
+  {
+    "decision_id": "DEC0000201",
+    "application_id": "APP0000222",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 17346.74,
+    "approved_apr": 0.0778,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-30"
+  },
+  {
+    "decision_id": "DEC0000202",
+    "application_id": "APP0000223",
+    "decision": "REJECTED",
+    "rejection_reason": "FRAUD_RISK",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-17"
+  },
+  {
+    "decision_id": "DEC0000203",
+    "application_id": "APP0000224",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10978.12,
+    "approved_apr": 0.0588,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-22"
+  },
+  {
+    "decision_id": "DEC0000204",
+    "application_id": "APP0000225",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 26140.68,
+    "approved_apr": 0.1223,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-20"
+  },
+  {
+    "decision_id": "DEC0000205",
+    "application_id": "APP0000226",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-13"
+  },
+  {
+    "decision_id": "DEC0000206",
+    "application_id": "APP0000227",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 12647.43,
+    "approved_apr": 0.0628,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-26"
+  },
+  {
+    "decision_id": "DEC0000207",
+    "application_id": "APP0000228",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 23178.94,
+    "approved_apr": 0.1056,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-31"
+  },
+  {
+    "decision_id": "DEC0000208",
+    "application_id": "APP0000229",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-17"
+  },
+  {
+    "decision_id": "DEC0000209",
+    "application_id": "APP0000230",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13192.48,
+    "approved_apr": 0.0815,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-28"
+  },
+  {
+    "decision_id": "DEC0000210",
+    "application_id": "APP0000231",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-26"
+  },
+  {
+    "decision_id": "DEC0000211",
+    "application_id": "APP0000232",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-08"
+  },
+  {
+    "decision_id": "DEC0000212",
+    "application_id": "APP0000233",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 2418.95,
+    "approved_apr": 0.1374,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-22"
+  },
+  {
+    "decision_id": "DEC0000213",
+    "application_id": "APP0000234",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-11-01"
+  },
+  {
+    "decision_id": "DEC0000214",
+    "application_id": "APP0000235",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 4142.56,
+    "approved_apr": 0.1456,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-08-19"
+  },
+  {
+    "decision_id": "DEC0000215",
+    "application_id": "APP0000236",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 5934.8,
+    "approved_apr": 0.1191,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-28"
+  },
+  {
+    "decision_id": "DEC0000216",
+    "application_id": "APP0000237",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 14676.47,
+    "approved_apr": 0.224,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-29"
+  },
+  {
+    "decision_id": "DEC0000217",
+    "application_id": "APP0000238",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-27"
+  },
+  {
+    "decision_id": "DEC0000218",
+    "application_id": "APP0000239",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 38433.42,
+    "approved_apr": 0.0762,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-08-10"
+  },
+  {
+    "decision_id": "DEC0000219",
+    "application_id": "APP0000240",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 9821.39,
+    "approved_apr": 0.1264,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-08-23"
+  },
+  {
+    "decision_id": "DEC0000220",
+    "application_id": "APP0000241",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 25557.66,
+    "approved_apr": 0.066,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-17"
+  },
+  {
+    "decision_id": "DEC0000221",
+    "application_id": "APP0000242",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-09-02"
+  },
+  {
+    "decision_id": "DEC0000222",
+    "application_id": "APP0000243",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-06"
+  },
+  {
+    "decision_id": "DEC0000223",
+    "application_id": "APP0000244",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-08-23"
+  },
+  {
+    "decision_id": "DEC0000224",
+    "application_id": "APP0000245",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-08-21"
+  },
+  {
+    "decision_id": "DEC0000225",
+    "application_id": "APP0000246",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 18793.63,
+    "approved_apr": 0.2334,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-05"
+  },
+  {
+    "decision_id": "DEC0000226",
+    "application_id": "APP0000247",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 32594.28,
+    "approved_apr": 0.1181,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-01-08"
+  },
+  {
+    "decision_id": "DEC0000227",
+    "application_id": "APP0000248",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 6443.91,
+    "approved_apr": 0.0792,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-21"
+  },
+  {
+    "decision_id": "DEC0000228",
+    "application_id": "APP0000250",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 21717.58,
+    "approved_apr": 0.0715,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-21"
+  },
+  {
+    "decision_id": "DEC0000229",
+    "application_id": "APP0000251",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 19624.65,
+    "approved_apr": 0.1098,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-17"
+  },
+  {
+    "decision_id": "DEC0000230",
+    "application_id": "APP0000252",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-11"
+  },
+  {
+    "decision_id": "DEC0000231",
+    "application_id": "APP0000253",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-05"
+  },
+  {
+    "decision_id": "DEC0000232",
+    "application_id": "APP0000254",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-24"
+  },
+  {
+    "decision_id": "DEC0000233",
+    "application_id": "APP0000255",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-14"
+  },
+  {
+    "decision_id": "DEC0000234",
+    "application_id": "APP0000256",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13782.89,
+    "approved_apr": 0.0798,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-23"
+  },
+  {
+    "decision_id": "DEC0000235",
+    "application_id": "APP0000257",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-11-15"
+  },
+  {
+    "decision_id": "DEC0000236",
+    "application_id": "APP0000258",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-12-21"
+  },
+  {
+    "decision_id": "DEC0000237",
+    "application_id": "APP0000259",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2023-10-23"
+  },
+  {
+    "decision_id": "DEC0000238",
+    "application_id": "APP0000260",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 29882.43,
+    "approved_apr": 0.116,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-23"
+  },
+  {
+    "decision_id": "DEC0000239",
+    "application_id": "APP0000261",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 32189.63,
+    "approved_apr": 0.0431,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-20"
+  },
+  {
+    "decision_id": "DEC0000240",
+    "application_id": "APP0000262",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10597.74,
+    "approved_apr": 0.0594,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-04"
+  },
+  {
+    "decision_id": "DEC0000241",
+    "application_id": "APP0000265",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 3144.77,
+    "approved_apr": 0.137,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-25"
+  },
+  {
+    "decision_id": "DEC0000242",
+    "application_id": "APP0000266",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-18"
+  },
+  {
+    "decision_id": "DEC0000243",
+    "application_id": "APP0000267",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13900.71,
+    "approved_apr": 0.1981,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-13"
+  },
+  {
+    "decision_id": "DEC0000244",
+    "application_id": "APP0000268",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-23"
+  },
+  {
+    "decision_id": "DEC0000245",
+    "application_id": "APP0000269",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 16283.42,
+    "approved_apr": 0.0561,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-11"
+  },
+  {
+    "decision_id": "DEC0000246",
+    "application_id": "APP0000272",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 25252.7,
+    "approved_apr": 0.1241,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-10-17"
+  },
+  {
+    "decision_id": "DEC0000247",
+    "application_id": "APP0000273",
+    "decision": "REJECTED",
+    "rejection_reason": "FRAUD_RISK",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-09-11"
+  },
+  {
+    "decision_id": "DEC0000248",
+    "application_id": "APP0000275",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 22058.74,
+    "approved_apr": 0.0765,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-09-22"
+  },
+  {
+    "decision_id": "DEC0000249",
+    "application_id": "APP0000276",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 10968.24,
+    "approved_apr": 0.1427,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-10-04"
+  },
+  {
+    "decision_id": "DEC0000250",
+    "application_id": "APP0000277",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 5202.83,
+    "approved_apr": 0.0481,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-15"
+  },
+  {
+    "decision_id": "DEC0000251",
+    "application_id": "APP0000278",
+    "decision": "REJECTED",
+    "rejection_reason": "INCOMPLETE_APPLICATION",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-30"
+  },
+  {
+    "decision_id": "DEC0000252",
+    "application_id": "APP0000280",
+    "decision": "MANUAL_REVIEW",
+    "rejection_reason": null,
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-22"
+  },
+  {
+    "decision_id": "DEC0000253",
+    "application_id": "APP0000281",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 6041.71,
+    "approved_apr": 0.0572,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-07-18"
+  },
+  {
+    "decision_id": "DEC0000254",
+    "application_id": "APP0000282",
+    "decision": "REJECTED",
+    "rejection_reason": "INSUFFICIENT_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-05-22"
+  },
+  {
+    "decision_id": "DEC0000255",
+    "application_id": "APP0000283",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 11948.33,
+    "approved_apr": 0.0861,
+    "model_version": "uw-model-v1",
+    "decided_at": "2024-06-24"
+  },
+  {
+    "decision_id": "DEC0000256",
+    "application_id": "APP0000285",
+    "decision": "REJECTED",
+    "rejection_reason": "HIGH_DEBT_TO_INCOME",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-09-01"
+  },
+  {
+    "decision_id": "DEC0000257",
+    "application_id": "APP0000286",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 37106.47,
+    "approved_apr": 0.0816,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-05-17"
+  },
+  {
+    "decision_id": "DEC0000258",
+    "application_id": "APP0000287",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-04-17"
+  },
+  {
+    "decision_id": "DEC0000259",
+    "application_id": "APP0000288",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 19453.86,
+    "approved_apr": 0.1498,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-11-04"
+  },
+  {
+    "decision_id": "DEC0000260",
+    "application_id": "APP0000289",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-05-27"
+  },
+  {
+    "decision_id": "DEC0000261",
+    "application_id": "APP0000290",
+    "decision": "REJECTED",
+    "rejection_reason": "LOW_CREDIT_SCORE",
+    "approved_amount": null,
+    "approved_apr": null,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-05-01"
+  },
+  {
+    "decision_id": "DEC0000262",
+    "application_id": "APP0000292",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 20368.46,
+    "approved_apr": 0.0855,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-05-07"
+  },
+  {
+    "decision_id": "DEC0000263",
+    "application_id": "APP0000293",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13397.36,
+    "approved_apr": 0.0854,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-02-27"
+  },
+  {
+    "decision_id": "DEC0000264",
+    "application_id": "APP0000294",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 19272.37,
+    "approved_apr": 0.1401,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-10-20"
+  },
+  {
+    "decision_id": "DEC0000265",
+    "application_id": "APP0000295",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 25689.83,
+    "approved_apr": 0.2308,
+    "model_version": "uw-model-v2",
+    "decided_at": "2026-05-06"
+  },
+  {
+    "decision_id": "DEC0000266",
+    "application_id": "APP0000296",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 13103.07,
+    "approved_apr": 0.0673,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-11-20"
+  },
+  {
+    "decision_id": "DEC0000267",
+    "application_id": "APP0000297",
+    "decision": "APPROVED",
+    "rejection_reason": null,
+    "approved_amount": 27456.27,
+    "approved_apr": 0.0624,
+    "model_version": "uw-model-v1",
+    "decided_at": "2025-05-25"
+  }
+]

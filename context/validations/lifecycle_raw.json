@@ -1,0 +1,52 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0
+  },
+  "notes": [
+    "Scoped to the 12-table lifecycle raw dataset (data/lifecycle/raw/) only -- separate from context/validation_rules.json, which governs the original 3-scenario customers/loans/payments model and is unmodified.",
+    "Only schema, enum, and referential_integrity checks exist here. No reconciliation checks -- those compare a curated/ETL output against raw data, and no curated output exists yet for this model.",
+    "Executed by src/validate_lifecycle_raw.py, which is the actual authority on these checks -- this file only documents ids/descriptions, consistent with how context/validation_rules.json relates to src/validate_portfolio.py."
+  ],
+  "rules": [
+    {"id": "customers_required_columns_present", "type": "schema", "tolerance_type": null, "description": "lifecycle customers data must contain all required columns: customer_id, created_at, state, income_band, credit_score_band, credit_score, risk_segment."},
+    {"id": "campaigns_required_columns_present", "type": "schema", "tolerance_type": null, "description": "campaigns data must contain all required columns: campaign_id, name, channel, start_date, end_date, target_risk_segment."},
+    {"id": "coupon_rules_required_columns_present", "type": "schema", "tolerance_type": null, "description": "coupon_rules data must contain all required columns: coupon_rule_id, coupon_code, campaign_id, discount_type, discount_value, valid_from, valid_to."},
+    {"id": "email_events_required_columns_present", "type": "schema", "tolerance_type": null, "description": "email_events data must contain all required columns: event_id, campaign_id, customer_id, event_type, event_timestamp."},
+    {"id": "prequal_offers_required_columns_present", "type": "schema", "tolerance_type": null, "description": "prequal_offers data must contain all required columns: offer_id, customer_id, campaign_id, coupon_code, offer_amount, offer_apr, created_at, expires_at."},
+    {"id": "applications_required_columns_present", "type": "schema", "tolerance_type": null, "description": "applications data must contain all required columns: application_id, customer_id, offer_id, requested_amount, submitted_at, application_status."},
+    {"id": "underwriting_decisions_required_columns_present", "type": "schema", "tolerance_type": null, "description": "underwriting_decisions data must contain all required columns: decision_id, application_id, decision, rejection_reason, approved_amount, approved_apr, model_version, decided_at."},
+    {"id": "loans_required_columns_present", "type": "schema", "tolerance_type": null, "description": "lifecycle loans data must contain all required columns: loan_id, application_id, customer_id, principal_amount, interest_rate, term_months, originated_at, loan_status, scheduled_payment_amount."},
+    {"id": "payment_schedule_required_columns_present", "type": "schema", "tolerance_type": null, "description": "payment_schedule data must contain all required columns: schedule_id, loan_id, installment_number, due_date, scheduled_amount."},
+    {"id": "payment_events_required_columns_present", "type": "schema", "tolerance_type": null, "description": "payment_events data must contain all required columns: event_id, schedule_id, loan_id, event_type, payment_date, amount, payment_status, payment_method."},
+    {"id": "delinquency_events_required_columns_present", "type": "schema", "tolerance_type": null, "description": "delinquency_events data must contain all required columns: delinquency_id, loan_id, as_of_date, days_past_due, bucket."},
+    {"id": "defaults_required_columns_present", "type": "schema", "tolerance_type": null, "description": "defaults data must contain all required columns: default_id, loan_id, default_date, balance_at_default, recovery_amount, recovery_date."},
+
+    {"id": "campaigns_channel_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every campaigns.channel value must be within business_rules.valid_channels."},
+    {"id": "coupon_rules_discount_type_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every coupon_rules.discount_type value must be within business_rules.valid_discount_types."},
+    {"id": "email_events_event_type_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every email_events.event_type value must be within business_rules.valid_email_event_types."},
+    {"id": "applications_application_status_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every applications.application_status value must be within business_rules.valid_application_statuses."},
+    {"id": "underwriting_decisions_decision_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every underwriting_decisions.decision value must be within business_rules.valid_decision_values."},
+    {"id": "underwriting_decisions_rejection_reason_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every non-null underwriting_decisions.rejection_reason value must be within business_rules.valid_rejection_reasons."},
+    {"id": "loans_loan_status_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every lifecycle loans.loan_status value must be within business_rules.valid_loan_statuses (the same key the original 3-scenario model uses -- the vocabulary is unchanged)."},
+    {"id": "payment_events_event_type_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every payment_events.event_type value must be within business_rules.valid_payment_event_types."},
+    {"id": "payment_events_payment_status_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every payment_events.payment_status value must be within business_rules.valid_payment_event_statuses."},
+    {"id": "delinquency_events_bucket_enum_valid", "type": "enum", "tolerance_type": null, "description": "Every delinquency_events.bucket value must be within business_rules.valid_delinquency_buckets."},
+
+    {"id": "coupon_rules_campaign_id_references_campaigns", "type": "referential_integrity", "tolerance_type": null, "description": "Every coupon_rules.campaign_id must reference an existing campaigns.campaign_id."},
+    {"id": "email_events_campaign_id_references_campaigns", "type": "referential_integrity", "tolerance_type": null, "description": "Every email_events.campaign_id must reference an existing campaigns.campaign_id."},
+    {"id": "email_events_customer_id_references_customers", "type": "referential_integrity", "tolerance_type": null, "description": "Every email_events.customer_id must reference an existing customers.customer_id."},
+    {"id": "prequal_offers_customer_id_references_customers", "type": "referential_integrity", "tolerance_type": null, "description": "Every prequal_offers.customer_id must reference an existing customers.customer_id."},
+    {"id": "prequal_offers_campaign_id_references_campaigns", "type": "referential_integrity", "tolerance_type": null, "description": "Every non-null prequal_offers.campaign_id must reference an existing campaigns.campaign_id (null means an organic, non-campaign offer)."},
+    {"id": "applications_customer_id_references_customers", "type": "referential_integrity", "tolerance_type": null, "description": "Every applications.customer_id must reference an existing customers.customer_id."},
+    {"id": "applications_offer_id_references_prequal_offers", "type": "referential_integrity", "tolerance_type": null, "description": "Every non-null applications.offer_id must reference an existing prequal_offers.offer_id (null means an organic application)."},
+    {"id": "underwriting_decisions_application_id_references_applications", "type": "referential_integrity", "tolerance_type": null, "description": "Every underwriting_decisions.application_id must reference an existing applications.application_id."},
+    {"id": "loans_application_id_references_applications", "type": "referential_integrity", "tolerance_type": null, "description": "Every lifecycle loans.application_id must reference an existing applications.application_id."},
+    {"id": "loans_customer_id_references_customers", "type": "referential_integrity", "tolerance_type": null, "description": "Every lifecycle loans.customer_id must reference an existing customers.customer_id."},
+    {"id": "payment_schedule_loan_id_references_loans", "type": "referential_integrity", "tolerance_type": null, "description": "Every payment_schedule.loan_id must reference an existing lifecycle loans.loan_id."},
+    {"id": "payment_events_loan_id_references_loans", "type": "referential_integrity", "tolerance_type": null, "description": "Every payment_events.loan_id must reference an existing lifecycle loans.loan_id."},
+    {"id": "payment_events_schedule_id_references_payment_schedule", "type": "referential_integrity", "tolerance_type": null, "description": "Every non-null payment_events.schedule_id must reference an existing payment_schedule.schedule_id."},
+    {"id": "delinquency_events_loan_id_references_loans", "type": "referential_integrity", "tolerance_type": null, "description": "Every delinquency_events.loan_id must reference an existing lifecycle loans.loan_id."},
+    {"id": "defaults_loan_id_references_loans", "type": "referential_integrity", "tolerance_type": null, "description": "Every defaults.loan_id must reference an existing lifecycle loans.loan_id."}
+  ]
+}

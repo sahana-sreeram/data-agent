@@ -1,0 +1,609 @@
+{
+  "overall_status": "PASS",
+  "total_check_count": 37,
+  "failed_check_count": 0,
+  "checks": [
+    {
+      "id": "customers_required_columns_present",
+      "description": "lifecycle customers data must contain all required columns: customer_id, created_at, state, income_band, credit_score_band, credit_score, risk_segment.",
+      "status": "PASS",
+      "expected": [
+        "created_at",
+        "credit_score",
+        "credit_score_band",
+        "customer_id",
+        "income_band",
+        "risk_segment",
+        "state"
+      ],
+      "actual": [
+        "created_at",
+        "credit_score",
+        "credit_score_band",
+        "customer_id",
+        "income_band",
+        "risk_segment",
+        "state"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "campaigns_required_columns_present",
+      "description": "campaigns data must contain all required columns: campaign_id, name, channel, start_date, end_date, target_risk_segment.",
+      "status": "PASS",
+      "expected": [
+        "campaign_id",
+        "channel",
+        "end_date",
+        "name",
+        "start_date",
+        "target_risk_segment"
+      ],
+      "actual": [
+        "campaign_id",
+        "channel",
+        "end_date",
+        "name",
+        "start_date",
+        "target_risk_segment"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "coupon_rules_required_columns_present",
+      "description": "coupon_rules data must contain all required columns: coupon_rule_id, coupon_code, campaign_id, discount_type, discount_value, valid_from, valid_to.",
+      "status": "PASS",
+      "expected": [
+        "campaign_id",
+        "coupon_code",
+        "coupon_rule_id",
+        "discount_type",
+        "discount_value",
+        "valid_from",
+        "valid_to"
+      ],
+      "actual": [
+        "campaign_id",
+        "coupon_code",
+        "coupon_rule_id",
+        "discount_type",
+        "discount_value",
+        "valid_from",
+        "valid_to"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "email_events_required_columns_present",
+      "description": "email_events data must contain all required columns: event_id, campaign_id, customer_id, event_type, event_timestamp.",
+      "status": "PASS",
+      "expected": [
+        "campaign_id",
+        "customer_id",
+        "event_id",
+        "event_timestamp",
+        "event_type"
+      ],
+      "actual": [
+        "campaign_id",
+        "customer_id",
+        "event_id",
+        "event_timestamp",
+        "event_type"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "prequal_offers_required_columns_present",
+      "description": "prequal_offers data must contain all required columns: offer_id, customer_id, campaign_id, coupon_code, offer_amount, offer_apr, created_at, expires_at.",
+      "status": "PASS",
+      "expected": [
+        "campaign_id",
+        "coupon_code",
+        "created_at",
+        "customer_id",
+        "expires_at",
+        "offer_amount",
+        "offer_apr",
+        "offer_id"
+      ],
+      "actual": [
+        "campaign_id",
+        "coupon_code",
+        "created_at",
+        "customer_id",
+        "expires_at",
+        "offer_amount",
+        "offer_apr",
+        "offer_id"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "applications_required_columns_present",
+      "description": "applications data must contain all required columns: application_id, customer_id, offer_id, requested_amount, submitted_at, application_status.",
+      "status": "PASS",
+      "expected": [
+        "application_id",
+        "application_status",
+        "customer_id",
+        "offer_id",
+        "requested_amount",
+        "submitted_at"
+      ],
+      "actual": [
+        "application_id",
+        "application_status",
+        "customer_id",
+        "offer_id",
+        "requested_amount",
+        "submitted_at"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "underwriting_decisions_required_columns_present",
+      "description": "underwriting_decisions data must contain all required columns: decision_id, application_id, decision, rejection_reason, approved_amount, approved_apr, model_version, decided_at.",
+      "status": "PASS",
+      "expected": [
+        "application_id",
+        "approved_amount",
+        "approved_apr",
+        "decided_at",
+        "decision",
+        "decision_id",
+        "model_version",
+        "rejection_reason"
+      ],
+      "actual": [
+        "application_id",
+        "approved_amount",
+        "approved_apr",
+        "decided_at",
+        "decision",
+        "decision_id",
+        "model_version",
+        "rejection_reason"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "loans_required_columns_present",
+      "description": "lifecycle loans data must contain all required columns: loan_id, application_id, customer_id, principal_amount, interest_rate, term_months, originated_at, loan_status, scheduled_payment_amount.",
+      "status": "PASS",
+      "expected": [
+        "application_id",
+        "customer_id",
+        "interest_rate",
+        "loan_id",
+        "loan_status",
+        "originated_at",
+        "principal_amount",
+        "scheduled_payment_amount",
+        "term_months"
+      ],
+      "actual": [
+        "application_id",
+        "customer_id",
+        "interest_rate",
+        "loan_id",
+        "loan_status",
+        "originated_at",
+        "principal_amount",
+        "scheduled_payment_amount",
+        "term_months"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_schedule_required_columns_present",
+      "description": "payment_schedule data must contain all required columns: schedule_id, loan_id, installment_number, due_date, scheduled_amount.",
+      "status": "PASS",
+      "expected": [
+        "due_date",
+        "installment_number",
+        "loan_id",
+        "schedule_id",
+        "scheduled_amount"
+      ],
+      "actual": [
+        "due_date",
+        "installment_number",
+        "loan_id",
+        "schedule_id",
+        "scheduled_amount"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_events_required_columns_present",
+      "description": "payment_events data must contain all required columns: event_id, schedule_id, loan_id, event_type, payment_date, amount, payment_status, payment_method.",
+      "status": "PASS",
+      "expected": [
+        "amount",
+        "event_id",
+        "event_type",
+        "loan_id",
+        "payment_date",
+        "payment_method",
+        "payment_status",
+        "schedule_id"
+      ],
+      "actual": [
+        "amount",
+        "event_id",
+        "event_type",
+        "loan_id",
+        "payment_date",
+        "payment_method",
+        "payment_status",
+        "schedule_id"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "delinquency_events_required_columns_present",
+      "description": "delinquency_events data must contain all required columns: delinquency_id, loan_id, as_of_date, days_past_due, bucket.",
+      "status": "PASS",
+      "expected": [
+        "as_of_date",
+        "bucket",
+        "days_past_due",
+        "delinquency_id",
+        "loan_id"
+      ],
+      "actual": [
+        "as_of_date",
+        "bucket",
+        "days_past_due",
+        "delinquency_id",
+        "loan_id"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "defaults_required_columns_present",
+      "description": "defaults data must contain all required columns: default_id, loan_id, default_date, balance_at_default, recovery_amount, recovery_date.",
+      "status": "PASS",
+      "expected": [
+        "balance_at_default",
+        "default_date",
+        "default_id",
+        "loan_id",
+        "recovery_amount",
+        "recovery_date"
+      ],
+      "actual": [
+        "balance_at_default",
+        "default_date",
+        "default_id",
+        "loan_id",
+        "recovery_amount",
+        "recovery_date"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "campaigns_channel_enum_valid",
+      "description": "Every campaigns.channel value must be within business_rules.valid_channels.",
+      "status": "PASS",
+      "expected": [
+        "EMAIL",
+        "PARTNER",
+        "SOCIAL"
+      ],
+      "actual": [
+        "EMAIL",
+        "PARTNER",
+        "SOCIAL"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "coupon_rules_discount_type_enum_valid",
+      "description": "Every coupon_rules.discount_type value must be within business_rules.valid_discount_types.",
+      "status": "PASS",
+      "expected": [
+        "FEE_WAIVER",
+        "RATE_DISCOUNT"
+      ],
+      "actual": [
+        "FEE_WAIVER",
+        "RATE_DISCOUNT"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "email_events_event_type_enum_valid",
+      "description": "Every email_events.event_type value must be within business_rules.valid_email_event_types.",
+      "status": "PASS",
+      "expected": [
+        "CLICKED",
+        "OPENED",
+        "SENT"
+      ],
+      "actual": [
+        "CLICKED",
+        "OPENED",
+        "SENT"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "applications_application_status_enum_valid",
+      "description": "Every applications.application_status value must be within business_rules.valid_application_statuses.",
+      "status": "PASS",
+      "expected": [
+        "DECISIONED",
+        "SUBMITTED",
+        "WITHDRAWN"
+      ],
+      "actual": [
+        "DECISIONED",
+        "SUBMITTED",
+        "WITHDRAWN"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "underwriting_decisions_decision_enum_valid",
+      "description": "Every underwriting_decisions.decision value must be within business_rules.valid_decision_values.",
+      "status": "PASS",
+      "expected": [
+        "APPROVED",
+        "MANUAL_REVIEW",
+        "REJECTED"
+      ],
+      "actual": [
+        "APPROVED",
+        "MANUAL_REVIEW",
+        "REJECTED"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "underwriting_decisions_rejection_reason_enum_valid",
+      "description": "Every non-null underwriting_decisions.rejection_reason value must be within business_rules.valid_rejection_reasons.",
+      "status": "PASS",
+      "expected": [
+        "FRAUD_RISK",
+        "HIGH_DEBT_TO_INCOME",
+        "INCOMPLETE_APPLICATION",
+        "INSUFFICIENT_INCOME",
+        "LOW_CREDIT_SCORE"
+      ],
+      "actual": [
+        "FRAUD_RISK",
+        "HIGH_DEBT_TO_INCOME",
+        "INCOMPLETE_APPLICATION",
+        "INSUFFICIENT_INCOME",
+        "LOW_CREDIT_SCORE"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "loans_loan_status_enum_valid",
+      "description": "Every lifecycle loans.loan_status value must be within business_rules.valid_loan_statuses (the same key the original 3-scenario model uses -- the vocabulary is unchanged).",
+      "status": "PASS",
+      "expected": [
+        "ACTIVE",
+        "CLOSED",
+        "DEFAULTED"
+      ],
+      "actual": [
+        "ACTIVE",
+        "CLOSED",
+        "DEFAULTED"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_events_event_type_enum_valid",
+      "description": "Every payment_events.event_type value must be within business_rules.valid_payment_event_types.",
+      "status": "PASS",
+      "expected": [
+        "PAYMENT",
+        "REVERSAL"
+      ],
+      "actual": [
+        "PAYMENT",
+        "REVERSAL"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "payment_events_payment_status_enum_valid",
+      "description": "Every payment_events.payment_status value must be within business_rules.valid_payment_event_statuses.",
+      "status": "PASS",
+      "expected": [
+        "FAILED",
+        "LATE",
+        "MISSED",
+        "PAID",
+        "REVERSED"
+      ],
+      "actual": [
+        "FAILED",
+        "LATE",
+        "MISSED",
+        "PAID",
+        "REVERSED"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "delinquency_events_bucket_enum_valid",
+      "description": "Every delinquency_events.bucket value must be within business_rules.valid_delinquency_buckets.",
+      "status": "PASS",
+      "expected": [
+        "30",
+        "60",
+        "90_PLUS",
+        "CURRENT"
+      ],
+      "actual": [
+        "30",
+        "60",
+        "90_PLUS"
+      ],
+      "difference": null,
+      "details": null
+    },
+    {
+      "id": "coupon_rules_campaign_id_references_campaigns",
+      "description": "Every coupon_rules.campaign_id must reference an existing campaigns.campaign_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "email_events_campaign_id_references_campaigns",
+      "description": "Every email_events.campaign_id must reference an existing campaigns.campaign_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "email_events_customer_id_references_customers",
+      "description": "Every email_events.customer_id must reference an existing customers.customer_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "prequal_offers_customer_id_references_customers",
+      "description": "Every prequal_offers.customer_id must reference an existing customers.customer_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "prequal_offers_campaign_id_references_campaigns",
+      "description": "Every non-null prequal_offers.campaign_id must reference an existing campaigns.campaign_id (null means an organic, non-campaign offer).",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "applications_customer_id_references_customers",
+      "description": "Every applications.customer_id must reference an existing customers.customer_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "applications_offer_id_references_prequal_offers",
+      "description": "Every non-null applications.offer_id must reference an existing prequal_offers.offer_id (null means an organic application).",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "underwriting_decisions_application_id_references_applications",
+      "description": "Every underwriting_decisions.application_id must reference an existing applications.application_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "loans_application_id_references_applications",
+      "description": "Every lifecycle loans.application_id must reference an existing applications.application_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "loans_customer_id_references_customers",
+      "description": "Every lifecycle loans.customer_id must reference an existing customers.customer_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "payment_schedule_loan_id_references_loans",
+      "description": "Every payment_schedule.loan_id must reference an existing lifecycle loans.loan_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "payment_events_loan_id_references_loans",
+      "description": "Every payment_events.loan_id must reference an existing lifecycle loans.loan_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "payment_events_schedule_id_references_payment_schedule",
+      "description": "Every non-null payment_events.schedule_id must reference an existing payment_schedule.schedule_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "delinquency_events_loan_id_references_loans",
+      "description": "Every delinquency_events.loan_id must reference an existing lifecycle loans.loan_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    },
+    {
+      "id": "defaults_loan_id_references_loans",
+      "description": "Every defaults.loan_id must reference an existing lifecycle loans.loan_id.",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "difference": 0,
+      "details": null
+    }
+  ]
+}

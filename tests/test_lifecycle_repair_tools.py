@@ -1,0 +1,122 @@
+"""Tests for the read-only loan_portfolio repair-planning tools: facts only, no
+write/execute capability. Parallel to tests/test_repair_tools.py."""
+
+from __future__ import annotations
+
+import inspect
+
+import pytest
+
+from src.lifecycle_repair_tools import ALLOWLISTED_TOOL_NAMES, LifecycleRepairTools, ToolError, dispatch_tool
+
+DIAGNOSIS = {"diagnosis_status": "DIAGNOSED", "root_cause_category": "ETL_LOGIC", "confidence": "HIGH"}
+VALIDATION_RESULTS = {
+    "overall_status": "FAIL",
+    "checks": [
+        {"id": "loan_count_reconciliation", "status": "FAIL"},
+        {"id": "avg_interest_rate_reconciliation", "status": "PASS"},
+    ],
+}
+BUSINESS_RULES = {"successful_payment_statuses": ["PAID"]}
+LINEAGE = {"datasets": {"curated.loan_portfolio": {"path": "s3://x/curated/loan_portfolio.parquet", "depends_on": []}}}
+METRICS = {"metrics": {"loan_count": {"formula": "count(loans)"}}}
+ALLOWED_REPAIR_TARGETS = {
+    "src/etl_spark_loan_portfolio.py": {"repair_type": "CODE_CHANGE", "editable_symbols": ["compute_loan_portfolio"]}
+}
+TEST_INVENTORY = ["tests/test_etl_spark_loan_portfolio.py"]
+
+
+@pytest.fixture()
+def tools():
+    return LifecycleRepairTools(
+        diagnosis=DIAGNOSIS,
+        validation_results=VALIDATION_RESULTS,
+        business_rules=BUSINESS_RULES,
+        lineage=LINEAGE,
+        metrics=METRICS,
+        allowed_repair_targets=ALLOWED_REPAIR_TARGETS,
+        test_inventory=TEST_INVENTORY,
+    )
+
+
+def test_get_diagnosis_returns_exact_data(tools):
+    assert tools.get_diagnosis() == DIAGNOSIS
+
+
+def test_get_failed_checks_returns_only_failures(tools):
+    result = tools.get_failed_checks()
+    assert len(result["failed_checks"]) == 1
+    assert result["failed_checks"][0]["id"] == "loan_count_reconciliation"
+
+
+def test_get_business_rules_returns_current_content(tools):
+    result = tools.get_business_rules()
+    assert result["content"] == BUSINESS_RULES
+
+
+def test_get_lineage_returns_entry(tools):
+    result = tools.get_lineage("loan_count")
+    assert result["lineage"]["path"] == "s3://x/curated/loan_portfolio.parquet"
+
+
+def test_get_pipeline_configuration_always_unavailable(tools):
+    assert tools.get_pipeline_configuration() == {"available": False}
+
+
+def test_get_relevant_etl_source_returns_real_function_source(tools):
+    result = tools.get_relevant_etl_source("loan_count")
+    assert result["file"] == "src/etl_spark_loan_portfolio.py"
+    assert result["function"] == "compute_loan_portfolio"
+    assert "def compute_loan_portfolio" in result["source"]
+
+
+def test_get_allowed_repair_targets_returns_the_full_registry(tools):
+    result = tools.get_allowed_repair_targets()
+    assert result["targets"] == ALLOWED_REPAIR_TARGETS
+
+
+def test_get_test_inventory(tools):
+    assert tools.get_test_inventory() == {"tests": TEST_INVENTORY}
+
+
+def test_get_file_hash_by_alias(tools):
+    result = tools.get_file_hash("ETL_SOURCE")
+    assert result["target_alias"] == "ETL_SOURCE"
+    assert len(result["sha256"]) == 64
+
+
+def test_get_file_hash_rejects_unknown_alias(tools):
+    with pytest.raises(ToolError):
+        tools.get_file_hash("NOT_A_REAL_ALIAS")
+
+
+def test_dispatch_tool_returns_error_dict_instead_of_raising(tools):
+    result = dispatch_tool(tools, "get_file_hash", {"target_alias": "NOPE"})
+    assert "error" in result
+
+
+def test_dispatch_tool_rejects_unknown_tool_name(tools):
+    result = dispatch_tool(tools, "write_file", {})
+    assert "error" in result
+
+
+def test_no_tool_exposes_write_or_execute_capability():
+    for name, _ in inspect.getmembers(LifecycleRepairTools, predicate=inspect.isfunction):
+        if name.startswith("_"):
+            continue
+        assert name.startswith("get_"), f"unexpected non-getter public method: {name}"
+
+
+def test_allowlist_matches_actual_tool_methods():
+    public_methods = {
+        name for name, _ in inspect.getmembers(LifecycleRepairTools, predicate=inspect.isfunction) if not name.startswith("_")
+    }
+    assert ALLOWLISTED_TOOL_NAMES == public_methods
+
+
+def test_no_tool_accepts_a_raw_filesystem_path_parameter():
+    for name in ALLOWLISTED_TOOL_NAMES:
+        method = getattr(LifecycleRepairTools, name)
+        params = list(inspect.signature(method).parameters)
+        for param in params:
+            assert "path" not in param.lower(), f"{name} accepts a path-like parameter: {param}"
