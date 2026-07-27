@@ -11,11 +11,9 @@ reads from PIPELINE_REGISTRY instead of hardcoding pipeline facts.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Callable
-
 from pyspark.sql import SparkSession
 
+from src.pipeline_spec import PipelineSpec
 from src.storage import S3Storage
 from src.validate_campaign_funnel import validate_campaign_funnel
 from src.validate_delinquency_default import validate_delinquency_default
@@ -24,26 +22,6 @@ from src.validate_payment_performance import validate_payment_performance
 from src.validate_underwriting_performance import validate_underwriting_performance
 
 DEFAULT_AS_OF_DATE = "2026-07-20"
-
-# run_etl(etl_module, spark, business_rules, as_of_date) -> {curated_key: pandas.DataFrame}
-RunEtl = Callable[[object, SparkSession, dict, str], dict]
-# run_validate(storage, business_rules, validation_rules, as_of_date) -> validation result dict
-RunValidate = Callable[[object, dict, dict, str], dict]
-
-
-@dataclass(frozen=True)
-class PipelineSpec:
-    name: str
-    raw_tables: tuple
-    curated_keys: tuple
-    validation_rules_key: str
-    metrics_key: str
-    lineage_key: str
-    etl_source_file: str
-    etl_function_names: tuple
-    test_file: str
-    run_etl: RunEtl
-    run_validate: RunValidate
 
 
 def _run_etl_loan_portfolio(etl_module, spark: SparkSession, business_rules: dict, as_of_date: str) -> dict:
@@ -95,7 +73,7 @@ def _run_validate_delinquency_default(storage: S3Storage, business_rules: dict, 
     return validate_delinquency_default(storage, business_rules, validation_rules)
 
 
-PIPELINE_REGISTRY: dict = {
+_HARDCODED_PIPELINE_REGISTRY: dict = {
     "loan_portfolio": PipelineSpec(
         name="loan_portfolio",
         raw_tables=("loans", "payment_events"),
@@ -174,3 +152,36 @@ PIPELINE_REGISTRY: dict = {
         run_validate=_run_validate_delinquency_default,
     ),
 }
+
+
+def _discover_generic_pipelines(base_registry: dict) -> dict:
+    """Any pipelines/*.yaml manifest not already in base_registry, whose ETL function follows
+    the standardized (spark, business_rules, as_of_date) / (storage, business_rules,
+    validation_rules, as_of_date) signature, is auto-registered here via
+    src.manifest_loader.build_generic_pipeline_spec. This is what makes onboarding a new
+    pipeline (after loan_portfolio/payment_performance proved the generic path works against
+    real code) a manifest + an ETL/validator file, never a change to this registry or to any
+    diagnosis/repair/verify/self-healing module -- every one of those already iterates
+    PIPELINE_REGISTRY generically. Deferred import: src.manifest_loader imports PipelineSpec
+    from this module, so importing manifest_loader at module scope here would be circular;
+    by the time this function actually RUNS (below, after _HARDCODED_PIPELINE_REGISTRY and
+    PipelineSpec both already exist), the import resolves fine.
+    """
+    from src.manifest_loader import ManifestError, load_all_manifests, build_generic_pipeline_spec
+
+    discovered: dict = {}
+    try:
+        manifests = load_all_manifests()
+    except (ManifestError, OSError):
+        return discovered
+    for name, manifest in manifests.items():
+        if name in base_registry:
+            continue
+        try:
+            discovered[name] = build_generic_pipeline_spec(manifest)
+        except ManifestError:
+            continue  # doesn't match the generic single-function signature -- skip, don't crash the registry
+    return discovered
+
+
+PIPELINE_REGISTRY: dict = {**_HARDCODED_PIPELINE_REGISTRY, **_discover_generic_pipelines(_HARDCODED_PIPELINE_REGISTRY)}

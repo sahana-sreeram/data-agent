@@ -28,12 +28,14 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 from src import dataset_registry_tools as registry_tools
+from src.context_retriever import ContextRetriever
 from src.dataset_registry_tools import DEFAULT_SAMPLE_LIMIT, ToolError
+from src.storage import S3Storage
 
 # Curated tables with more than one row -- the only ones that support bounded
 # filter/group/aggregate/join queries. loan_portfolio and payment_performance are already
 # single-row summaries, so query support would be meaningless for them.
-QUERYABLE_DATASETS = ("campaign_funnel", "underwriting_performance", "delinquency_default")
+QUERYABLE_DATASETS = ("campaign_funnel", "underwriting_performance", "delinquency_default", "coupon_performance")
 
 
 def _clean_value(value):
@@ -61,12 +63,23 @@ class LifecycleBusinessTools:
     delinquency_default: list
     business_rules: dict
     metrics_by_pipeline: dict = field(default_factory=dict)
+    # Defaults to [] -- every existing construction site (and every existing test's fixture)
+    # is unaffected; only src/ask_lifecycle.py's _load_tools passes real data.
+    coupon_performance: list = field(default_factory=list)
+    # Both None by default -- every existing construction site (and every existing test's
+    # fixture) is unaffected. When set (see src/ask_lifecycle.py's _load_tools),
+    # get_metric_definition routes through ContextRetriever instead of metrics_by_pipeline
+    # directly, for any pipeline that has generated/human context populated (today: all 6) --
+    # everything else still falls back to the exact legacy dict lookup.
+    context_retriever: ContextRetriever | None = None
+    storage: S3Storage | None = None
 
     def __post_init__(self) -> None:
         self._registry = {
             "campaign_funnel": pd.DataFrame(self.campaign_funnel),
             "underwriting_performance": pd.DataFrame(self.underwriting_performance),
             "delinquency_default": pd.DataFrame(self.delinquency_default),
+            "coupon_performance": pd.DataFrame(self.coupon_performance),
         }
 
     def get_loan_portfolio_summary(self) -> dict:
@@ -93,14 +106,41 @@ class LifecycleBusinessTools:
         """Delinquency/default/loss metrics: one overall row (breakdown_value='ALL') plus one row per risk_segment."""
         return {"rows": _clean_for_json(self.delinquency_default)}
 
+    def get_coupon_performance(self) -> dict:
+        """Redemption-funnel counts (offers/applications/loans) and redemption_rate for every
+        coupon_code ever defined -- one row per code, including codes with zero offers."""
+        return {"rows": _clean_for_json(self.coupon_performance)}
+
     def get_metric_definition(self, pipeline: str, metric_name: str) -> dict:
-        """The business definition/formula/caveats for a named metric from a named pipeline (loan_portfolio, campaign_funnel, underwriting_performance, payment_performance, or delinquency_default)."""
+        """The business definition/formula/caveats for a named metric from a named pipeline (loan_portfolio, campaign_funnel, underwriting_performance, payment_performance, or delinquency_default).
+
+        When context_retriever/storage are set (see src/ask_lifecycle.py), the returned dict
+        also carries a "_context" block -- provenance, review_status, confidence, and any
+        unresolved conflict between the human-approved and code-observed definitions -- for
+        any pipeline that has generated/human context populated. A pipeline without one yet
+        gets the exact legacy dict, unchanged, either way."""
         if pipeline not in self.metrics_by_pipeline:
             raise ToolError(f"unknown pipeline {pipeline!r}; known pipelines: {sorted(self.metrics_by_pipeline)}")
         metrics = self.metrics_by_pipeline[pipeline].get("metrics", {})
         if metric_name not in metrics:
             raise ToolError(f"unknown metric_name {metric_name!r} for pipeline {pipeline!r}; known metrics: {sorted(metrics)}")
-        return {metric_name: metrics[metric_name]}
+
+        if self.context_retriever is None or self.storage is None:
+            return {metric_name: metrics[metric_name]}
+
+        fact = self.context_retriever.get_metric(pipeline, metric_name, self.storage)
+        if fact.provenance == "legacy_file":
+            return {metric_name: metrics[metric_name]}
+        return {
+            metric_name: metrics[metric_name],
+            "_context": {
+                "provenance": fact.provenance,
+                "review_status": fact.review_status.value if fact.review_status else None,
+                "confidence": fact.confidence,
+                "human_approved_definition": fact.value,
+                "conflicts": [c.model_dump() for c in fact.conflicts],
+            },
+        }
 
     def get_business_rules(self) -> dict:
         """The approved business rules (e.g. which payment statuses count as successful, prepayment threshold, interest accrual convention, loss rate denominator)."""
@@ -131,6 +171,7 @@ ALLOWLISTED_TOOL_NAMES = frozenset(
         "get_underwriting_rejection_distribution",
         "get_payment_performance_summary",
         "get_delinquency_default",
+        "get_coupon_performance",
         "get_metric_definition",
         "get_business_rules",
         "aggregate_curated_data",
@@ -205,6 +246,14 @@ TOOL_SPECS: list = [
     {
         "type": "function",
         "function": {
+            "name": "get_coupon_performance",
+            "description": "Return every coupon_code's redemption-funnel counts (offers created, applications submitted, loans funded) and redemption_rate, including codes that were defined but never used. coupon_rule_count/currently_valid_rule_count report that a code can be reused by more than one coupon_rule (different campaigns/time windows).",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "get_metric_definition",
             "description": "Return the business definition/formula/caveats for a named metric from a named pipeline, to confirm you're interpreting it correctly before citing it.",
             "parameters": {
@@ -212,7 +261,7 @@ TOOL_SPECS: list = [
                 "properties": {
                     "pipeline": {
                         "type": "string",
-                        "enum": ["loan_portfolio", "campaign_funnel", "underwriting_performance", "payment_performance", "delinquency_default"],
+                        "enum": ["loan_portfolio", "campaign_funnel", "underwriting_performance", "payment_performance", "delinquency_default", "coupon_performance"],
                     },
                     "metric_name": {"type": "string", "description": "A metric field name from that pipeline's curated output."},
                 },

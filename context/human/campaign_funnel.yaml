@@ -1,0 +1,27 @@
+# Minimal human-approved semantic context for campaign_funnel. Only facts a human can
+# authoritatively decide live here -- everything derivable from code/schema/runtime lives in
+# context/generated/campaign_funnel.json instead (see src/context_enrichment/).
+
+data_product: campaign_funnel
+authoritative: true
+owner: marketing-analytics-team
+
+metrics:
+  approval_to_funded_rate:
+    canonical_definition: >
+      Of applications approved that were attributed to a campaign (or organic activity),
+      the share that went on to fund a loan. The headline metric marketing reviews to judge
+      whether a campaign's approved applicants are actually creditworthy enough to close.
+    business_rule: {}
+    approved_by: marketing-analytics-lead
+    approval_status: APPROVED
+
+repair_policy:
+  auto_repair:
+    - ETL_LOGIC_JOIN
+    - DUPLICATION
+  human_review:
+    - SOURCE_CONTRACT_CHANGE
+    - AMBIGUOUS_BUSINESS_SEMANTICS
+
+sensitive_data_classification: none

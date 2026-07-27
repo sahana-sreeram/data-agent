@@ -1,0 +1,19 @@
+{
+  "tolerance": {
+    "currency": 0.01,
+    "count": 0,
+    "rate": 0.0001
+  },
+  "notes": [
+    "Reconciliation-only. Executed by src/validate_coupon_performance.py, which independently recomputes every coupon_code's redemption-funnel counts in pandas (never importing src/etl_spark_coupon_performance.py's Spark logic) and compares against the curated table it wrote.",
+    "The 5 *_reconciliation rules below check the CATALOG-WIDE total (summed across all coupon_codes) -- coupon_performance_row_counts_match_per_code is the stronger check that every individual code's row (counts AND redemption_rate) matches exactly, not just the totals."
+  ],
+  "rules": [
+    {"id": "coupon_rule_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total coupon_rule_count across all curated coupon_performance rows must match the number of distinct coupon_rule_id records in raw coupon_rules."},
+    {"id": "currently_valid_rule_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total currently_valid_rule_count across all curated coupon_performance rows must match the count of raw coupon_rules whose [valid_from, valid_to] window contains as_of_date."},
+    {"id": "offers_created_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total offers_created across all curated coupon_performance rows must match the count of raw prequal_offers with a non-null coupon_code created on or before as_of_date."},
+    {"id": "applications_submitted_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total applications_submitted across all curated coupon_performance rows must match the count of raw applications whose originating offer used a coupon_code."},
+    {"id": "loans_funded_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "Total loans_funded across all curated coupon_performance rows must match the count of raw loans whose originating application's offer used a coupon_code."},
+    {"id": "coupon_performance_row_counts_match_per_code", "type": "reconciliation", "tolerance_type": "count", "description": "Every individual coupon_code's row (coupon_rule_count, currently_valid_rule_count, offers_created, applications_submitted, loans_funded, and redemption_rate) must match an independent per-code pandas recomputation, not just the catalog-wide totals -- redemption_rate is checked separately from the counts because a bug in the rate formula itself would not show up in the count-only checks."}
+  ]
+}

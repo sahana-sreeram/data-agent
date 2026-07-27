@@ -55,6 +55,8 @@ CONTEXT_FILES = {
     "metrics/payment_performance.json": "context/metrics/payment_performance.json",
     "validations/delinquency_default.json": "context/validations/delinquency_default.json",
     "metrics/delinquency_default.json": "context/metrics/delinquency_default.json",
+    "validations/coupon_performance.json": "context/validations/coupon_performance.json",
+    "metrics/coupon_performance.json": "context/metrics/coupon_performance.json",
 }
 
 

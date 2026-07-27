@@ -1,0 +1,27 @@
+# Minimal human-approved semantic context for coupon_performance. Only facts a human can
+# authoritatively decide live here -- everything derivable from code/schema/runtime lives in
+# context/generated/coupon_performance.json instead (see src/context_enrichment/).
+
+data_product: coupon_performance
+authoritative: true
+owner: marketing-analytics-team
+
+metrics:
+  redemption_rate:
+    canonical_definition: >
+      Share of prequalification offers using a given coupon_code that ultimately funded a
+      loan. Marketing's primary signal for whether a coupon is worth continuing to run,
+      independent of which specific coupon_rule (campaign/time window) issued the code.
+    business_rule: {}
+    approved_by: marketing-analytics-lead
+    approval_status: APPROVED
+
+repair_policy:
+  auto_repair:
+    - ETL_LOGIC_JOIN
+    - DUPLICATION
+  human_review:
+    - SOURCE_CONTRACT_CHANGE
+    - AMBIGUOUS_BUSINESS_SEMANTICS
+
+sensitive_data_classification: none

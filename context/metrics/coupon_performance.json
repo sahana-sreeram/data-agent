@@ -1,0 +1,77 @@
+{
+  "pipeline": "coupon_performance",
+  "produced_by": "src/etl_spark_coupon_performance.py",
+  "curated_path": "s3://data-agent/curated/coupon_performance.parquet",
+  "grain": "one row per coupon_code, catalog-wide (every code ever defined in coupon_rules, whether or not it was ever used)",
+  "source_tables": ["lifecycle.coupon_rules", "lifecycle.prequal_offers", "lifecycle.applications", "lifecycle.loans"],
+  "metrics": {
+    "coupon_rule_count": {
+      "business_definition": "Number of distinct coupon_rule_id records that were ever defined using this coupon_code.",
+      "formula": "count(distinct coupon_rules.coupon_rule_id where coupon_rules.coupon_code == this code)",
+      "source_tables": ["lifecycle.coupon_rules"],
+      "filters": [],
+      "grain": "per coupon_code",
+      "expected_range": ">= 1",
+      "caveats": [
+        "coupon_code is NOT unique across coupon_rules -- the same code string can be reused by more than one coupon_rule_id (e.g. across different campaigns/time windows). This field reports that reuse directly rather than silently picking one rule's discount_type/discount_value to display."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "currently_valid_rule_count": {
+      "business_definition": "Of the coupon_rule(s) using this code, how many have a [valid_from, valid_to] window that contains as_of_date.",
+      "formula": "count(coupon_rules where coupon_code == this code and valid_from <= as_of_date <= valid_to)",
+      "source_tables": ["lifecycle.coupon_rules"],
+      "filters": ["valid_from <= as_of_date <= valid_to"],
+      "grain": "per coupon_code",
+      "expected_range": ">= 0, <= coupon_rule_count",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "offers_created": {
+      "business_definition": "Number of prequalification offers that used this coupon_code, as of as_of_date.",
+      "formula": "count(prequal_offers where coupon_code == this code and created_at <= as_of_date)",
+      "source_tables": ["lifecycle.prequal_offers"],
+      "filters": ["coupon_code is not null", "created_at <= as_of_date"],
+      "grain": "per coupon_code",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "applications_submitted": {
+      "business_definition": "Number of applications whose originating prequalification offer used this coupon_code.",
+      "formula": "count(applications joined to prequal_offers on offer_id where prequal_offers.coupon_code == this code)",
+      "source_tables": ["lifecycle.applications", "lifecycle.prequal_offers"],
+      "filters": [],
+      "grain": "per coupon_code",
+      "expected_range": ">= 0, <= offers_created",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "loans_funded": {
+      "business_definition": "Number of funded loans whose originating application traces back (via its offer) to this coupon_code.",
+      "formula": "count(loans joined to applications on application_id, joined to prequal_offers on offer_id, where prequal_offers.coupon_code == this code)",
+      "source_tables": ["lifecycle.loans", "lifecycle.applications", "lifecycle.prequal_offers"],
+      "filters": [],
+      "grain": "per coupon_code",
+      "expected_range": ">= 0, <= applications_submitted",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "redemption_rate": {
+      "business_definition": "Share of offers using this coupon_code that ultimately funded a loan.",
+      "formula": "loans_funded / offers_created (null when offers_created == 0)",
+      "source_tables": ["lifecycle.loans", "lifecycle.prequal_offers"],
+      "filters": [],
+      "grain": "per coupon_code",
+      "expected_range": "0.0 - 1.0, or null",
+      "caveats": ["null (not 0.0) when this code was never used in any offer -- distinguishes 'never offered' from 'offered but never redeemed'."],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    }
+  }
+}

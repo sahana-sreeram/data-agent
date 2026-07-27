@@ -1,0 +1,27 @@
+# Minimal human-approved semantic context for underwriting_performance. Only facts a human
+# can authoritatively decide live here -- everything derivable from code/schema/runtime lives
+# in context/generated/underwriting_performance.json instead (see src/context_enrichment/).
+
+data_product: underwriting_performance
+authoritative: true
+owner: risk-underwriting-team
+
+metrics:
+  approval_rate:
+    canonical_definition: >
+      Share of underwriting decisions that were APPROVED, broken out both by risk_segment and
+      by model_version (see breakdown_type). The primary metric risk uses to monitor whether
+      an underwriting model version is behaving consistently with its predecessors.
+    business_rule: {}
+    approved_by: risk-underwriting-lead
+    approval_status: APPROVED
+
+repair_policy:
+  auto_repair:
+    - ETL_LOGIC_JOIN
+    - DUPLICATION
+  human_review:
+    - SOURCE_CONTRACT_CHANGE
+    - AMBIGUOUS_BUSINESS_SEMANTICS
+
+sensitive_data_classification: none

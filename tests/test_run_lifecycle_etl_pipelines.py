@@ -16,7 +16,7 @@ def real_data_present(s3_storage):
         pytest.skip("data/lifecycle/raw/ not migrated to S3 in this environment")
 
 
-def test_all_five_pipelines_run_and_validate_against_real_data(spark_session, s3_storage, real_data_present):
+def test_all_registered_pipelines_run_and_validate_against_real_data(spark_session, s3_storage, real_data_present):
     run_record = run_all_pipelines(spark_session, s3_storage)
 
     assert set(run_record["pipelines"]) == set(PIPELINES)

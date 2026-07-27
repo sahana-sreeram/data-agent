@@ -21,6 +21,8 @@ from __future__ import annotations
 import argparse
 import os
 
+from src.context_retriever import ContextRetriever
+from src.context_store.file_store import FileContextStore
 from src.lifecycle_answer_models import (
     AnswerValidationError,
     build_unreliable_data_answer,
@@ -28,6 +30,7 @@ from src.lifecycle_answer_models import (
 )
 from src.lifecycle_business_agent import LifecycleBusinessAgentError, run_lifecycle_business_qa
 from src.lifecycle_business_tools import LifecycleBusinessTools
+from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.model_client import (
     DiagnosisModelClient,
     ModelClientError,
@@ -38,7 +41,7 @@ from src.storage import S3Storage
 
 ANSWER_MODEL_ENV_VAR = "ANSWER_MODEL"
 
-METRICS_PIPELINES = ["loan_portfolio", "campaign_funnel", "underwriting_performance", "payment_performance", "delinquency_default"]
+METRICS_PIPELINES = ["loan_portfolio", "campaign_funnel", "underwriting_performance", "payment_performance", "delinquency_default", "coupon_performance"]
 
 IDENTIFYING_COLUMNS = {"breakdown_type", "breakdown_value", "campaign_id", "name", "channel", "as_of_date"}
 
@@ -51,6 +54,7 @@ IDENTIFYING_COLUMNS = {"breakdown_type", "breakdown_value", "campaign_id", "name
 TOOL_NAME_TO_PIPELINE = {
     "get_loan_portfolio_summary": "loan_portfolio",
     "get_campaign_funnel": "campaign_funnel",
+    "get_coupon_performance": "coupon_performance",
     "get_underwriting_performance": "underwriting_performance",
     "get_underwriting_rejection_distribution": "underwriting_performance",
     "get_payment_performance_summary": "payment_performance",
@@ -93,6 +97,7 @@ def _load_tools(storage: S3Storage, business_rules: dict, metrics_by_pipeline: d
     underwriting_rejections = dict(zip(rejections_df["rejection_reason"], rejections_df["count"].astype(int)))
     payment_performance = storage.read_parquet("curated/payment_performance.parquet").iloc[0].to_dict()
     delinquency_default = storage.read_parquet("curated/delinquency_default.parquet").to_dict(orient="records")
+    coupon_performance = storage.read_parquet("curated/coupon_performance.parquet").to_dict(orient="records")
 
     return LifecycleBusinessTools(
         loan_portfolio=loan_portfolio,
@@ -101,8 +106,11 @@ def _load_tools(storage: S3Storage, business_rules: dict, metrics_by_pipeline: d
         underwriting_rejections=underwriting_rejections,
         payment_performance=payment_performance,
         delinquency_default=delinquency_default,
+        coupon_performance=coupon_performance,
         business_rules=business_rules,
         metrics_by_pipeline=metrics_by_pipeline,
+        context_retriever=ContextRetriever(store=FileContextStore()),
+        storage=storage,
     )
 
 
@@ -187,6 +195,39 @@ def _answer_once(question: str, storage: S3Storage, model_client_factory):
         return qa_result, None
     except (LifecycleBusinessAgentError, AnswerValidationError, ModelClientError) as exc:
         return None, build_unreliable_data_answer(question, f"Could not produce a grounded answer: {exc}")
+
+
+def answer_from_candidate(
+    question: str,
+    storage: S3Storage,
+    model_client_factory,
+    pipeline_name: str,
+    candidate_metrics_after: dict,
+) -> dict:
+    """Answer a question using one pipeline's CANDIDATE curated output -- e.g.
+    repair_verification["metrics_after"] from a mode="create_pr" self-healing run -- instead
+    of that pipeline's real, not-yet-promoted S3 data. Every other pipeline's data still comes
+    from real storage, unchanged. This is how a create_pr run can show what the corrected
+    answer WOULD be without the candidate ever being written anywhere real.
+
+    Only substitutes single-row pipelines (loan_portfolio, payment_performance) correctly as
+    written -- the only ones this vertical slice's repair flow targets; a multi-row
+    pipeline's LifecycleBusinessTools._registry would also need rebuilding to reflect a
+    substituted candidate, which is out of scope until a multi-row pipeline is migrated.
+    """
+    business_rules = storage.read_json("context/business_rules.json")
+    metrics_by_pipeline = _load_metrics_by_pipeline(storage)
+    tools = _load_tools(storage, business_rules, metrics_by_pipeline)
+
+    curated_key = PIPELINE_REGISTRY[pipeline_name].curated_keys[0]
+    records = candidate_metrics_after.get(curated_key)
+    if records:
+        setattr(tools, pipeline_name, records[0] if len(records) == 1 else records)
+
+    known_metrics = _known_metric_names(business_rules, metrics_by_pipeline)
+    model_client = model_client_factory()
+    qa_result = run_lifecycle_business_qa(question, tools, model_client, known_metric_names=known_metrics)
+    return business_answer_to_dict(qa_result.answer)
 
 
 def _validation_failures_from(self_heal: dict) -> dict:

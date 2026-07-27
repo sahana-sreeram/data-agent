@@ -1,8 +1,13 @@
-"""Orchestrates all 5 lifecycle PySpark ETL pipelines + their independent pandas
-validators against ONE shared Spark session (avoids paying the JVM startup cost 5
-times), and writes a combined s3://<bucket>/curated/pipeline_run.json summarizing
+"""Orchestrates every registered lifecycle PySpark ETL pipeline + its independent pandas
+validator against ONE shared Spark session (avoids paying the JVM startup cost once per
+pipeline), and writes a combined s3://<bucket>/curated/pipeline_run.json summarizing
 etl_status/validation_status per pipeline -- the lifecycle-model analog of today's
 local data/processed/pipeline_run.json.
+
+PIPELINES is built generically from PIPELINE_REGISTRY (src.lifecycle_pipeline_registry),
+which already includes any manifest-discovered pipeline (see that module's
+_discover_generic_pipelines) alongside the hand-registered ones -- onboarding a new pipeline
+via pipelines/<name>.yaml makes it show up here automatically, with no change to this file.
 
 Each pipeline's failure is isolated: one pipeline's ETL or validation error doesn't
 prevent the others from running. The ETL (compute + write curated output) and
@@ -16,84 +21,39 @@ pipeline_run.json rather than losing the stack trace on the way in.
 
 from __future__ import annotations
 
+import importlib
 import traceback
+from typing import Callable
 
+from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
+from src.pipeline_spec import PipelineSpec
 from src.spark_session import get_spark_session
 from src.storage import S3Storage
-
-import src.etl_spark_campaign_funnel as campaign_funnel
-import src.etl_spark_delinquency_default as delinquency_default
-import src.etl_spark_loan_portfolio as loan_portfolio
-import src.etl_spark_payment_performance as payment_performance
-import src.etl_spark_underwriting_performance as underwriting_performance
-import src.validate_campaign_funnel as validate_campaign_funnel
-import src.validate_delinquency_default as validate_delinquency_default
-import src.validate_loan_portfolio as validate_loan_portfolio
-import src.validate_payment_performance as validate_payment_performance
-import src.validate_underwriting_performance as validate_underwriting_performance
 
 CURATED_RUN_KEY = "curated/pipeline_run.json"
 
 
-def _etl_loan_portfolio(spark, storage, business_rules) -> None:
-    df = loan_portfolio.compute_loan_portfolio(spark, business_rules)
-    loan_portfolio.write_curated(df, storage)
+def _make_etl_fn(spec: PipelineSpec) -> Callable:
+    def etl_fn(spark, storage, business_rules) -> None:
+        module_name = spec.etl_source_file.replace("/", ".").removesuffix(".py")
+        etl_module = importlib.import_module(module_name)
+        outputs = spec.run_etl(etl_module, spark, business_rules, DEFAULT_AS_OF_DATE)
+        for key, df in outputs.items():
+            storage.write_parquet(key, df)
+
+    return etl_fn
 
 
-def _validate_loan_portfolio(storage, business_rules) -> dict:
-    validation_rules = storage.read_json("context/validations/loan_portfolio.json")
-    return validate_loan_portfolio.validate_loan_portfolio(storage, business_rules, validation_rules)
+def _make_validate_fn(spec: PipelineSpec) -> Callable:
+    def validate_fn(storage, business_rules) -> dict:
+        validation_rules = storage.read_json(spec.validation_rules_key)
+        return spec.run_validate(storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
+
+    return validate_fn
 
 
-def _etl_campaign_funnel(spark, storage, business_rules) -> None:
-    df = campaign_funnel.compute_campaign_funnel(spark)
-    campaign_funnel.write_curated(df, storage)
-
-
-def _validate_campaign_funnel(storage, business_rules) -> dict:
-    validation_rules = storage.read_json("context/validations/campaign_funnel.json")
-    return validate_campaign_funnel.validate_campaign_funnel(storage, validation_rules)
-
-
-def _etl_underwriting_performance(spark, storage, business_rules) -> None:
-    performance_df = underwriting_performance.compute_underwriting_performance(spark)
-    rejections_df = underwriting_performance.compute_rejection_distribution(spark)
-    underwriting_performance.write_curated(performance_df, rejections_df, storage)
-
-
-def _validate_underwriting_performance(storage, business_rules) -> dict:
-    validation_rules = storage.read_json("context/validations/underwriting_performance.json")
-    return validate_underwriting_performance.validate_underwriting_performance(storage, validation_rules)
-
-
-def _etl_payment_performance(spark, storage, business_rules) -> None:
-    df = payment_performance.compute_payment_performance(spark, business_rules)
-    payment_performance.write_curated(df, storage)
-
-
-def _validate_payment_performance(storage, business_rules) -> dict:
-    validation_rules = storage.read_json("context/validations/payment_performance.json")
-    return validate_payment_performance.validate_payment_performance(storage, business_rules, validation_rules)
-
-
-def _etl_delinquency_default(spark, storage, business_rules) -> None:
-    df = delinquency_default.compute_delinquency_default(spark, business_rules)
-    delinquency_default.write_curated(df, storage)
-
-
-def _validate_delinquency_default(storage, business_rules) -> dict:
-    validation_rules = storage.read_json("context/validations/delinquency_default.json")
-    return validate_delinquency_default.validate_delinquency_default(storage, business_rules, validation_rules)
-
-
-# {pipeline_name: (etl_fn(spark, storage, business_rules), validate_fn(storage, business_rules) -> dict)}
-PIPELINES = {
-    "loan_portfolio": (_etl_loan_portfolio, _validate_loan_portfolio),
-    "campaign_funnel": (_etl_campaign_funnel, _validate_campaign_funnel),
-    "underwriting_performance": (_etl_underwriting_performance, _validate_underwriting_performance),
-    "payment_performance": (_etl_payment_performance, _validate_payment_performance),
-    "delinquency_default": (_etl_delinquency_default, _validate_delinquency_default),
-}
+# {pipeline_name: (etl_fn(spark, storage, business_rules) -> None, validate_fn(storage, business_rules) -> dict)}
+PIPELINES = {name: (_make_etl_fn(spec), _make_validate_fn(spec)) for name, spec in PIPELINE_REGISTRY.items()}
 
 
 def run_all_pipelines(spark, storage: S3Storage) -> dict:

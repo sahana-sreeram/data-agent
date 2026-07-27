@@ -41,13 +41,14 @@ APPLICATIONS = pd.DataFrame([{"application_id": "APP1", "customer_id": "C1", "of
 UNDERWRITING_DECISIONS = pd.DataFrame([{"decision_id": "DEC1", "application_id": "APP1", "decision": "APPROVED", "rejection_reason": None, "approved_amount": 1000.0, "approved_apr": 0.05, "model_version": "uw-v1", "decided_at": "2025-01-07"}])
 DELINQUENCY_EVENTS = pd.DataFrame(columns=["delinquency_id", "loan_id", "as_of_date", "days_past_due", "bucket"])
 DEFAULTS = pd.DataFrame(columns=["default_id", "loan_id", "default_date", "balance_at_default", "recovery_amount", "recovery_date"])
+COUPON_RULES = pd.DataFrame([{"coupon_rule_id": "CPN1", "coupon_code": "TEST10", "campaign_id": "CMP1", "discount_type": "PERCENT", "discount_value": 10.0, "valid_from": "2025-01-01", "valid_to": "2025-12-31"}])
 
 RAW_TABLES = {
     "customers": CUSTOMERS, "loans": LOANS, "payment_events": PAYMENT_EVENTS,
     "payment_schedule": PAYMENT_SCHEDULE, "campaigns": CAMPAIGNS, "email_events": EMAIL_EVENTS,
     "prequal_offers": PREQUAL_OFFERS, "applications": APPLICATIONS,
     "underwriting_decisions": UNDERWRITING_DECISIONS, "delinquency_events": DELINQUENCY_EVENTS,
-    "defaults": DEFAULTS,
+    "defaults": DEFAULTS, "coupon_rules": COUPON_RULES,
 }
 
 
@@ -126,6 +127,9 @@ def _real_validate_for(pipeline_name: str):
     if pipeline_name == "delinquency_default":
         from src.validate_delinquency_default import validate_delinquency_default as fn
         return lambda storage, br, vr, as_of: fn(storage, br, vr)
+    if pipeline_name == "coupon_performance":
+        from src.validate_coupon_performance import validate_coupon_performance as fn
+        return lambda storage, br, vr, as_of: fn(storage, br, vr, as_of)
     raise AssertionError(f"no direct-call wrapper for {pipeline_name!r}")
 
 
@@ -155,6 +159,12 @@ def _real_validation_rules_for(pipeline_name: str) -> dict:
             ]
         ],
         "delinquency_default": ["delinquency_default_breakdown_rows_match"],
+        "coupon_performance": [
+            f"{name}_reconciliation" for name in [
+                "coupon_rule_count", "currently_valid_rule_count", "offers_created",
+                "applications_submitted", "loans_funded",
+            ]
+        ] + ["coupon_performance_row_counts_match_per_code"],
     }
     return {
         "tolerance": tolerance,

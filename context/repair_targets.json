@@ -40,6 +40,11 @@
       "repair_type": "CODE_CHANGE",
       "editable_symbols": ["compute_delinquency_default", "_metrics_for_group"],
       "description": "The lifecycle model's delinquency_default PySpark ETL. _metrics_for_group (the private helper compute_delinquency_default calls once for the overall row and once per risk_segment) must compute loss_rate using business_rules.loss_rate_denominator (a column NAME -- 'total_funded_principal' today -- naming which column in the same breakdown row to divide by), never a hardcoded denominator column. compute_delinquency_default itself must produce both an overall ('ALL') row and one row per risk_segment."
+    },
+    "src/etl_spark_coupon_performance.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_coupon_performance"],
+      "description": "The coupon_performance PySpark ETL, onboarded via pipelines/coupon_performance.yaml's generic-adapter path. Its only function, compute_coupon_performance, must report one row per coupon_code from the raw coupon_rules catalog (never dropping a code with zero offers, never inventing a code that isn't in coupon_rules), attribute offers/applications/loans to a code only through a real join chain (prequal_offers -> applications -> loans), and compute redemption_rate as loans_funded/offers_created, null (not zero) when offers_created is 0."
     }
   },
   "notes": [

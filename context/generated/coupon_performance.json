@@ -1,0 +1,222 @@
+{
+  "asset_id": "coupon_performance",
+  "generated_by": "code_enricher",
+  "source_commit": null,
+  "generated_at": "2026-07-27T19:16:07.362322+00:00",
+  "review_status": "UNREVIEWED",
+  "grain": null,
+  "sources": [
+    "coupon_rules",
+    "prequal_offers",
+    "applications",
+    "loans"
+  ],
+  "joins": [
+    {
+      "left": "?",
+      "right": "offers_by_code",
+      "on": [
+        "coupon_code"
+      ],
+      "how": "left"
+    },
+    {
+      "left": "?",
+      "right": "applications_by_code",
+      "on": [
+        "coupon_code"
+      ],
+      "how": "left"
+    },
+    {
+      "left": "?",
+      "right": "loans_by_code",
+      "on": [
+        "coupon_code"
+      ],
+      "how": "left"
+    }
+  ],
+  "filters": [
+    {
+      "expression": "F.col(\"coupon_code\").isNotNull()",
+      "description": ""
+    }
+  ],
+  "derived_metrics": [],
+  "business_rule_references": [],
+  "caveats": [],
+  "confidence": {},
+  "dataset_metadata": {
+    "dataset_name": "coupon_performance",
+    "physical_location": "s3://data-agent/curated/coupon_performance.parquet",
+    "columns": {
+      "coupon_code": "str",
+      "coupon_rule_count": "int64",
+      "currently_valid_rule_count": "int64",
+      "offers_created": "int64",
+      "applications_submitted": "int64",
+      "loans_funded": "int64",
+      "redemption_rate": "float64",
+      "as_of_date": "str"
+    },
+    "nullable_columns": [],
+    "row_count_estimate": 4,
+    "partition_columns": [],
+    "sample_value_summaries": {
+      "coupon_code": {
+        "distinct_count": 4,
+        "sample_values": [
+          "REFER20",
+          "FLASH25",
+          "LOYALTY15",
+          "SPRING5"
+        ]
+      },
+      "coupon_rule_count": {
+        "distinct_count": 1,
+        "min": 2,
+        "max": 2
+      },
+      "currently_valid_rule_count": {
+        "distinct_count": 1,
+        "min": 0,
+        "max": 0
+      },
+      "offers_created": {
+        "distinct_count": 4,
+        "min": 10,
+        "max": 29
+      },
+      "applications_submitted": {
+        "distinct_count": 4,
+        "min": 6,
+        "max": 23
+      },
+      "loans_funded": {
+        "distinct_count": 4,
+        "min": 3,
+        "max": 14
+      },
+      "redemption_rate": {
+        "distinct_count": 4,
+        "min": 0.3,
+        "max": 0.5185
+      },
+      "as_of_date": {
+        "distinct_count": 1,
+        "sample_values": [
+          "2026-07-20"
+        ]
+      }
+    },
+    "freshness": null,
+    "producer": null,
+    "owner": null,
+    "grain_hypothesis": null,
+    "candidate_keys": [
+      "coupon_code",
+      "offers_created",
+      "applications_submitted",
+      "loans_funded",
+      "redemption_rate"
+    ],
+    "uniqueness_observations": {}
+  },
+  "pipeline_metadata": {
+    "pipeline_name": "coupon_performance",
+    "etl_source_file": "src/etl_spark_coupon_performance.py",
+    "etl_source_hash": "0f9a514d8563fa879079278dc73b30b884bca5866c1c2bd30de1ebf773dcef30",
+    "functions": [
+      "compute_coupon_performance"
+    ],
+    "source_datasets": [
+      "coupon_rules",
+      "prequal_offers",
+      "applications",
+      "loans"
+    ],
+    "output_datasets": [
+      "curated/coupon_performance.parquet"
+    ],
+    "joins": [
+      {
+        "left": "?",
+        "right": "offers_by_code",
+        "on": [
+          "coupon_code"
+        ],
+        "how": "left"
+      },
+      {
+        "left": "?",
+        "right": "applications_by_code",
+        "on": [
+          "coupon_code"
+        ],
+        "how": "left"
+      },
+      {
+        "left": "?",
+        "right": "loans_by_code",
+        "on": [
+          "coupon_code"
+        ],
+        "how": "left"
+      }
+    ],
+    "filters": [
+      {
+        "expression": "F.col(\"coupon_code\").isNotNull()",
+        "description": ""
+      }
+    ],
+    "aggregations": [],
+    "calculated_fields": [],
+    "group_by_grain": [],
+    "business_rule_lookups": [],
+    "test_files": [
+      "tests/test_etl_spark_coupon_performance.py"
+    ],
+    "update_mode": "full_refresh",
+    "downstream_consumers": []
+  },
+  "lineage": {
+    "asset_id": "coupon_performance.coupon_rule_count",
+    "steps": [
+      {
+        "kind": "business_metric",
+        "name": "coupon_rule_count"
+      },
+      {
+        "kind": "curated_field",
+        "name": "coupon_rule_count"
+      },
+      {
+        "kind": "curated_dataset",
+        "name": "coupon_performance"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_coupon_performance"
+      },
+      {
+        "kind": "source_table",
+        "name": "coupon_rules"
+      },
+      {
+        "kind": "source_table",
+        "name": "prequal_offers"
+      },
+      {
+        "kind": "source_table",
+        "name": "applications"
+      },
+      {
+        "kind": "source_table",
+        "name": "loans"
+      }
+    ]
+  },
+  "service_contract_versions": {}
+}

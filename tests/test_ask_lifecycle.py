@@ -29,6 +29,7 @@ CONTEXT_STUBS = {
     "context/metrics/underwriting_performance.json": {"metrics": {}},
     "context/metrics/payment_performance.json": {"metrics": {}},
     "context/metrics/delinquency_default.json": {"metrics": {"default_rate": {}}},
+    "context/metrics/coupon_performance.json": {"metrics": {}},
 }
 
 

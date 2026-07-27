@@ -1,0 +1,370 @@
+{
+  "asset_id": "campaign_funnel",
+  "generated_by": "code_enricher",
+  "source_commit": null,
+  "generated_at": "2026-07-27T19:00:21.380718+00:00",
+  "review_status": "UNREVIEWED",
+  "grain": null,
+  "sources": [
+    "campaigns",
+    "email_events",
+    "prequal_offers",
+    "applications",
+    "underwriting_decisions",
+    "loans"
+  ],
+  "joins": [
+    {
+      "left": "?",
+      "right": "app_attribution",
+      "on": [
+        "application_id"
+      ],
+      "how": "inner"
+    },
+    {
+      "left": "?",
+      "right": "app_attribution",
+      "on": [
+        "application_id"
+      ],
+      "how": "inner"
+    },
+    {
+      "left": "?",
+      "right": "emails_by_campaign",
+      "on": [
+        "campaign_key"
+      ],
+      "how": "left"
+    },
+    {
+      "left": "?",
+      "right": "offers_by_campaign",
+      "on": [
+        "campaign_key"
+      ],
+      "how": "left"
+    },
+    {
+      "left": "?",
+      "right": "applications_by_campaign",
+      "on": [
+        "campaign_key"
+      ],
+      "how": "left"
+    },
+    {
+      "left": "?",
+      "right": "approved_by_campaign",
+      "on": [
+        "campaign_key"
+      ],
+      "how": "left"
+    },
+    {
+      "left": "?",
+      "right": "loans_by_campaign",
+      "on": [
+        "campaign_key"
+      ],
+      "how": "left"
+    }
+  ],
+  "filters": [
+    {
+      "expression": "F.col(\"campaign_id\") == _ORGANIC_SENTINEL",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"decision\") == \"APPROVED\"",
+      "description": ""
+    }
+  ],
+  "derived_metrics": [],
+  "business_rule_references": [],
+  "caveats": [],
+  "confidence": {},
+  "dataset_metadata": {
+    "dataset_name": "campaign_funnel",
+    "physical_location": "s3://data-agent/curated/campaign_funnel.parquet",
+    "columns": {
+      "name": "str",
+      "channel": "str",
+      "emails_sent": "int64",
+      "emails_opened": "int64",
+      "emails_clicked": "int64",
+      "offers_created": "int64",
+      "applications_submitted": "int64",
+      "applications_approved": "int64",
+      "loans_funded": "int64",
+      "campaign_id": "str",
+      "open_rate": "float64",
+      "click_through_rate": "float64",
+      "click_to_offer_rate": "float64",
+      "offer_to_application_rate": "float64",
+      "application_to_approval_rate": "float64",
+      "approval_to_funded_rate": "float64"
+    },
+    "nullable_columns": [
+      "name",
+      "channel",
+      "campaign_id",
+      "open_rate",
+      "click_through_rate",
+      "click_to_offer_rate",
+      "application_to_approval_rate",
+      "approval_to_funded_rate"
+    ],
+    "row_count_estimate": 25,
+    "partition_columns": [],
+    "sample_value_summaries": {
+      "name": {
+        "distinct_count": 17,
+        "sample_values": [
+          "New Year Fresh Start 2024",
+          "Back to School 2024",
+          "Loyalty Bonus 2023",
+          "New Year Fresh Start 2025",
+          "Referral Boost 2024"
+        ]
+      },
+      "channel": {
+        "distinct_count": 3,
+        "sample_values": [
+          "EMAIL",
+          "SOCIAL",
+          "PARTNER"
+        ]
+      },
+      "emails_sent": {
+        "distinct_count": 23,
+        "min": 0,
+        "max": 172
+      },
+      "emails_opened": {
+        "distinct_count": 23,
+        "min": 0,
+        "max": 110
+      },
+      "emails_clicked": {
+        "distinct_count": 21,
+        "min": 0,
+        "max": 54
+      },
+      "offers_created": {
+        "distinct_count": 19,
+        "min": 1,
+        "max": 40
+      },
+      "applications_submitted": {
+        "distinct_count": 17,
+        "min": 0,
+        "max": 30
+      },
+      "applications_approved": {
+        "distinct_count": 14,
+        "min": 0,
+        "max": 23
+      },
+      "loans_funded": {
+        "distinct_count": 13,
+        "min": 0,
+        "max": 23
+      },
+      "campaign_id": {
+        "distinct_count": 24,
+        "sample_values": [
+          "CMP0024",
+          "CMP0022",
+          "CMP0010",
+          "CMP0002",
+          "CMP0009"
+        ]
+      },
+      "open_rate": {
+        "distinct_count": 24,
+        "min": 0.3077,
+        "max": 0.7857
+      },
+      "click_through_rate": {
+        "distinct_count": 24,
+        "min": 0.25,
+        "max": 0.6
+      },
+      "click_to_offer_rate": {
+        "distinct_count": 19,
+        "min": 0.5,
+        "max": 1.0
+      },
+      "offer_to_application_rate": {
+        "distinct_count": 23,
+        "min": 0.0,
+        "max": 2.6
+      },
+      "application_to_approval_rate": {
+        "distinct_count": 17,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "approval_to_funded_rate": {
+        "distinct_count": 10,
+        "min": 0.6667,
+        "max": 1.0
+      }
+    },
+    "freshness": null,
+    "producer": null,
+    "owner": null,
+    "grain_hypothesis": null,
+    "candidate_keys": [],
+    "uniqueness_observations": {}
+  },
+  "pipeline_metadata": {
+    "pipeline_name": "campaign_funnel",
+    "etl_source_file": "src/etl_spark_campaign_funnel.py",
+    "etl_source_hash": "34ef9ddb094334df18b5132ec78c606bceb0f177ab0fb9f2c0d0adf63b7480b4",
+    "functions": [
+      "compute_campaign_funnel",
+      "_attribute_applications_to_campaigns"
+    ],
+    "source_datasets": [
+      "campaigns",
+      "email_events",
+      "prequal_offers",
+      "applications",
+      "underwriting_decisions",
+      "loans"
+    ],
+    "output_datasets": [
+      "curated/campaign_funnel.parquet"
+    ],
+    "joins": [
+      {
+        "left": "?",
+        "right": "app_attribution",
+        "on": [
+          "application_id"
+        ],
+        "how": "inner"
+      },
+      {
+        "left": "?",
+        "right": "app_attribution",
+        "on": [
+          "application_id"
+        ],
+        "how": "inner"
+      },
+      {
+        "left": "?",
+        "right": "emails_by_campaign",
+        "on": [
+          "campaign_key"
+        ],
+        "how": "left"
+      },
+      {
+        "left": "?",
+        "right": "offers_by_campaign",
+        "on": [
+          "campaign_key"
+        ],
+        "how": "left"
+      },
+      {
+        "left": "?",
+        "right": "applications_by_campaign",
+        "on": [
+          "campaign_key"
+        ],
+        "how": "left"
+      },
+      {
+        "left": "?",
+        "right": "approved_by_campaign",
+        "on": [
+          "campaign_key"
+        ],
+        "how": "left"
+      },
+      {
+        "left": "?",
+        "right": "loans_by_campaign",
+        "on": [
+          "campaign_key"
+        ],
+        "how": "left"
+      }
+    ],
+    "filters": [
+      {
+        "expression": "F.col(\"campaign_id\") == _ORGANIC_SENTINEL",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"decision\") == \"APPROVED\"",
+        "description": ""
+      }
+    ],
+    "aggregations": [],
+    "calculated_fields": [],
+    "group_by_grain": [],
+    "business_rule_lookups": [],
+    "test_files": [
+      "tests/test_etl_spark_campaign_funnel.py"
+    ],
+    "update_mode": "full_refresh",
+    "downstream_consumers": []
+  },
+  "lineage": {
+    "asset_id": "campaign_funnel.emails_sent",
+    "steps": [
+      {
+        "kind": "business_metric",
+        "name": "emails_sent"
+      },
+      {
+        "kind": "curated_field",
+        "name": "emails_sent"
+      },
+      {
+        "kind": "curated_dataset",
+        "name": "campaign_funnel"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_campaign_funnel"
+      },
+      {
+        "kind": "spark_function",
+        "name": "_attribute_applications_to_campaigns"
+      },
+      {
+        "kind": "source_table",
+        "name": "campaigns"
+      },
+      {
+        "kind": "source_table",
+        "name": "email_events"
+      },
+      {
+        "kind": "source_table",
+        "name": "prequal_offers"
+      },
+      {
+        "kind": "source_table",
+        "name": "applications"
+      },
+      {
+        "kind": "source_table",
+        "name": "underwriting_decisions"
+      },
+      {
+        "kind": "source_table",
+        "name": "loans"
+      }
+    ]
+  },
+  "service_contract_versions": {}
+}

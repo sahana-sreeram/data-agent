@@ -1,0 +1,236 @@
+{
+  "asset_id": "payment_performance",
+  "generated_by": "code_enricher",
+  "source_commit": null,
+  "generated_at": "2026-07-27T19:00:21.484851+00:00",
+  "review_status": "UNREVIEWED",
+  "grain": null,
+  "sources": [
+    "payment_schedule",
+    "payment_events"
+  ],
+  "joins": [],
+  "filters": [
+    {
+      "expression": "F.col(\"due_date\") <= F.lit(as_of_date)",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"payment_status\").isin(net_collected_statuses)",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"payment_status\").isin(business_rules[\"successful_payment_statuses\"])",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"payment_status\") == \"MISSED\"",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"payment_status\") == \"LATE\"",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"payment_status\") == \"FAILED\"",
+      "description": ""
+    },
+    {
+      "expression": "F.col(\"payment_status\").isin(business_rules[\"successful_payment_statuses\"])",
+      "description": ""
+    }
+  ],
+  "derived_metrics": [],
+  "business_rule_references": [
+    "prepayment_threshold_days",
+    "successful_payment_statuses"
+  ],
+  "caveats": [],
+  "confidence": {},
+  "dataset_metadata": {
+    "dataset_name": "payment_performance",
+    "physical_location": "s3://data-agent/curated/payment_performance.parquet",
+    "columns": {
+      "expected_payment_count": "int64",
+      "expected_amount_due": "float64",
+      "successful_payment_count": "int64",
+      "total_collected_amount": "float64",
+      "missed_payment_count": "int64",
+      "missed_amount": "float64",
+      "late_payment_count": "int64",
+      "failed_payment_count": "int64",
+      "collection_rate": "float64",
+      "prepayment_rate": "float64",
+      "as_of_date": "str"
+    },
+    "nullable_columns": [],
+    "row_count_estimate": 1,
+    "partition_columns": [],
+    "sample_value_summaries": {
+      "expected_payment_count": {
+        "distinct_count": 1,
+        "min": 1655,
+        "max": 1655
+      },
+      "expected_amount_due": {
+        "distinct_count": 1,
+        "min": 2010434.8,
+        "max": 2010434.8
+      },
+      "successful_payment_count": {
+        "distinct_count": 1,
+        "min": 969,
+        "max": 969
+      },
+      "total_collected_amount": {
+        "distinct_count": 1,
+        "min": 1357381.59,
+        "max": 1357381.59
+      },
+      "missed_payment_count": {
+        "distinct_count": 1,
+        "min": 27,
+        "max": 27
+      },
+      "missed_amount": {
+        "distinct_count": 1,
+        "min": 36176.87,
+        "max": 36176.87
+      },
+      "late_payment_count": {
+        "distinct_count": 1,
+        "min": 37,
+        "max": 37
+      },
+      "failed_payment_count": {
+        "distinct_count": 1,
+        "min": 13,
+        "max": 13
+      },
+      "collection_rate": {
+        "distinct_count": 1,
+        "min": 0.6752,
+        "max": 0.6752
+      },
+      "prepayment_rate": {
+        "distinct_count": 1,
+        "min": 0.5026,
+        "max": 0.5026
+      },
+      "as_of_date": {
+        "distinct_count": 1,
+        "sample_values": [
+          "2026-07-20"
+        ]
+      }
+    },
+    "freshness": null,
+    "producer": null,
+    "owner": null,
+    "grain_hypothesis": null,
+    "candidate_keys": [
+      "expected_payment_count",
+      "expected_amount_due",
+      "successful_payment_count",
+      "total_collected_amount",
+      "missed_payment_count",
+      "missed_amount",
+      "late_payment_count",
+      "failed_payment_count",
+      "collection_rate",
+      "prepayment_rate",
+      "as_of_date"
+    ],
+    "uniqueness_observations": {}
+  },
+  "pipeline_metadata": {
+    "pipeline_name": "payment_performance",
+    "etl_source_file": "src/etl_spark_payment_performance.py",
+    "etl_source_hash": "ac2ec23ad8551ff57676b396e572f6f3811823a55429e99d69d47d726da2530a",
+    "functions": [
+      "compute_payment_performance"
+    ],
+    "source_datasets": [
+      "payment_schedule",
+      "payment_events"
+    ],
+    "output_datasets": [
+      "curated/payment_performance.parquet"
+    ],
+    "joins": [],
+    "filters": [
+      {
+        "expression": "F.col(\"due_date\") <= F.lit(as_of_date)",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"payment_status\").isin(net_collected_statuses)",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"payment_status\").isin(business_rules[\"successful_payment_statuses\"])",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"payment_status\") == \"MISSED\"",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"payment_status\") == \"LATE\"",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"payment_status\") == \"FAILED\"",
+        "description": ""
+      },
+      {
+        "expression": "F.col(\"payment_status\").isin(business_rules[\"successful_payment_statuses\"])",
+        "description": ""
+      }
+    ],
+    "aggregations": [],
+    "calculated_fields": [],
+    "group_by_grain": [],
+    "business_rule_lookups": [
+      "prepayment_threshold_days",
+      "successful_payment_statuses"
+    ],
+    "test_files": [
+      "tests/test_etl_spark_payment_performance.py"
+    ],
+    "update_mode": "full_refresh",
+    "downstream_consumers": []
+  },
+  "lineage": {
+    "asset_id": "payment_performance.expected_payment_count",
+    "steps": [
+      {
+        "kind": "business_metric",
+        "name": "expected_payment_count"
+      },
+      {
+        "kind": "curated_field",
+        "name": "expected_payment_count"
+      },
+      {
+        "kind": "curated_dataset",
+        "name": "payment_performance"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_payment_performance"
+      },
+      {
+        "kind": "source_table",
+        "name": "payment_schedule"
+      },
+      {
+        "kind": "source_table",
+        "name": "payment_events"
+      }
+    ]
+  },
+  "service_contract_versions": {
+    "payment_service": "v1"
+  }
+}

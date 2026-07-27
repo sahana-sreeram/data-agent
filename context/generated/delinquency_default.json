@@ -1,0 +1,193 @@
+{
+  "asset_id": "delinquency_default",
+  "generated_by": "code_enricher",
+  "source_commit": null,
+  "generated_at": "2026-07-27T19:00:21.501390+00:00",
+  "review_status": "UNREVIEWED",
+  "grain": null,
+  "sources": [
+    "loans",
+    "customers",
+    "delinquency_events",
+    "defaults"
+  ],
+  "joins": [],
+  "filters": [],
+  "derived_metrics": [],
+  "business_rule_references": [
+    "loss_rate_denominator"
+  ],
+  "caveats": [],
+  "confidence": {},
+  "dataset_metadata": {
+    "dataset_name": "delinquency_default",
+    "physical_location": "s3://data-agent/curated/delinquency_default.parquet",
+    "columns": {
+      "breakdown_value": "str",
+      "loan_count": "int64",
+      "total_funded_principal": "float64",
+      "delinquent_loan_count": "int64",
+      "delinquency_rate": "float64",
+      "default_count": "int64",
+      "default_rate": "float64",
+      "total_balance_at_default": "float64",
+      "total_recovery_amount": "float64",
+      "recovery_rate": "float64",
+      "loss_rate": "float64"
+    },
+    "nullable_columns": [
+      "recovery_rate"
+    ],
+    "row_count_estimate": 4,
+    "partition_columns": [],
+    "sample_value_summaries": {
+      "breakdown_value": {
+        "distinct_count": 4,
+        "sample_values": [
+          "ALL",
+          "HIGH",
+          "LOW",
+          "MEDIUM"
+        ]
+      },
+      "loan_count": {
+        "distinct_count": 4,
+        "min": 29,
+        "max": 162
+      },
+      "total_funded_principal": {
+        "distinct_count": 4,
+        "min": 625706.02,
+        "max": 3227229.6
+      },
+      "delinquent_loan_count": {
+        "distinct_count": 3,
+        "min": 14,
+        "max": 50
+      },
+      "delinquency_rate": {
+        "distinct_count": 4,
+        "min": 0.2222,
+        "max": 0.4828
+      },
+      "default_count": {
+        "distinct_count": 4,
+        "min": 0,
+        "max": 8
+      },
+      "default_rate": {
+        "distinct_count": 4,
+        "min": 0.0,
+        "max": 0.1724
+      },
+      "total_balance_at_default": {
+        "distinct_count": 4,
+        "min": 0.0,
+        "max": 145699.37
+      },
+      "total_recovery_amount": {
+        "distinct_count": 2,
+        "min": 0.0,
+        "max": 3145.3
+      },
+      "recovery_rate": {
+        "distinct_count": 3,
+        "min": 0.0,
+        "max": 0.0388
+      },
+      "loss_rate": {
+        "distinct_count": 4,
+        "min": 0.0,
+        "max": 0.1244
+      }
+    },
+    "freshness": null,
+    "producer": null,
+    "owner": null,
+    "grain_hypothesis": null,
+    "candidate_keys": [
+      "breakdown_value",
+      "loan_count",
+      "total_funded_principal",
+      "delinquency_rate",
+      "default_count",
+      "default_rate",
+      "total_balance_at_default",
+      "loss_rate"
+    ],
+    "uniqueness_observations": {}
+  },
+  "pipeline_metadata": {
+    "pipeline_name": "delinquency_default",
+    "etl_source_file": "src/etl_spark_delinquency_default.py",
+    "etl_source_hash": "5a60f7c0e48aa22d2496a5dfa8355ac14252ba9ef07fcd0cb58efdb5ef75f984",
+    "functions": [
+      "compute_delinquency_default",
+      "_metrics_for_group"
+    ],
+    "source_datasets": [
+      "loans",
+      "customers",
+      "delinquency_events",
+      "defaults"
+    ],
+    "output_datasets": [
+      "curated/delinquency_default.parquet"
+    ],
+    "joins": [],
+    "filters": [],
+    "aggregations": [],
+    "calculated_fields": [],
+    "group_by_grain": [],
+    "business_rule_lookups": [
+      "loss_rate_denominator"
+    ],
+    "test_files": [
+      "tests/test_etl_spark_delinquency_default.py"
+    ],
+    "update_mode": "full_refresh",
+    "downstream_consumers": []
+  },
+  "lineage": {
+    "asset_id": "delinquency_default.delinquent_loan_count",
+    "steps": [
+      {
+        "kind": "business_metric",
+        "name": "delinquent_loan_count"
+      },
+      {
+        "kind": "curated_field",
+        "name": "delinquent_loan_count"
+      },
+      {
+        "kind": "curated_dataset",
+        "name": "delinquency_default"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_delinquency_default"
+      },
+      {
+        "kind": "spark_function",
+        "name": "_metrics_for_group"
+      },
+      {
+        "kind": "source_table",
+        "name": "loans"
+      },
+      {
+        "kind": "source_table",
+        "name": "customers"
+      },
+      {
+        "kind": "source_table",
+        "name": "delinquency_events"
+      },
+      {
+        "kind": "source_table",
+        "name": "defaults"
+      }
+    ]
+  },
+  "service_contract_versions": {}
+}

@@ -27,7 +27,7 @@ from pathlib import Path
 
 import yaml
 
-from src.lifecycle_pipeline_registry import PipelineSpec
+from src.pipeline_spec import PipelineSpec
 
 DEFAULT_PIPELINES_DIR = Path("pipelines")
 

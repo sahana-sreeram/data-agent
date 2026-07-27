@@ -1,0 +1,37 @@
+name: coupon_performance
+
+inputs:
+  - dataset: coupon_rules
+    source_service: marketing_service
+  - dataset: prequal_offers
+    source_service: marketing_service
+  - dataset: applications
+    source_service: application_service
+  - dataset: loans
+    source_service: loan_service
+
+outputs:
+  - curated/coupon_performance.parquet
+
+runtime:
+  engine: spark
+  source_file: src/etl_spark_coupon_performance.py
+  functions:
+    - compute_coupon_performance
+
+validation:
+  module: src.validate_coupon_performance
+  function: validate_coupon_performance
+  rules_file: context/validations/coupon_performance.json
+
+metrics_file: context/metrics/coupon_performance.json
+lineage_key: curated.coupon_performance
+test_file: tests/test_etl_spark_coupon_performance.py
+
+repair:
+  allowed_files:
+    - src/etl_spark_coupon_performance.py
+  mode: open_pr
+
+context:
+  human_annotation: context/human/coupon_performance.yaml

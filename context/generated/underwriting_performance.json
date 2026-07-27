@@ -1,0 +1,211 @@
+{
+  "asset_id": "underwriting_performance",
+  "generated_by": "code_enricher",
+  "source_commit": null,
+  "generated_at": "2026-07-27T19:00:21.460871+00:00",
+  "review_status": "UNREVIEWED",
+  "grain": null,
+  "sources": [
+    "underwriting_decisions",
+    "applications",
+    "customers"
+  ],
+  "joins": [
+    {
+      "left": "?",
+      "right": "app_customer",
+      "on": [
+        "application_id"
+      ],
+      "how": "inner"
+    }
+  ],
+  "filters": [
+    {
+      "expression": "F.col(\"decision\") == \"REJECTED\"",
+      "description": ""
+    }
+  ],
+  "derived_metrics": [],
+  "business_rule_references": [],
+  "caveats": [],
+  "confidence": {},
+  "dataset_metadata": {
+    "dataset_name": "underwriting_performance",
+    "physical_location": "s3://data-agent/curated/underwriting_performance.parquet",
+    "columns": {
+      "breakdown_type": "str",
+      "breakdown_value": "str",
+      "decision_count": "int64",
+      "approved_count": "int64",
+      "rejected_count": "int64",
+      "manual_review_count": "int64",
+      "approval_rate": "float64",
+      "avg_approved_amount": "float64",
+      "avg_approved_apr": "float64"
+    },
+    "nullable_columns": [],
+    "row_count_estimate": 5,
+    "partition_columns": [],
+    "sample_value_summaries": {
+      "breakdown_type": {
+        "distinct_count": 2,
+        "sample_values": [
+          "risk_segment",
+          "model_version"
+        ]
+      },
+      "breakdown_value": {
+        "distinct_count": 5,
+        "sample_values": [
+          "HIGH",
+          "LOW",
+          "MEDIUM",
+          "uw-model-v1",
+          "uw-model-v2"
+        ]
+      },
+      "decision_count": {
+        "distinct_count": 5,
+        "min": 67,
+        "max": 200
+      },
+      "approved_count": {
+        "distinct_count": 5,
+        "min": 32,
+        "max": 136
+      },
+      "rejected_count": {
+        "distinct_count": 5,
+        "min": 6,
+        "max": 49
+      },
+      "manual_review_count": {
+        "distinct_count": 5,
+        "min": 2,
+        "max": 15
+      },
+      "approval_rate": {
+        "distinct_count": 5,
+        "min": 0.4211,
+        "max": 0.9149
+      },
+      "avg_approved_amount": {
+        "distinct_count": 5,
+        "min": 17829.02,
+        "max": 23238.7
+      },
+      "avg_approved_apr": {
+        "distinct_count": 5,
+        "min": 0.0647,
+        "max": 0.1925
+      }
+    },
+    "freshness": null,
+    "producer": null,
+    "owner": null,
+    "grain_hypothesis": null,
+    "candidate_keys": [
+      "breakdown_value",
+      "decision_count",
+      "approved_count",
+      "rejected_count",
+      "manual_review_count",
+      "approval_rate",
+      "avg_approved_amount",
+      "avg_approved_apr"
+    ],
+    "uniqueness_observations": {}
+  },
+  "pipeline_metadata": {
+    "pipeline_name": "underwriting_performance",
+    "etl_source_file": "src/etl_spark_underwriting_performance.py",
+    "etl_source_hash": "91e76028107c7ec29d4ab3d0440c3f604bada39341f1dc70e65cee2617d52cad",
+    "functions": [
+      "compute_underwriting_performance",
+      "compute_rejection_distribution",
+      "_decisions_with_risk_segment",
+      "_breakdown"
+    ],
+    "source_datasets": [
+      "underwriting_decisions",
+      "applications",
+      "customers"
+    ],
+    "output_datasets": [
+      "curated/underwriting_performance.parquet",
+      "curated/underwriting_performance_rejections.parquet"
+    ],
+    "joins": [
+      {
+        "left": "?",
+        "right": "app_customer",
+        "on": [
+          "application_id"
+        ],
+        "how": "inner"
+      }
+    ],
+    "filters": [
+      {
+        "expression": "F.col(\"decision\") == \"REJECTED\"",
+        "description": ""
+      }
+    ],
+    "aggregations": [],
+    "calculated_fields": [],
+    "group_by_grain": [],
+    "business_rule_lookups": [],
+    "test_files": [
+      "tests/test_etl_spark_underwriting_performance.py"
+    ],
+    "update_mode": "full_refresh",
+    "downstream_consumers": []
+  },
+  "lineage": {
+    "asset_id": "underwriting_performance.decision_count",
+    "steps": [
+      {
+        "kind": "business_metric",
+        "name": "decision_count"
+      },
+      {
+        "kind": "curated_field",
+        "name": "decision_count"
+      },
+      {
+        "kind": "curated_dataset",
+        "name": "underwriting_performance"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_underwriting_performance"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_rejection_distribution"
+      },
+      {
+        "kind": "spark_function",
+        "name": "_decisions_with_risk_segment"
+      },
+      {
+        "kind": "spark_function",
+        "name": "_breakdown"
+      },
+      {
+        "kind": "source_table",
+        "name": "underwriting_decisions"
+      },
+      {
+        "kind": "source_table",
+        "name": "applications"
+      },
+      {
+        "kind": "source_table",
+        "name": "customers"
+      }
+    ]
+  },
+  "service_contract_versions": {}
+}

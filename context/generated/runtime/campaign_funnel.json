@@ -1,0 +1,7 @@
+{
+  "pipeline_name": "campaign_funnel",
+  "etl_status": "SUCCESS",
+  "validation_status": "PASS",
+  "last_run_at": null,
+  "failed_check_ids": []
+}
