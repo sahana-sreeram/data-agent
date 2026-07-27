@@ -19,7 +19,7 @@ from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError
 
 _JOIN_PATTERN = re.compile(
-    r"""\.join\(\s*
+    r"""(?:(?P<left>[A-Za-z_]\w*)\s*)?\.join\(\s*
         (?P<right>[\w.]+)\s*,\s*
         on\s*=\s*(?P<on>(?:\[[^\]]*\]|["'][\w]+["']))\s*,\s*
         how\s*=\s*["'](?P<how>\w+)["']
@@ -50,9 +50,14 @@ def extract_joins(source: str) -> list[JoinInfo]:
     for match in _JOIN_PATTERN.finditer(source):
         joins.append(
             JoinInfo(
-                left="?",  # the left side of a chained/piped join isn't reliably recoverable
-                # from source text alone without a real AST walk -- left as a placeholder
-                # a human or the Codex pass can fill in from the surrounding context.
+                # Recoverable ONLY when a bare identifier sits directly before `.join(`
+                # (e.g. "loans.join(...)") -- the common case for a standalone or FIRST call
+                # in a chain. A join chained onto the previous call's result (e.g. the second
+                # `.join(...)` in `a.join(b, ...).join(c, ...)`) has no such identifier -- its
+                # left side is an anonymous intermediate DataFrame, genuinely not nameable
+                # from source text alone without a real AST walk, so it's left as "?" for a
+                # human or the Codex pass to fill in rather than guessed.
+                left=match.group("left") or "?",
                 right=match.group("right"),
                 on=_parse_on_clause(match.group("on")),
                 how=match.group("how"),

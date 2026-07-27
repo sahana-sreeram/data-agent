@@ -44,6 +44,29 @@ def test_extract_joins_finds_on_and_how():
     assert joins[0].how == "left"
 
 
+def test_extract_joins_resolves_left_when_a_bare_identifier_precedes_join():
+    # "loans" sits directly before ".join(" -- recoverable without a real AST walk.
+    assert extract_joins(SAMPLE_SOURCE)[0].left == "loans"
+
+
+def test_extract_joins_leaves_left_unresolved_for_a_chained_continuation():
+    # The second .join(...) here is chained onto the first call's (anonymous) result --
+    # genuinely not nameable from source text alone, so it must stay the honest "?"
+    # placeholder rather than a guess, while the FIRST join's "a" is still resolved.
+    chained_source = """
+    result = (
+        a.join(b, on="k", how="left")
+        .join(c, on="k", how="left")
+    )
+    """
+    joins = extract_joins(chained_source)
+    assert len(joins) == 2
+    assert joins[0].left == "a"
+    assert joins[0].right == "b"
+    assert joins[1].left == "?"
+    assert joins[1].right == "c"
+
+
 def test_extract_filters_finds_filter_expression():
     filters = extract_filters(SAMPLE_SOURCE)
     assert len(filters) == 1

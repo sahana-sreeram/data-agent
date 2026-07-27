@@ -2,7 +2,7 @@
   "asset_id": "coupon_performance",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T19:16:07.362322+00:00",
+  "generated_at": "2026-07-27T19:59:12.115644+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -13,7 +13,7 @@
   ],
   "joins": [
     {
-      "left": "?",
+      "left": "rules_by_code",
       "right": "offers_by_code",
       "on": [
         "coupon_code"
@@ -67,15 +67,15 @@
       "coupon_code": {
         "distinct_count": 4,
         "sample_values": [
-          "REFER20",
+          "WELCOME10",
           "FLASH25",
           "LOYALTY15",
-          "SPRING5"
+          "HOLIDAY10"
         ]
       },
       "coupon_rule_count": {
-        "distinct_count": 1,
-        "min": 2,
+        "distinct_count": 2,
+        "min": 1,
         "max": 2
       },
       "currently_valid_rule_count": {
@@ -84,24 +84,24 @@
         "max": 0
       },
       "offers_created": {
-        "distinct_count": 4,
-        "min": 10,
-        "max": 29
+        "distinct_count": 3,
+        "min": 2,
+        "max": 7
       },
       "applications_submitted": {
         "distinct_count": 4,
-        "min": 6,
-        "max": 23
+        "min": 1,
+        "max": 6
       },
       "loans_funded": {
-        "distinct_count": 4,
-        "min": 3,
-        "max": 14
+        "distinct_count": 3,
+        "min": 0,
+        "max": 4
       },
       "redemption_rate": {
         "distinct_count": 4,
-        "min": 0.3,
-        "max": 0.5185
+        "min": 0.0,
+        "max": 0.5714
       },
       "as_of_date": {
         "distinct_count": 1,
@@ -116,9 +116,7 @@
     "grain_hypothesis": null,
     "candidate_keys": [
       "coupon_code",
-      "offers_created",
       "applications_submitted",
-      "loans_funded",
       "redemption_rate"
     ],
     "uniqueness_observations": {}
@@ -141,7 +139,7 @@
     ],
     "joins": [
       {
-        "left": "?",
+        "left": "rules_by_code",
         "right": "offers_by_code",
         "on": [
           "coupon_code"

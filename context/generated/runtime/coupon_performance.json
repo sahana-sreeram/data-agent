@@ -1,7 +1,7 @@
 {
   "pipeline_name": "coupon_performance",
-  "etl_status": "UNKNOWN",
-  "validation_status": "UNKNOWN",
+  "etl_status": "SUCCESS",
+  "validation_status": "PASS",
   "last_run_at": null,
   "failed_check_ids": []
 }
