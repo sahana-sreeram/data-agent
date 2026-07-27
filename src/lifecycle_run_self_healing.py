@@ -37,8 +37,17 @@ def run_lifecycle_self_healing(
     storage: S3Storage,
     diagnosis_model_client_factory: Callable[[], DiagnosisModelClient],
     repair_model_client_factory: Callable[[], DiagnosisModelClient],
+    *,
+    mode: str = "auto_promote",
 ) -> dict:
     """Diagnose, plan a repair, apply it in isolation, and verify it against real raw data.
+
+    mode: "diagnose_only" stops after diagnosis (repair_plan/repair_result/repair_verification
+    are all None). "propose_patch" stops after apply_repair (repair_verification is None).
+    "create_pr" runs the full flow but has verify build a local PR artifact instead of
+    promoting on a full pass (see src.lifecycle_verify_repair's mode parameter).
+    "auto_promote" (the default, and every existing call site's behavior) runs the full flow
+    and promotes directly on a full pass -- unchanged from before mode existed.
 
     Returns {"run_id":..., "diagnosis":..., "repair_plan":..., "repair_result":...,
     "repair_verification":...}. Raises whatever the underlying stages raise
@@ -46,6 +55,9 @@ def run_lifecycle_self_healing(
     failure -- a BLOCKED or NOT_VERIFIED outcome is a normal, successful return, not an
     exception.
     """
+    if mode not in ("diagnose_only", "propose_patch", "create_pr", "auto_promote"):
+        raise ValueError(f"unknown mode {mode!r}")
+
     spec = PIPELINE_REGISTRY[pipeline_name]
     run_id = uuid.uuid4().hex[:12]
 
@@ -54,11 +66,24 @@ def run_lifecycle_self_healing(
     validation_before = spec.run_validate(storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
 
     diagnosis = run_diagnose_pipeline(pipeline_name, storage, diagnosis_model_client_factory)
+    if mode == "diagnose_only":
+        artifacts = {"diagnosis": diagnosis, "repair_plan": None, "repair_result": None, "repair_verification": None}
+        _persist_run_artifacts(storage, pipeline_name, run_id, {"diagnosis": diagnosis})
+        return {"run_id": run_id, **artifacts}
+
     repair_plan, repair_result = run_apply_lifecycle_repair(
         pipeline_name, storage, diagnosis, validation_before, repair_model_client_factory
     )
+    if mode == "propose_patch":
+        artifacts = {"diagnosis": diagnosis, "repair_plan": repair_plan, "repair_result": repair_result, "repair_verification": None}
+        _persist_run_artifacts(storage, pipeline_name, run_id, {"diagnosis": diagnosis, "repair_plan": repair_plan, "repair_result": repair_result})
+        return {"run_id": run_id, **artifacts}
+
+    verify_kwargs = {"run_id": run_id}
+    if mode == "create_pr":
+        verify_kwargs.update(mode="create_pr", diagnosis=diagnosis, repair_plan=repair_plan)
     repair_verification = run_verify_lifecycle_repair(
-        pipeline_name, spark, storage, business_rules, validation_rules, validation_before, repair_result, run_id=run_id
+        pipeline_name, spark, storage, business_rules, validation_rules, validation_before, repair_result, **verify_kwargs
     )
 
     artifacts = {

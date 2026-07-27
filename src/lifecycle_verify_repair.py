@@ -32,6 +32,7 @@ from pyspark.sql import SparkSession
 
 from src.legacy.apply_repair import _workspace_path
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
+from src.pr_artifact import build_pr_artifact
 from src.storage import S3Storage
 
 PIPELINE_RUN_KEY = "curated/pipeline_run.json"
@@ -248,6 +249,9 @@ def run_verify_lifecycle_repair(
     *,
     run_id: str | None = None,
     s3a_path_override=None,
+    mode: str = "auto_promote",
+    diagnosis: dict | None = None,
+    repair_plan: dict | None = None,
 ) -> dict:
     """Run the full verification flow for one lifecycle pipeline's repair. Returns the
     repair_verification dict.
@@ -260,6 +264,14 @@ def run_verify_lifecycle_repair(
     TEST_PREFIX-scoped location, exactly like the `patched` fixture already used by
     tests/test_etl_spark_*.py -- production callers leave it at the default (None), which
     reads the real bucket.
+
+    mode="auto_promote" (the default, used by every existing caller) preserves this
+    function's original behavior exactly: on a full pass, promote directly into the real
+    repository. mode="create_pr" instead builds a local PR artifact (src/pr_artifact.py) --
+    real diff, real throwaway branch/commit, diagnosis summary, before/after metrics -- and
+    leaves the real repository completely untouched, even on a full pass. diagnosis/
+    repair_plan are only used for the create_pr artifact's summary fields; omit them for
+    auto_promote.
     """
     spec = PIPELINE_REGISTRY[pipeline_name]
     run_id = run_id or uuid.uuid4().hex[:12]
@@ -341,8 +353,30 @@ def run_verify_lifecycle_repair(
     )
 
     metrics_after = {key: df.to_dict(orient="records") for key, df in metrics_after_by_key.items()}
+    pr_artifact = None
 
-    if all_checks_pass:
+    if all_checks_pass and mode == "create_pr":
+        target_path = _workspace_path(workspace_dir, repair_result["target_file"])
+        pr_artifact = build_pr_artifact(
+            pipeline_name=pipeline_name,
+            run_id=run_id,
+            target_file=repair_result["target_file"],
+            original_content=Path(repair_result["target_file"]).read_text(),
+            patched_content=target_path.read_text(),
+            diagnosis=diagnosis or {},
+            repair_plan=repair_plan or {},
+            validation_before=validation_before,
+            validation_after=validation_after,
+            metrics_before={},
+            metrics_after=metrics_after,
+            tests_status={"targeted": targeted_status, "full_relevant_suite": full_suite_status},
+        )
+        shutil.rmtree(workspace_dir, ignore_errors=True)
+        changed_files = []
+        verification_status = "VERIFIED_PENDING_PR"
+        rollback_performed = False
+        summary = "All deterministic checks passed; a local PR artifact was created instead of promoting directly."
+    elif all_checks_pass:
         try:
             changed_files = _promote_atomically(
                 storage, run_id, pipeline_name, repair_result, workspace_dir, metrics_after_by_key, validation_after
@@ -379,6 +413,7 @@ def run_verify_lifecycle_repair(
         "unchanged_protected_files_verified": protected_files_unchanged,
         "rollback_performed": rollback_performed,
         "summary": summary,
+        "pr_artifact": pr_artifact,
     }
 
 

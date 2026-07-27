@@ -194,6 +194,71 @@ def test_loan_portfolio_still_buggy_patch_does_not_verify_or_promote(spark_sessi
     assert not workspace_dir.exists()
 
 
+def test_loan_portfolio_create_pr_mode_builds_artifact_and_never_promotes(spark_session, seeded_storage, tmp_path):
+    """mode="create_pr" must reach the exact same all_checks_pass=True state as the
+    auto_promote test above, but build a PR artifact instead of touching the real repo file
+    or the real curated output at all."""
+    bucket = seeded_storage.bucket
+    s3a = _test_s3a_path(bucket)
+    curated_key = PIPELINE_REGISTRY["loan_portfolio"].curated_keys[0]
+
+    import src.etl_spark_loan_portfolio as etl_module
+
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_WITHOUT_L3)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", LOAN_PORTFOLIO_PAYMENT_EVENTS)
+    original_s3a_path = etl_module.s3a_path
+    etl_module.s3a_path = s3a
+    try:
+        buggy_summary_pd = compute_loan_portfolio(spark_session, LOAN_PORTFOLIO_BUSINESS_RULES, AS_OF_DATE).toPandas()
+    finally:
+        etl_module.s3a_path = original_s3a_path
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{curated_key}", buggy_summary_pd)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_ALL)
+
+    prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
+    validation_before = validate_loan_portfolio(prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES, AS_OF_DATE)
+    assert validation_before["overall_status"] == "FAIL"
+
+    # Uses the REAL repo file as target_file -- safe here because create_pr mode only ever
+    # READS repair_result["target_file"] (for the diff's "before" side), never writes to it.
+    real_target_file = str(LOAN_PORTFOLIO_SOURCE)
+    real_source_before = LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8")
+    # A harmless trailing comment -- distinct text from the original (so there's a real diff
+    # to commit/branch) without changing the ETL's behavior at all.
+    patched_source = real_source_before + "\n# test fixture: cosmetic-only change\n"
+    workspace_dir = _write_workspace(tmp_path, real_target_file, patched_source)
+    repair_result = {"repair_status": "APPLIED", "target_file": real_target_file, "workspace_dir": str(workspace_dir)}
+    diagnosis = {"root_cause_category": "ETL_LOGIC", "root_cause": "test fixture"}
+    repair_plan = {"change_summary": "test fixture patch"}
+
+    result = run_verify_lifecycle_repair(
+        "loan_portfolio", spark_session, prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES,
+        validation_before, repair_result, run_id="test-loan-portfolio-create-pr", s3a_path_override=s3a,
+        mode="create_pr", diagnosis=diagnosis, repair_plan=repair_plan,
+    )
+
+    try:
+        assert result["verification_status"] == "VERIFIED_PENDING_PR"
+        assert result["changed_files"] == []
+        assert result["rollback_performed"] is False
+        assert result["pr_artifact"] is not None
+        assert result["pr_artifact"]["pipeline_name"] == "loan_portfolio"
+        assert result["pr_artifact"]["risk_classification"] == "LOW"
+        assert result["pr_artifact"]["branch"] is not None
+
+        # the real repo file and the real (still-buggy) curated output are BOTH untouched
+        assert LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8") == real_source_before
+        still_buggy_curated = seeded_storage.read_parquet(f"{TEST_PREFIX}{curated_key}")
+        assert still_buggy_curated.iloc[0]["loan_count"] == 2
+        assert not workspace_dir.exists()
+    finally:
+        branch = result.get("pr_artifact", {}).get("branch") if result.get("pr_artifact") else None
+        if branch:
+            import subprocess
+
+            subprocess.run(["git", "branch", "-D", branch], capture_output=True)
+
+
 def test_blocked_repair_status_short_circuits_without_touching_anything(spark_session, seeded_storage):
     prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
     validation_before = {"overall_status": "FAIL", "checks": [{"id": "loan_count_reconciliation", "status": "FAIL"}]}
