@@ -3,10 +3,17 @@ name = "data-agent"
 version = "0.1.0"
 description = "Self-healing enterprise data-agent MVP: synthetic data generation for a simulated lending company"
 requires-python = ">=3.12"
-dependencies = ["pandas", "openai", "python-dotenv", "fastapi", "uvicorn"]
+dependencies = ["pandas", "openai", "python-dotenv", "fastapi", "uvicorn", "pyspark", "boto3"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

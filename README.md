@@ -25,13 +25,16 @@ everything passes — otherwise it refuses to answer rather than guess.
 
 ## Quickstart
 
+Prerequisites: Docker, a JDK for PySpark (e.g. `brew install openjdk@17`), and an
+OpenAI API key.
+
 ```
-cp .env.example .env   # OPENAI_API_KEY, S3/MinIO creds, JAVA_HOME
-python3 -m src.generate_data --output-dir data/lifecycle/raw
-python3 -m src.migrate_lifecycle_to_s3
-python3 -m src.run_lifecycle_etl_pipelines
-python3 -m src.api   # http://127.0.0.1:8000
+cp .env.example .env   # fill in OPENAI_API_KEY and JAVA_HOME
+./scripts/bootstrap.sh # starts MinIO, installs deps, generates + migrates + runs ETL
+python3 -m src.api     # http://127.0.0.1:8000
 ```
+
+`bootstrap.sh` is idempotent — safe to rerun any time (e.g. after regenerating data).
 
 ## Tests
 
