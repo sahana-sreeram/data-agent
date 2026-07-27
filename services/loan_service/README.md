@@ -22,4 +22,4 @@ docker build -f services/loan_service/Dockerfile -t loan-service .
 docker run --rm --env-file .env loan-service --output s3 --num-customers 1000
 ```
 
-Events land at `events/loan_service/LoanFunded/event_date=YYYY-MM-DD/part-0000.parquet`.
+Events land at `events/loan_service/LoanFunded/event_month=YYYY-MM/part-0000.parquet`.

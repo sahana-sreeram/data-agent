@@ -27,7 +27,7 @@ docker build -f services/marketing_service/Dockerfile -t marketing-service .
 docker run --rm --env-file .env marketing-service --output s3 --num-customers 1000
 ```
 
-Events land at `events/marketing_service/<event_type>/event_date=YYYY-MM-DD/part-0000.parquet`.
+Events land at `events/marketing_service/<event_type>/event_month=YYYY-MM/part-0000.parquet`.
 Referential integrity with every other service comes from all 6 services sharing the same
 `--seed`/`--num-customers`/`--as-of-date` (see `services/common/seeding.py`) -- this service
 never calls another service directly.

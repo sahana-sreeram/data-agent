@@ -13,11 +13,20 @@ from services.common.seeding import generate_shared_dataset
 from services.payment_service.contract import SCHEMA_VERSION, apply_contract_version, event_type_for_payment_status
 
 
-def _build_specs(contract_version: str, num_customers: int, seed: int, as_of_date: str) -> list[TableEventSpec]:
+def _build_specs(
+    contract_version: str, num_customers: int, seed: int, as_of_date: str, dataset: dict[str, list] | None = None
+) -> list[TableEventSpec]:
     # payment_events' payment_date is null for MISSED installments (money never arrived) --
     # fall back to the schedule's due_date so every event still gets a real emitted_at.
-    dataset = generate_shared_dataset(num_customers, seed, as_of_date)
-    due_date_by_schedule_id = {entry.schedule_id: entry.due_date for entry in dataset["payment_schedule"]}
+    # `dataset`, if given, is used as-is (e.g. an already-namespaced batch from
+    # src/generate_upstream_events.py) instead of regenerating via generate_shared_dataset.
+    if dataset is None:
+        dataset = generate_shared_dataset(num_customers, seed, as_of_date)
+    schedule_records = dataset["payment_schedule"]
+    due_date_by_schedule_id = {
+        (r.schedule_id if hasattr(r, "schedule_id") else r["schedule_id"]): (r.due_date if hasattr(r, "due_date") else r["due_date"])
+        for r in schedule_records
+    }
 
     def transform_payment_event(record: dict) -> dict:
         return apply_contract_version(record, contract_version)

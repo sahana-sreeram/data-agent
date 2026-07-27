@@ -23,4 +23,4 @@ docker build -f services/underwriting_service/Dockerfile -t underwriting-service
 docker run --rm --env-file .env underwriting-service --output s3 --num-customers 1000
 ```
 
-Events land at `events/underwriting_service/UnderwritingDecisionMade/event_date=YYYY-MM-DD/part-0000.parquet`.
+Events land at `events/underwriting_service/UnderwritingDecisionMade/event_month=YYYY-MM/part-0000.parquet`.

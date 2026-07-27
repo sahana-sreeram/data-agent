@@ -31,7 +31,7 @@ notes for the full reasoning).
 ## Where the events go
 
 ```
-s3://<bucket>/events/<service>/<event_type>/event_date=YYYY-MM-DD/part-0000.parquet
+s3://<bucket>/events/<service>/<event_type>/event_month=YYYY-MM/part-0000.parquet
 ```
 
 `src/events_to_lifecycle_tables.py` projects these event batches back into the exact
@@ -40,7 +40,7 @@ against real MinIO: writing event-sourced `raw/*.parquet` and rerunning
 `python3 -m src.run_lifecycle_etl_pipelines` produces `overall_status: SUCCESS` with **zero**
 changes to any `etl_spark_*.py` file.
 
-## Running all 6 locally
+## Running all 6 locally (one-shot, small scale)
 
 ```
 for svc in marketing application underwriting loan risk; do
@@ -50,3 +50,25 @@ python3 -m services.payment_service.main --output s3 --seed 42 --num-customers 1
 python3 -m src.events_to_lifecycle_tables --from s3
 python3 -m src.run_lifecycle_etl_pipelines
 ```
+
+## Scale generation
+
+For anything bigger than a few thousand customers, use `src.generate_upstream_events`
+instead of calling each service directly -- it runs all 6 services together across
+bounded-memory batches (see its module docstring for why generation is chunked at all:
+`generate_data.generate_dataset()` scales roughly quadratically with customer count, so many
+small chunks beat one huge call):
+
+```
+python3 -m src.generate_upstream_events --profile small --output local   # 1,000 customers
+python3 -m src.generate_upstream_events --profile demo --output s3       # 20,000 customers
+python3 -m src.generate_upstream_events --profile large --output s3      # 100,000 customers
+python3 -m src.events_to_lifecycle_tables --from s3
+python3 -m src.run_lifecycle_etl_pipelines
+```
+
+Measured on this machine (10 CPU cores, single process): `demo` (20,000 customers, 5 batches
+of 4,000) produced **8.65M events / 396MB** across **2,636 partitioned Parquet files** in
+**~101 seconds** (53s generation + 47s write). `large` (100,000 customers, 25 batches) is the
+same work 5x over -- expect roughly 8-9 minutes; it's sized to make a laptop's single-node
+pandas genuinely impractical, not to run routinely.

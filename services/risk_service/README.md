@@ -23,6 +23,6 @@ docker build -f services/risk_service/Dockerfile -t risk-service .
 docker run --rm --env-file .env risk-service --output s3 --num-customers 1000
 ```
 
-Events land at `events/risk_service/<event_type>/event_date=YYYY-MM-DD/part-0000.parquet`. At
+Events land at `events/risk_service/<event_type>/event_month=YYYY-MM/part-0000.parquet`. At
 small `--num-customers`, few (or zero) loans reach delinquency/default -- use at least a few
 hundred customers to reliably see both event types.

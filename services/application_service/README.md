@@ -23,4 +23,4 @@ docker build -f services/application_service/Dockerfile -t application-service .
 docker run --rm --env-file .env application-service --output s3 --num-customers 1000
 ```
 
-Events land at `events/application_service/ApplicationSubmitted/event_date=YYYY-MM-DD/part-0000.parquet`.
+Events land at `events/application_service/ApplicationSubmitted/event_month=YYYY-MM/part-0000.parquet`.

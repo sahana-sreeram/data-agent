@@ -40,4 +40,4 @@ docker build -f services/payment_service/Dockerfile -t payment-service .
 docker run --rm --env-file .env payment-service --output s3 --contract-version v2
 ```
 
-Events land at `events/payment_service/<event_type>/event_date=YYYY-MM-DD/part-0000.parquet`.
+Events land at `events/payment_service/<event_type>/event_month=YYYY-MM/part-0000.parquet`.
