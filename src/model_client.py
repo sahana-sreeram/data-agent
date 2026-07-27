@@ -24,11 +24,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_MODEL = "gpt-5"
-# gpt-5-codex/gpt-5.1-codex are real, tool-calling-capable models but are NOT available on
-# chat.completions (confirmed live: both 404 there) -- they only work via the Responses API,
-# hence OpenAIResponsesModelClient below rather than just passing a different model string
-# to OpenAIDiagnosisModelClient.
-DEFAULT_CODEX_MODEL = "gpt-5-codex"
+# Codex-branded models (gpt-5-codex, gpt-5.1-codex) are real, tool-calling-capable models but
+# are NOT available on chat.completions at all (confirmed live: 404 there) -- only via the
+# Responses API, hence OpenAIResponsesModelClient below rather than just passing a different
+# model string to OpenAIDiagnosisModelClient. Whether a given API key/account can actually
+# reach a codex-branded model via the Responses API is separate and account-dependent --
+# confirmed live that "gpt-5-codex" 404s ("Model not found") on at least one real account even
+# there, so the default here is the broadly-available "gpt-5" (also confirmed live to work via
+# the Responses API's forced tool_choice). Set REPAIR_MODEL to a codex-branded model name for
+# an account that does have access to one.
+DEFAULT_RESPONSES_MODEL = "gpt-5"
 # None means "don't send temperature at all". Newer reasoning models (gpt-5
 # and friends) only support their default temperature and reject any
 # explicit value, including 0.0, with a 400 error -- so we omit the
@@ -172,7 +177,7 @@ class OpenAIResponsesModelClient:
 
     def __init__(
         self,
-        model: str = DEFAULT_CODEX_MODEL,
+        model: str = DEFAULT_RESPONSES_MODEL,
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
     ) -> None:
         try:

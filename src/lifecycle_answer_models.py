@@ -115,6 +115,13 @@ def _parse_cited_metric(raw, *, called_tool_names: set, known_metric_names: set,
     if not isinstance(source_reference, str):
         raise AnswerValidationError(f"cited_metric.source_reference must be a string, got {source_reference!r}")
     normalized_reference = source_reference.removeprefix("functions.")
+    if normalized_reference not in called_tool_names and "(" in normalized_reference:
+        # Confirmed live: a model sometimes cites a bounded query tool (one that takes
+        # arguments, e.g. sample_curated_data) as "tool_name(dataset)" instead of the bare
+        # tool name -- a reasonable, self-documenting convention, just not the exact string
+        # this session actually called. Strip a trailing "(...)" before matching, same spirit
+        # as the "functions." prefix normalization above.
+        normalized_reference = normalized_reference.split("(", 1)[0]
     if normalized_reference not in called_tool_names:
         raise AnswerValidationError(
             f"cited_metric.source_reference {source_reference!r} does not match a tool actually called this session"

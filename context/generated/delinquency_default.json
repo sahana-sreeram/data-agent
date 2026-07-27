@@ -2,7 +2,7 @@
   "asset_id": "delinquency_default",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T19:59:12.101025+00:00",
+  "generated_at": "2026-07-27T20:41:49.065730+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -52,53 +52,53 @@
       },
       "loan_count": {
         "distinct_count": 4,
-        "min": 3,
-        "max": 28
+        "min": 29,
+        "max": 162
       },
       "total_funded_principal": {
         "distinct_count": 4,
-        "min": 73220.13,
-        "max": 447891.46
+        "min": 625706.02,
+        "max": 3227229.6
       },
       "delinquent_loan_count": {
-        "distinct_count": 4,
-        "min": 2,
-        "max": 11
+        "distinct_count": 3,
+        "min": 14,
+        "max": 50
       },
       "delinquency_rate": {
         "distinct_count": 4,
-        "min": 0.2143,
-        "max": 0.6667
+        "min": 0.2222,
+        "max": 0.4828
       },
       "default_count": {
-        "distinct_count": 3,
+        "distinct_count": 4,
         "min": 0,
-        "max": 2
+        "max": 8
       },
       "default_rate": {
-        "distinct_count": 3,
+        "distinct_count": 4,
         "min": 0.0,
-        "max": 0.0909
+        "max": 0.1724
       },
       "total_balance_at_default": {
         "distinct_count": 4,
         "min": 0.0,
-        "max": 29118.58
+        "max": 145699.37
       },
       "total_recovery_amount": {
-        "distinct_count": 1,
+        "distinct_count": 2,
         "min": 0.0,
-        "max": 0.0
+        "max": 3145.3
       },
       "recovery_rate": {
-        "distinct_count": 1,
+        "distinct_count": 3,
         "min": 0.0,
-        "max": 0.0
+        "max": 0.0388
       },
       "loss_rate": {
         "distinct_count": 4,
         "min": 0.0,
-        "max": 0.1296
+        "max": 0.1244
       }
     },
     "freshness": null,
@@ -109,8 +109,9 @@
       "breakdown_value",
       "loan_count",
       "total_funded_principal",
-      "delinquent_loan_count",
       "delinquency_rate",
+      "default_count",
+      "default_rate",
       "total_balance_at_default",
       "loss_rate"
     ],

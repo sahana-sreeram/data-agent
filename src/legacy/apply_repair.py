@@ -90,6 +90,13 @@ def apply_unified_diff(original_text: str, diff_text: str) -> str:
             continue
         if line.startswith("---") or line.startswith("+++"):
             continue
+        # A model asked for a "unified diff" sometimes wraps it in OpenAI's own apply_patch
+        # envelope instead ("*** Begin Patch" / "*** Update File: ..." / "*** End Patch") --
+        # confirmed live from gpt-5 via the Responses API. None of these carry diff content
+        # (a real diff line is always blank or starts with " "/"-"/"+"/"\\"), so skip them
+        # wherever they appear rather than rejecting an otherwise-valid, well-formed patch.
+        if line.startswith("***"):
+            continue
         if in_hunk:
             hunks[-1].append(line)
 

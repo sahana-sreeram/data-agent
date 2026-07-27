@@ -147,6 +147,18 @@ def test_rejects_a_value_that_exists_but_for_a_different_metric_name():
         )
 
 
+def test_accepts_source_reference_with_a_trailing_call_style_suffix():
+    # Confirmed live: a model sometimes cites a bounded query tool as "tool_name(dataset)"
+    # instead of the bare tool name -- normalized the same way "functions." prefixes are.
+    answer = parse_lifecycle_business_answer(
+        _submission("loans_funded", 23, "get_campaign_funnel(campaign_funnel)", row_identifier={"campaign_id": "CMP0008"}),
+        called_tool_names={"get_campaign_funnel"},
+        known_metric_names=KNOWN_METRICS,
+        tool_results_by_name=MULTI_ROW_RESULTS,
+    )
+    assert answer.cited_metrics[0].source_reference == "get_campaign_funnel"
+
+
 def test_rejects_source_reference_for_a_tool_not_actually_called():
     with pytest.raises(AnswerValidationError, match="does not match a tool actually called"):
         parse_lifecycle_business_answer(

@@ -253,3 +253,12 @@ def test_apply_unified_diff_rejects_context_mismatch():
 def test_apply_unified_diff_rejects_diff_with_no_hunks():
     with pytest.raises(PatchApplyError):
         apply_unified_diff("line1\n", "--- a/f\n+++ b/f\n")
+
+
+def test_apply_unified_diff_tolerates_the_apply_patch_envelope():
+    # Confirmed live: gpt-5 (via the Responses API) sometimes wraps an otherwise well-formed
+    # unified diff in OpenAI's own apply_patch envelope instead of a bare unified diff --
+    # these wrapper lines carry no diff content and must be skipped, not rejected.
+    original = "line1\nline2\nline3\n"
+    diff = "*** Begin Patch\n*** Update File: f\n@@\n line1\n-line2\n+new line\n line3\n*** End Patch"
+    assert apply_unified_diff(original, diff) == "line1\nnew line\nline3\n"
