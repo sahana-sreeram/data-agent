@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lifecycle Data Agent</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+  <h1>Lifecycle Data Agent</h1>
+  <div id="health-banner" class="banner">Checking pipeline health...</div>
+</header>
+
+<main>
+  <form id="ask-form">
+    <input id="question-input" type="text" placeholder="e.g. Which risk segment has the highest approval rate?" autocomplete="off" />
+    <button id="ask-button" type="submit">Ask</button>
+  </form>
+
+  <div id="spinner" class="spinner hidden">Working -- this can take a few minutes if a pipeline needs to be repaired...</div>
+  <div id="error" class="error hidden"></div>
+
+  <section id="results" class="hidden">
+    <section class="card">
+      <h2>Question</h2>
+      <p id="question-echo"></p>
+    </section>
+
+    <section class="card">
+      <h2>Answer</h2>
+      <div id="answer-block"></div>
+    </section>
+
+    <section class="card">
+      <h2>Relevant pipelines</h2>
+      <div id="relevant-pipelines"></div>
+    </section>
+
+    <section id="validation-failures-card" class="card hidden">
+      <h2>Validation failures</h2>
+      <div id="validation-failures"></div>
+    </section>
+
+    <section id="self-heal-card" class="card hidden">
+      <h2>Self-healing</h2>
+      <div id="self-heal"></div>
+    </section>
+
+    <section id="corrected-answer-card" class="card corrected hidden">
+      <h2>Corrected answer</h2>
+      <div id="corrected-answer-block"></div>
+    </section>
+  </section>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
