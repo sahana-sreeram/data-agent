@@ -368,6 +368,86 @@ def run_upstream_contract_scenario(
     }
 
 
+def _precision_recall(expected: set, actual: set) -> dict:
+    true_positives = len(expected & actual)
+    precision = true_positives / len(actual) if actual else (1.0 if not expected else 0.0)
+    recall = true_positives / len(expected) if expected else 1.0
+    return {
+        "precision": precision,
+        "recall": recall,
+        "f1": (2 * precision * recall / (precision + recall)) if (precision + recall) else 0.0,
+        "expected": sorted(expected),
+        "actual": sorted(actual),
+        "missing": sorted(expected - actual),
+        "extra": sorted(actual - expected),
+    }
+
+
+# Deterministic ground truth for src.context_enrichment.code_enricher's structural
+# extraction, measured directly against each pipeline's real ETL source (see the project
+# plan's Phase 9/Ongoing notes) -- precision/recall against known-correct joins and
+# business-rule references, not an LLM judge's opinion of whether the extraction "looks
+# right." A join is (right_side_table, tuple(on_columns), how); empty for pipelines whose
+# real ETL genuinely has no src.join() call our regex targets (delinquency_default,
+# payment_performance aggregate/filter rather than join).
+CONTEXT_EXTRACTION_GROUND_TRUTH: dict[str, dict] = {
+    "loan_portfolio": {"joins": {("net_paid_by_loan", ("loan_id",), "left")}, "business_rule_references": {"interest_accrual", "successful_payment_statuses"}},
+    "delinquency_default": {"joins": set(), "business_rule_references": {"loss_rate_denominator"}},
+    "payment_performance": {"joins": set(), "business_rule_references": {"prepayment_threshold_days", "successful_payment_statuses"}},
+    "campaign_funnel": {
+        "joins": {
+            ("app_attribution", ("application_id",), "inner"),
+            ("emails_by_campaign", ("campaign_key",), "left"),
+            ("offers_by_campaign", ("campaign_key",), "left"),
+            ("applications_by_campaign", ("campaign_key",), "left"),
+            ("approved_by_campaign", ("campaign_key",), "left"),
+            ("loans_by_campaign", ("campaign_key",), "left"),
+        },
+        "business_rule_references": set(),
+    },
+    "underwriting_performance": {"joins": {("app_customer", ("application_id",), "inner")}, "business_rule_references": set()},
+}
+
+
+def score_context_extraction() -> dict:
+    """Precision/recall of the deterministic structural extractor
+    (src.context_enrichment.code_enricher) against known-correct ground truth for every
+    registered pipeline's real ETL source. No model call -- this measures the code_enricher
+    itself, which is also what Codex enrichment's structural baseline relies on."""
+    from src.context_enrichment.code_enricher import enrich_pipeline_structurally
+
+    by_pipeline = {}
+    for pipeline_name, ground_truth in CONTEXT_EXTRACTION_GROUND_TRUTH.items():
+        metadata = enrich_pipeline_structurally(pipeline_name)
+        actual_joins = {(j.right, tuple(j.on), j.how) for j in metadata.joins}
+        by_pipeline[pipeline_name] = {
+            "joins": _precision_recall(ground_truth["joins"], actual_joins),
+            "business_rule_references": _precision_recall(ground_truth["business_rule_references"], set(metadata.business_rule_lookups)),
+        }
+
+    overall_f1 = _mean(
+        [by_pipeline[p][kind]["f1"] for p in by_pipeline for kind in ("joins", "business_rule_references")]
+    )
+    return {"by_pipeline": by_pipeline, "overall_f1": overall_f1}
+
+
+PR_ARTIFACT_REQUIRED_FIELDS = (
+    "run_id", "pipeline_name", "target_file", "diff", "diagnosis_summary", "root_cause_category",
+    "failed_checks_before", "tests_status", "metrics_after", "risk_classification", "human_review_required",
+)
+
+
+def score_pr_artifact_completeness(pr_artifact: dict | None) -> dict:
+    """Whether a create_pr-mode result actually contains everything the project's Part 6
+    deliverable list calls for: branch/diff, diagnosis summary, root cause, failed checks,
+    tests run, metrics, risk classification, human-review flag. None (no artifact -- e.g. the
+    repair was BLOCKED before verification) is reported distinctly from an incomplete one."""
+    if pr_artifact is None:
+        return {"complete": False, "present": False, "missing_fields": list(PR_ARTIFACT_REQUIRED_FIELDS)}
+    missing = [field for field in PR_ARTIFACT_REQUIRED_FIELDS if pr_artifact.get(field) is None]
+    return {"complete": not missing, "present": True, "missing_fields": missing}
+
+
 def run_refusal_accuracy_suite() -> dict:
     """Deterministic (no model, no Spark) accuracy check against the real, production
     repair-eligibility gate (src.repair_models.evaluate_repair_eligibility) -- the actual
@@ -490,7 +570,19 @@ def run_evals(
         scenario_results.append(result)
 
     refusal = run_refusal_accuracy_suite()
-    return {"scenarios": scenario_results, "refusal_accuracy": refusal, "summary": _summarize(scenario_results, refusal)}
+    context_extraction = score_context_extraction()
+    pr_artifact_scores = {
+        r["scenario_name"]: score_pr_artifact_completeness((r.get("verify") or {}).get("pr_artifact"))
+        for r in scenario_results
+        if not r.get("error")
+    }
+    return {
+        "scenarios": scenario_results,
+        "refusal_accuracy": refusal,
+        "context_extraction": context_extraction,
+        "pr_artifact_scores": pr_artifact_scores,
+        "summary": _summarize(scenario_results, refusal),
+    }
 
 
 def print_eval_report(report: dict) -> None:
@@ -523,6 +615,17 @@ def print_eval_report(report: dict) -> None:
                 f"    {r['scenario_name']:<40} diagnosis={r['diagnosis']['status']}/{r['diagnosis']['root_cause_category']} "
                 f"repair={r['repair']['repair_status']} verify={r['verify']['verification_status']}"
             )
+    if "context_extraction" in report:
+        print(f"  context_extraction overall_f1: {report['context_extraction']['overall_f1']:.2f}")
+        for pipeline_name, scores in report["context_extraction"]["by_pipeline"].items():
+            print(
+                f"    {pipeline_name:<26} joins_f1={scores['joins']['f1']:.2f} "
+                f"business_rule_refs_f1={scores['business_rule_references']['f1']:.2f}"
+            )
+    if report.get("pr_artifact_scores"):
+        print("  pr_artifact_scores:")
+        for scenario_name, score in report["pr_artifact_scores"].items():
+            print(f"    {scenario_name:<40} present={score['present']} complete={score['complete']}")
     print("  refusal accuracy cases:")
     for c in report["refusal_accuracy"]["cases"]:
         mark = "OK" if c["correct"] else "WRONG"

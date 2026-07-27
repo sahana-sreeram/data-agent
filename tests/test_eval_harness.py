@@ -82,6 +82,85 @@ def test_ensure_spark_session_treats_an_inspection_failure_as_stopped(monkeypatc
     assert eval_harness_module._ensure_spark_session(broken_spark) is fresh
 
 
+# --- score_context_extraction / score_pr_artifact_completeness ----------------------------
+
+
+def test_score_context_extraction_scores_every_registered_ground_truth_pipeline():
+    report = eval_harness_module.score_context_extraction()
+    assert set(report["by_pipeline"]) == set(eval_harness_module.CONTEXT_EXTRACTION_GROUND_TRUTH)
+    for pipeline_name, scores in report["by_pipeline"].items():
+        assert 0.0 <= scores["joins"]["f1"] <= 1.0
+        assert 0.0 <= scores["business_rule_references"]["f1"] <= 1.0
+    assert 0.0 <= report["overall_f1"] <= 1.0
+
+
+def test_score_context_extraction_scores_loan_portfolio_perfectly_against_real_source():
+    """loan_portfolio's real ETL source is known, stable, and already covered by its own
+    eval scenario -- its extraction should be a perfect match, not just "some score"."""
+    report = eval_harness_module.score_context_extraction()
+    loan_portfolio = report["by_pipeline"]["loan_portfolio"]
+    assert loan_portfolio["joins"]["f1"] == 1.0
+    assert loan_portfolio["joins"]["missing"] == []
+    assert loan_portfolio["joins"]["extra"] == []
+    assert loan_portfolio["business_rule_references"]["f1"] == 1.0
+
+
+def test_precision_recall_penalizes_missing_and_extra_items():
+    result = eval_harness_module._precision_recall(expected={"a", "b", "c"}, actual={"a", "b", "d"})
+    assert result["missing"] == ["c"]
+    assert result["extra"] == ["d"]
+    assert 0.0 < result["precision"] < 1.0
+    assert 0.0 < result["recall"] < 1.0
+
+
+def test_precision_recall_perfect_match_scores_1():
+    result = eval_harness_module._precision_recall(expected={"a", "b"}, actual={"a", "b"})
+    assert result["precision"] == 1.0
+    assert result["recall"] == 1.0
+    assert result["f1"] == 1.0
+
+
+def test_precision_recall_empty_expected_and_actual_scores_1():
+    result = eval_harness_module._precision_recall(expected=set(), actual=set())
+    assert result["precision"] == 1.0
+    assert result["recall"] == 1.0
+
+
+def test_score_pr_artifact_completeness_reports_absent_when_none():
+    result = eval_harness_module.score_pr_artifact_completeness(None)
+    assert result == {"complete": False, "present": False, "missing_fields": list(eval_harness_module.PR_ARTIFACT_REQUIRED_FIELDS)}
+
+
+def test_score_pr_artifact_completeness_detects_missing_fields():
+    incomplete = {"run_id": "x", "pipeline_name": "loan_portfolio"}
+    result = eval_harness_module.score_pr_artifact_completeness(incomplete)
+    assert result["present"] is True
+    assert result["complete"] is False
+    assert "diff" in result["missing_fields"]
+
+
+def test_score_pr_artifact_completeness_accepts_a_real_artifact_shape():
+    from src.pr_artifact import build_pr_artifact
+
+    artifact = build_pr_artifact(
+        pipeline_name="loan_portfolio",
+        run_id="r1",
+        target_file="src/etl_spark_loan_portfolio.py",
+        original_content="a\n",
+        patched_content="b\n",
+        diagnosis={"root_cause_category": "ETL_LOGIC", "root_cause": "x"},
+        repair_plan={"change_summary": "x"},
+        validation_before={"checks": []},
+        validation_after={"checks": []},
+        metrics_before={},
+        metrics_after={"m": 1},
+        tests_status={"targeted": "PASS"},
+        create_branch=False,
+    )
+    result = eval_harness_module.score_pr_artifact_completeness(artifact)
+    assert result == {"complete": True, "present": True, "missing_fields": []}
+
+
 # --- run_refusal_accuracy_suite ------------------------------------------------------------
 
 

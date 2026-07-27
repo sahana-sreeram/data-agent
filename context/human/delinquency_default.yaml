@@ -1,0 +1,25 @@
+# Minimal human-approved semantic context for delinquency_default. Only facts a human can
+# authoritatively decide live here -- everything derivable from code/schema/runtime lives in
+# context/generated/delinquency_default.json instead (see src/context_enrichment/).
+
+data_product: delinquency_default
+authoritative: true
+owner: risk-data-team
+
+metrics:
+  loss_rate:
+    canonical_definition: >
+      Net unrecovered defaulted balance divided by total funded principal.
+    business_rule:
+      denominator: total_funded_principal
+    approved_by: risk-finance
+    approval_status: APPROVED
+
+repair_policy:
+  auto_repair:
+    - ETL_LOGIC_JOIN
+    - BUSINESS_RULE_MISMATCH
+    - DUPLICATION
+  human_review:
+    - SOURCE_CONTRACT_CHANGE
+    - AMBIGUOUS_BUSINESS_SEMANTICS
