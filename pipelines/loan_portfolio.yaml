@@ -1,0 +1,33 @@
+name: loan_portfolio
+
+inputs:
+  - dataset: loans
+    source_service: loan_service
+  - dataset: payment_events
+    source_service: payment_service
+
+outputs:
+  - curated/loan_portfolio.parquet
+
+runtime:
+  engine: spark
+  source_file: src/etl_spark_loan_portfolio.py
+  functions:
+    - compute_loan_portfolio
+
+validation:
+  module: src.validate_loan_portfolio
+  function: validate_loan_portfolio
+  rules_file: context/validations/loan_portfolio.json
+
+metrics_file: context/metrics/loan_portfolio.json
+lineage_key: curated.loan_portfolio
+test_file: tests/test_etl_spark_loan_portfolio.py
+
+repair:
+  allowed_files:
+    - src/etl_spark_loan_portfolio.py
+  mode: open_pr
+
+context:
+  human_annotation: context/human/loan_portfolio.yaml

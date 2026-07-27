@@ -1,0 +1,39 @@
+name: underwriting_performance
+
+inputs:
+  - dataset: underwriting_decisions
+    source_service: underwriting_service
+  - dataset: applications
+    source_service: application_service
+  - dataset: customers
+    source_service: marketing_service
+
+outputs:
+  - curated/underwriting_performance.parquet
+  - curated/underwriting_performance_rejections.parquet
+
+runtime:
+  engine: spark
+  source_file: src/etl_spark_underwriting_performance.py
+  functions:
+    - compute_underwriting_performance
+    - compute_rejection_distribution
+    - _decisions_with_risk_segment
+    - _breakdown
+
+validation:
+  module: src.validate_underwriting_performance
+  function: validate_underwriting_performance
+  rules_file: context/validations/underwriting_performance.json
+
+metrics_file: context/metrics/underwriting_performance.json
+lineage_key: curated.underwriting_performance
+test_file: tests/test_etl_spark_underwriting_performance.py
+
+repair:
+  allowed_files:
+    - src/etl_spark_underwriting_performance.py
+  mode: open_pr
+
+context:
+  human_annotation: context/human/underwriting_performance.yaml

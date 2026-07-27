@@ -1,0 +1,38 @@
+name: delinquency_default
+
+inputs:
+  - dataset: loans
+    source_service: loan_service
+  - dataset: customers
+    source_service: marketing_service
+  - dataset: delinquency_events
+    source_service: risk_service
+  - dataset: defaults
+    source_service: risk_service
+
+outputs:
+  - curated/delinquency_default.parquet
+
+runtime:
+  engine: spark
+  source_file: src/etl_spark_delinquency_default.py
+  functions:
+    - compute_delinquency_default
+    - _metrics_for_group
+
+validation:
+  module: src.validate_delinquency_default
+  function: validate_delinquency_default
+  rules_file: context/validations/delinquency_default.json
+
+metrics_file: context/metrics/delinquency_default.json
+lineage_key: curated.delinquency_default
+test_file: tests/test_etl_spark_delinquency_default.py
+
+repair:
+  allowed_files:
+    - src/etl_spark_delinquency_default.py
+  mode: open_pr
+
+context:
+  human_annotation: context/human/delinquency_default.yaml
