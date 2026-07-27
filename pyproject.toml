@@ -3,7 +3,7 @@ name = "data-agent"
 version = "0.1.0"
 description = "Self-healing enterprise data-agent MVP: synthetic data generation for a simulated lending company"
 requires-python = ">=3.12"
-dependencies = ["pandas", "openai", "python-dotenv", "fastapi", "uvicorn", "pyspark", "boto3"]
+dependencies = ["pandas", "openai", "python-dotenv", "fastapi", "uvicorn", "pyspark", "boto3", "pydantic", "pyyaml"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
