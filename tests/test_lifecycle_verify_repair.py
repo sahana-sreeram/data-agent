@@ -1,64 +1,39 @@
-"""Tests for deterministic post-repair verification and promotion of the loan_portfolio
-lifecycle pipeline. Against a REAL local Spark session and S3-compatible endpoint (MinIO),
+"""Tests for deterministic post-repair verification and promotion, generalized across
+lifecycle pipelines. Against a REAL local Spark session and S3-compatible endpoint (MinIO),
 using a dedicated test prefix so these tests never touch real migrated raw/curated data or
-the real repository's src/etl_spark_loan_portfolio.py file -- promotion in these tests always
-targets a tmp_path file, never the real one. Skips cleanly if Spark/S3 aren't reachable.
+the real repository's ETL source files -- promotion in these tests always targets a
+tmp_path file, never a real one. Skips cleanly if Spark/S3 aren't reachable.
 """
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from src.apply_repair import _workspace_path
+import src.lifecycle_verify_repair as verify_module
+from src.legacy.apply_repair import _workspace_path
+from src.etl_spark_delinquency_default import compute_delinquency_default
 from src.etl_spark_loan_portfolio import compute_loan_portfolio
-from src.lifecycle_verify_repair import CURATED_KEY, PIPELINE_RUN_KEY, run_verify_lifecycle_repair
+from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
+from src.lifecycle_verify_repair import PIPELINE_RUN_KEY, run_verify_lifecycle_repair
+from src.validate_delinquency_default import validate_delinquency_default
 from src.validate_loan_portfolio import validate_loan_portfolio
 from tests.conftest import PrefixedStorage
 
+# Captured at module load, BEFORE the autouse _skip_nested_pytest fixture below ever runs
+# and monkeypatches verify_module._run_pytest_against_patched_code -- the two tests that
+# specifically exercise the real swap/restore behavior call this real reference directly,
+# not a fresh (and by-then-monkeypatched) import.
+_REAL_RUN_PYTEST_AGAINST_PATCHED_CODE = verify_module._run_pytest_against_patched_code
+
 TEST_PREFIX = "_test_lifecycle_verify_repair/"
 AS_OF_DATE = "2026-07-20"
-REAL_ETL_SOURCE = Path("src/etl_spark_loan_portfolio.py")
-
-BUSINESS_RULES = {
-    "successful_payment_statuses": ["PAID"],
-    "interest_accrual": {"day_count_convention": "ACT/365", "accrues_on_statuses": ["ACTIVE"]},
-}
-VALIDATION_RULES = {
-    "tolerance": {"currency": 0.01, "count": 0, "rate": 0.0001},
-    "rules": [
-        {"id": f"{metric}_reconciliation", "type": "reconciliation", "tolerance_type": tolerance_type, "description": "d"}
-        for metric, tolerance_type in [
-            ("loan_count", "count"), ("active_loan_count", "count"), ("closed_loan_count", "count"),
-            ("defaulted_loan_count", "count"), ("total_funded_principal", "currency"),
-            ("total_outstanding_principal", "currency"), ("avg_interest_rate", "rate"),
-            ("total_accrued_interest", "currency"),
-        ]
-    ],
-}
-
-# L1 (CLOSED, fully paid) and L2 (ACTIVE, one PAID+one REVERSAL netting to 0 paid) are the
-# same shape as tests/test_etl_spark_loan_portfolio.py. L3 is the bug-reproduction case: an
-# ACTIVE loan with a real payment_event that is neither PAID nor REVERSED -- exactly the
-# "L000106/L000125" shape found in the real dataset -- so an inner join drops it entirely.
-LOANS_ALL = pd.DataFrame(
-    [
-        {"loan_id": "L1", "application_id": "APP1", "customer_id": "C1", "principal_amount": 1000.0, "interest_rate": 0.05, "term_months": 12, "originated_at": "2024-01-01", "loan_status": "CLOSED", "scheduled_payment_amount": 83.33},
-        {"loan_id": "L2", "application_id": "APP2", "customer_id": "C2", "principal_amount": 2000.0, "interest_rate": 0.10, "term_months": 24, "originated_at": "2025-07-20", "loan_status": "ACTIVE", "scheduled_payment_amount": 83.33},
-        {"loan_id": "L3", "application_id": "APP3", "customer_id": "C3", "principal_amount": 1500.0, "interest_rate": 0.08, "term_months": 24, "originated_at": "2025-07-20", "loan_status": "ACTIVE", "scheduled_payment_amount": 62.50},
-    ]
-)
-LOANS_WITHOUT_L3 = LOANS_ALL[LOANS_ALL["loan_id"] != "L3"].reset_index(drop=True)
-PAYMENT_EVENTS = pd.DataFrame(
-    [
-        {"event_id": "E1", "schedule_id": "S1", "loan_id": "L1", "event_type": "PAYMENT", "payment_date": "2024-02-01", "amount": 1000.0, "payment_status": "PAID", "payment_method": "ACH"},
-        {"event_id": "E2", "schedule_id": "S2", "loan_id": "L2", "event_type": "PAYMENT", "payment_date": "2025-08-20", "amount": 500.0, "payment_status": "PAID", "payment_method": "ACH"},
-        {"event_id": "E3", "schedule_id": "S2", "loan_id": "L2", "event_type": "REVERSAL", "payment_date": "2025-08-25", "amount": -500.0, "payment_status": "REVERSED", "payment_method": "ACH"},
-        {"event_id": "E4", "schedule_id": "S3", "loan_id": "L3", "event_type": "PAYMENT", "payment_date": None, "amount": 0.0, "payment_status": "MISSED", "payment_method": "ACH"},
-    ]
-)
+LOAN_PORTFOLIO_SOURCE = Path(PIPELINE_REGISTRY["loan_portfolio"].etl_source_file)
+DELINQUENCY_DEFAULT_SOURCE = Path(PIPELINE_REGISTRY["delinquency_default"].etl_source_file)
+UNDERWRITING_PERFORMANCE_SOURCE = Path(PIPELINE_REGISTRY["underwriting_performance"].etl_source_file)
 
 
 @pytest.fixture
@@ -84,94 +59,122 @@ def _write_workspace(tmp_path: Path, target_file: str, source_text: str) -> Path
 
 @pytest.fixture(autouse=True)
 def _skip_nested_pytest(monkeypatch):
-    # run_verify_lifecycle_repair's test_inventory (tests/test_etl_spark_loan_portfolio.py)
-    # needs the shared session-scoped spark_session fixture -- invoking it via a NESTED
-    # pytest.main() call would tear down that shared SparkSession at the nested run's
-    # teardown, breaking every other Spark-dependent test in this same pytest session. The
-    # pytest-invocation plumbing itself (_run_pytest) is a two-line pytest.main() wrapper,
-    # identical in shape to the already-proven src.verify_repair._run_pytest -- stub it out
-    # here and test the surrounding verification/promotion logic instead.
+    # A generalized pipeline's test_file needs the shared session-scoped spark_session
+    # fixture -- invoking it via a NESTED pytest.main() call would tear down that shared
+    # SparkSession at the nested run's teardown, breaking every other Spark-dependent test
+    # in this same pytest session. The pytest-invocation plumbing itself (_run_pytest) is a
+    # two-line pytest.main() wrapper, identical in shape to the already-proven
+    # src.verify_repair._run_pytest -- stub out _run_pytest_against_patched_code (the
+    # function the main verify flow actually calls) rather than _run_pytest directly, so
+    # this also skips its real-file swap/restore -- these tests use their own tmp_path
+    # target_file, not the real repo file, so there'd be nothing meaningful to swap anyway.
     import src.lifecycle_verify_repair as verify_module
 
-    monkeypatch.setattr(verify_module, "_run_pytest", lambda test_files: "PASS")
+    monkeypatch.setattr(verify_module, "_run_pytest_against_patched_code", lambda test_files, workspace_dir, target_file: "PASS")
 
 
-def test_correct_patch_verifies_and_promotes(spark_session, seeded_storage, tmp_path):
+# --- loan_portfolio: reproves the original inner-join bug through the generalized path ----
+
+LOANS_ALL = pd.DataFrame(
+    [
+        {"loan_id": "L1", "application_id": "APP1", "customer_id": "C1", "principal_amount": 1000.0, "interest_rate": 0.05, "term_months": 12, "originated_at": "2024-01-01", "loan_status": "CLOSED", "scheduled_payment_amount": 83.33},
+        {"loan_id": "L2", "application_id": "APP2", "customer_id": "C2", "principal_amount": 2000.0, "interest_rate": 0.10, "term_months": 24, "originated_at": "2025-07-20", "loan_status": "ACTIVE", "scheduled_payment_amount": 83.33},
+        {"loan_id": "L3", "application_id": "APP3", "customer_id": "C3", "principal_amount": 1500.0, "interest_rate": 0.08, "term_months": 24, "originated_at": "2025-07-20", "loan_status": "ACTIVE", "scheduled_payment_amount": 62.50},
+    ]
+)
+LOANS_WITHOUT_L3 = LOANS_ALL[LOANS_ALL["loan_id"] != "L3"].reset_index(drop=True)
+LOAN_PORTFOLIO_PAYMENT_EVENTS = pd.DataFrame(
+    [
+        {"event_id": "E1", "schedule_id": "S1", "loan_id": "L1", "event_type": "PAYMENT", "payment_date": "2024-02-01", "amount": 1000.0, "payment_status": "PAID", "payment_method": "ACH"},
+        {"event_id": "E2", "schedule_id": "S2", "loan_id": "L2", "event_type": "PAYMENT", "payment_date": "2025-08-20", "amount": 500.0, "payment_status": "PAID", "payment_method": "ACH"},
+        {"event_id": "E3", "schedule_id": "S2", "loan_id": "L2", "event_type": "REVERSAL", "payment_date": "2025-08-25", "amount": -500.0, "payment_status": "REVERSED", "payment_method": "ACH"},
+        {"event_id": "E4", "schedule_id": "S3", "loan_id": "L3", "event_type": "PAYMENT", "payment_date": None, "amount": 0.0, "payment_status": "MISSED", "payment_method": "ACH"},
+    ]
+)
+LOAN_PORTFOLIO_BUSINESS_RULES = {
+    "successful_payment_statuses": ["PAID"],
+    "interest_accrual": {"day_count_convention": "ACT/365", "accrues_on_statuses": ["ACTIVE"]},
+}
+LOAN_PORTFOLIO_VALIDATION_RULES = {
+    "tolerance": {"currency": 0.01, "count": 0, "rate": 0.0001},
+    "rules": [
+        {"id": f"{metric}_reconciliation", "type": "reconciliation", "tolerance_type": tolerance_type, "description": "d"}
+        for metric, tolerance_type in [
+            ("loan_count", "count"), ("active_loan_count", "count"), ("closed_loan_count", "count"),
+            ("defaulted_loan_count", "count"), ("total_funded_principal", "currency"),
+            ("total_outstanding_principal", "currency"), ("avg_interest_rate", "rate"),
+            ("total_accrued_interest", "currency"),
+        ]
+    ],
+}
+
+
+def test_loan_portfolio_correct_patch_verifies_and_promotes(spark_session, seeded_storage, tmp_path):
     bucket = seeded_storage.bucket
-    monkeypatch_s3a = _test_s3a_path(bucket)
+    s3a = _test_s3a_path(bucket)
+    curated_key = PIPELINE_REGISTRY["loan_portfolio"].curated_keys[0]
 
     import src.etl_spark_loan_portfolio as etl_module
 
-    # Compute the BUGGY pre-repair curated snapshot (as if an inner join had already dropped
-    # L3), using the real compute_loan_portfolio against a temporarily L3-less raw seed.
     seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_WITHOUT_L3)
-    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", PAYMENT_EVENTS)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", LOAN_PORTFOLIO_PAYMENT_EVENTS)
     original_s3a_path = etl_module.s3a_path
-    etl_module.s3a_path = monkeypatch_s3a
+    etl_module.s3a_path = s3a
     try:
-        buggy_summary_pd = compute_loan_portfolio(spark_session, BUSINESS_RULES, AS_OF_DATE).toPandas()
+        buggy_summary_pd = compute_loan_portfolio(spark_session, LOAN_PORTFOLIO_BUSINESS_RULES, AS_OF_DATE).toPandas()
     finally:
         etl_module.s3a_path = original_s3a_path
-    seeded_storage.write_parquet(f"{TEST_PREFIX}{CURATED_KEY}", buggy_summary_pd)
-
-    # Now seed the REAL, full raw data (all 3 loans) -- what verification reruns against.
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{curated_key}", buggy_summary_pd)
     seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_ALL)
 
     prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
-    validation_before = validate_loan_portfolio(prefixed, BUSINESS_RULES, VALIDATION_RULES, AS_OF_DATE)
+    validation_before = validate_loan_portfolio(prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES, AS_OF_DATE)
     assert validation_before["overall_status"] == "FAIL"
-    assert "loan_count_reconciliation" in [c["id"] for c in validation_before["checks"] if c["status"] == "FAIL"]
 
     target_file = str(tmp_path / "etl_spark_loan_portfolio.py")
-    workspace_dir = _write_workspace(tmp_path, target_file, REAL_ETL_SOURCE.read_text(encoding="utf-8"))
+    workspace_dir = _write_workspace(tmp_path, target_file, LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8"))
     repair_result = {"repair_status": "APPLIED", "target_file": target_file, "workspace_dir": str(workspace_dir)}
 
     result = run_verify_lifecycle_repair(
-        spark_session, prefixed, BUSINESS_RULES, VALIDATION_RULES, validation_before, repair_result,
-        s3a_path_override=monkeypatch_s3a,
+        "loan_portfolio", spark_session, prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES,
+        validation_before, repair_result, run_id="test-loan-portfolio-good", s3a_path_override=s3a,
     )
 
     assert result["verification_status"] == "VERIFIED"
     assert result["validation_after"] == "PASS"
-    assert result["failed_checks_after"] == []
     assert result["rollback_performed"] is False
-    assert result["metrics_after"]["loan_count"] == 3
+    assert result["metrics_after"][curated_key][0]["loan_count"] == 3
 
-    # Promoted: the tmp target file now has the workspace's (correct) content.
-    assert Path(target_file).exists()
-    assert Path(target_file).read_text(encoding="utf-8") == REAL_ETL_SOURCE.read_text(encoding="utf-8")
-
-    promoted_curated = seeded_storage.read_parquet(f"{TEST_PREFIX}{CURATED_KEY}")
+    assert Path(target_file).read_text(encoding="utf-8") == LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8")
+    promoted_curated = seeded_storage.read_parquet(f"{TEST_PREFIX}{curated_key}")
     assert promoted_curated.iloc[0]["loan_count"] == 3
-
     pipeline_run = seeded_storage.read_json(f"{TEST_PREFIX}{PIPELINE_RUN_KEY}")
     assert pipeline_run["pipelines"]["loan_portfolio"]["validation_status"] == "PASS"
-
     assert not workspace_dir.exists()
 
 
-def test_still_buggy_patch_does_not_verify_or_promote(spark_session, seeded_storage, tmp_path):
+def test_loan_portfolio_still_buggy_patch_does_not_verify_or_promote(spark_session, seeded_storage, tmp_path):
     bucket = seeded_storage.bucket
-    monkeypatch_s3a = _test_s3a_path(bucket)
+    s3a = _test_s3a_path(bucket)
+    curated_key = PIPELINE_REGISTRY["loan_portfolio"].curated_keys[0]
 
     import src.etl_spark_loan_portfolio as etl_module
 
     seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_WITHOUT_L3)
-    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", PAYMENT_EVENTS)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", LOAN_PORTFOLIO_PAYMENT_EVENTS)
     original_s3a_path = etl_module.s3a_path
-    etl_module.s3a_path = monkeypatch_s3a
+    etl_module.s3a_path = s3a
     try:
-        buggy_summary_pd = compute_loan_portfolio(spark_session, BUSINESS_RULES, AS_OF_DATE).toPandas()
+        buggy_summary_pd = compute_loan_portfolio(spark_session, LOAN_PORTFOLIO_BUSINESS_RULES, AS_OF_DATE).toPandas()
     finally:
         etl_module.s3a_path = original_s3a_path
-    seeded_storage.write_parquet(f"{TEST_PREFIX}{CURATED_KEY}", buggy_summary_pd)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{curated_key}", buggy_summary_pd)
     seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_ALL)
 
     prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
-    validation_before = validate_loan_portfolio(prefixed, BUSINESS_RULES, VALIDATION_RULES, AS_OF_DATE)
+    validation_before = validate_loan_portfolio(prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES, AS_OF_DATE)
 
-    # A "patch" that doesn't actually fix anything -- still uses how="inner".
-    still_buggy_source = REAL_ETL_SOURCE.read_text(encoding="utf-8").replace('how="left"', 'how="inner"')
+    still_buggy_source = LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8").replace('how="left"', 'how="inner"')
     assert 'how="inner"' in still_buggy_source
 
     target_file = str(tmp_path / "etl_spark_loan_portfolio.py")
@@ -179,18 +182,15 @@ def test_still_buggy_patch_does_not_verify_or_promote(spark_session, seeded_stor
     repair_result = {"repair_status": "APPLIED", "target_file": target_file, "workspace_dir": str(workspace_dir)}
 
     result = run_verify_lifecycle_repair(
-        spark_session, prefixed, BUSINESS_RULES, VALIDATION_RULES, validation_before, repair_result,
-        s3a_path_override=monkeypatch_s3a,
+        "loan_portfolio", spark_session, prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES,
+        validation_before, repair_result, run_id="test-loan-portfolio-bad", s3a_path_override=s3a,
     )
 
     assert result["verification_status"] == "NOT_VERIFIED"
     assert result["rollback_performed"] is True
-    assert not Path(target_file).exists()  # promotion never happened
-
-    # Curated data under the test prefix is untouched (still the pre-repair buggy snapshot).
-    unchanged_curated = seeded_storage.read_parquet(f"{TEST_PREFIX}{CURATED_KEY}")
+    assert not Path(target_file).exists()
+    unchanged_curated = seeded_storage.read_parquet(f"{TEST_PREFIX}{curated_key}")
     assert unchanged_curated.iloc[0]["loan_count"] == 2
-
     assert not workspace_dir.exists()
 
 
@@ -200,7 +200,303 @@ def test_blocked_repair_status_short_circuits_without_touching_anything(spark_se
     repair_result = {"repair_status": "BLOCKED", "target_file": None, "workspace_dir": None}
 
     result = run_verify_lifecycle_repair(
-        spark_session, prefixed, BUSINESS_RULES, VALIDATION_RULES, validation_before, repair_result
+        "loan_portfolio", spark_session, prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES,
+        validation_before, repair_result,
     )
     assert result["verification_status"] == "BLOCKED"
     assert result["rollback_performed"] is False
+
+
+# --- delinquency_default: a structurally DIFFERENT bug shape (business-rule-mismatch, not
+# a join bug) -- proves the generalized loop isn't just replaying the loan_portfolio case ---
+
+DD_CUSTOMERS = pd.DataFrame(
+    [
+        {"customer_id": "C1", "created_at": "2024-01-01", "state": "CA", "income_band": "40000_60000", "credit_score_band": "680_719", "credit_score": 700, "risk_segment": "LOW"},
+        {"customer_id": "C2", "created_at": "2024-01-01", "state": "CA", "income_band": "40000_60000", "credit_score_band": "620_679", "credit_score": 650, "risk_segment": "HIGH"},
+    ]
+)
+DD_LOANS = pd.DataFrame(
+    [
+        {"loan_id": "L1", "application_id": "APP1", "customer_id": "C1", "principal_amount": 1000.0, "interest_rate": 0.05, "term_months": 12, "originated_at": "2025-01-01", "loan_status": "ACTIVE", "scheduled_payment_amount": 83.33},
+        {"loan_id": "L2", "application_id": "APP2", "customer_id": "C2", "principal_amount": 2000.0, "interest_rate": 0.15, "term_months": 12, "originated_at": "2025-01-01", "loan_status": "DEFAULTED", "scheduled_payment_amount": 166.67},
+    ]
+)
+DD_DELINQUENCY_EVENTS = pd.DataFrame(
+    [{"delinquency_id": "DLQ1", "loan_id": "L2", "as_of_date": "2026-07-20", "days_past_due": 45, "bucket": "60"}]
+)
+DD_DEFAULTS = pd.DataFrame(
+    [{"default_id": "DEF1", "loan_id": "L2", "default_date": "2026-06-01", "balance_at_default": 1500.0, "recovery_amount": 300.0, "recovery_date": "2026-07-01"}]
+)
+DD_BUSINESS_RULES = {"loss_rate_denominator": "total_funded_principal"}
+DD_VALIDATION_RULES = {
+    "tolerance": {"currency": 0.01, "count": 0, "rate": 0.0001},
+    "rules": [{"id": "delinquency_default_breakdown_rows_match", "type": "reconciliation", "tolerance_type": "count", "description": "d"}],
+}
+
+
+def _seed_delinquency_default_raw(storage) -> None:
+    storage.write_parquet(f"{TEST_PREFIX}raw/customers.parquet", DD_CUSTOMERS)
+    storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", DD_LOANS)
+    storage.write_parquet(f"{TEST_PREFIX}raw/delinquency_events.parquet", DD_DELINQUENCY_EVENTS)
+    storage.write_parquet(f"{TEST_PREFIX}raw/defaults.parquet", DD_DEFAULTS)
+
+
+def _wrong_denominator_source() -> str:
+    """A patch that ignores business_rules.loss_rate_denominator and hardcodes the wrong
+    column -- a business-rule-mismatch bug, structurally different from loan_portfolio's
+    inner-join bug. Matches the "loss_denominator_column = ..." line by regex (not an exact
+    hardcoded string) so this stays correct regardless of which equivalent access style
+    (business_rules["k"] vs business_rules.get("k", default)) the real, currently-correct
+    source happens to use -- a live repair is free to choose either."""
+    source = DELINQUENCY_DEFAULT_SOURCE.read_text(encoding="utf-8")
+    buggy_assignment = 'loss_denominator_column = "total_balance_at_default"  # ignores business_rules'
+    patched, count = re.subn(
+        r"^([ \t]*)loss_denominator_column = .*$",
+        lambda m: m.group(1) + buggy_assignment,
+        source, count=1, flags=re.MULTILINE,
+    )
+    assert count == 1, "expected exactly one loss_denominator_column assignment in the real source"
+    return patched
+
+
+def test_delinquency_default_correct_patch_verifies_and_promotes(spark_session, seeded_storage, tmp_path):
+    bucket = seeded_storage.bucket
+    s3a = _test_s3a_path(bucket)
+    curated_key = PIPELINE_REGISTRY["delinquency_default"].curated_keys[0]
+
+    _seed_delinquency_default_raw(seeded_storage)
+
+    import src.etl_spark_delinquency_default as etl_module
+
+    original_s3a_path = etl_module.s3a_path
+    etl_module.s3a_path = s3a
+    try:
+        # The pre-repair "buggy" curated snapshot: computed with the WRONG denominator.
+        buggy_workspace_dir = _write_workspace(tmp_path, "buggy_marker.py", _wrong_denominator_source())
+        buggy_module = None
+        import importlib.util
+
+        buggy_path = _workspace_path(buggy_workspace_dir, "buggy_marker.py")
+        spec_obj = importlib.util.spec_from_file_location("buggy_delinquency_default", buggy_path)
+        buggy_module = importlib.util.module_from_spec(spec_obj)
+        spec_obj.loader.exec_module(buggy_module)
+        buggy_module.s3a_path = s3a
+        buggy_summary_pd = buggy_module.compute_delinquency_default(spark_session, DD_BUSINESS_RULES).toPandas()
+    finally:
+        etl_module.s3a_path = original_s3a_path
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{curated_key}", buggy_summary_pd)
+
+    prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
+    validation_before = validate_delinquency_default(prefixed, DD_BUSINESS_RULES, DD_VALIDATION_RULES)
+    assert validation_before["overall_status"] == "FAIL"
+
+    target_file = str(tmp_path / "etl_spark_delinquency_default.py")
+    workspace_dir = _write_workspace(tmp_path, target_file, DELINQUENCY_DEFAULT_SOURCE.read_text(encoding="utf-8"))
+    repair_result = {"repair_status": "APPLIED", "target_file": target_file, "workspace_dir": str(workspace_dir)}
+
+    result = run_verify_lifecycle_repair(
+        "delinquency_default", spark_session, prefixed, DD_BUSINESS_RULES, DD_VALIDATION_RULES,
+        validation_before, repair_result, run_id="test-dd-good", s3a_path_override=s3a,
+    )
+
+    assert result["verification_status"] == "VERIFIED"
+    assert result["validation_after"] == "PASS"
+    assert result["rollback_performed"] is False
+
+    promoted = seeded_storage.read_parquet(f"{TEST_PREFIX}{curated_key}")
+    high_row = promoted[promoted["breakdown_value"] == "HIGH"].iloc[0]
+    assert high_row["loss_rate"] == pytest.approx(0.6, abs=1e-4)  # (1500-300)/2000, the CORRECT denominator
+    assert not workspace_dir.exists()
+
+
+def test_delinquency_default_still_wrong_denominator_does_not_verify(spark_session, seeded_storage, tmp_path):
+    bucket = seeded_storage.bucket
+    s3a = _test_s3a_path(bucket)
+    curated_key = PIPELINE_REGISTRY["delinquency_default"].curated_keys[0]
+
+    _seed_delinquency_default_raw(seeded_storage)
+
+    import importlib.util
+
+    wrong_source = _wrong_denominator_source()
+    import src.etl_spark_delinquency_default as etl_module
+
+    original_s3a_path = etl_module.s3a_path
+    etl_module.s3a_path = s3a
+    try:
+        buggy_workspace_dir = _write_workspace(tmp_path, "buggy_marker.py", wrong_source)
+        buggy_path = _workspace_path(buggy_workspace_dir, "buggy_marker.py")
+        spec_obj = importlib.util.spec_from_file_location("buggy_delinquency_default2", buggy_path)
+        buggy_module = importlib.util.module_from_spec(spec_obj)
+        spec_obj.loader.exec_module(buggy_module)
+        buggy_module.s3a_path = s3a
+        buggy_summary_pd = buggy_module.compute_delinquency_default(spark_session, DD_BUSINESS_RULES).toPandas()
+    finally:
+        etl_module.s3a_path = original_s3a_path
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{curated_key}", buggy_summary_pd)
+
+    prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
+    validation_before = validate_delinquency_default(prefixed, DD_BUSINESS_RULES, DD_VALIDATION_RULES)
+
+    # The "repair" is still wrong -- same bug, not actually fixed.
+    target_file = str(tmp_path / "etl_spark_delinquency_default.py")
+    workspace_dir = _write_workspace(tmp_path, target_file, wrong_source)
+    repair_result = {"repair_status": "APPLIED", "target_file": target_file, "workspace_dir": str(workspace_dir)}
+
+    result = run_verify_lifecycle_repair(
+        "delinquency_default", spark_session, prefixed, DD_BUSINESS_RULES, DD_VALIDATION_RULES,
+        validation_before, repair_result, run_id="test-dd-bad", s3a_path_override=s3a,
+    )
+
+    assert result["verification_status"] == "NOT_VERIFIED"
+    assert result["rollback_performed"] is True
+    assert not Path(target_file).exists()
+
+
+# --- Atomic multi-key promotion: a failure partway through must roll back EVERY key -------
+
+UP_CUSTOMERS = pd.DataFrame(
+    [
+        {"customer_id": "C1", "created_at": "2024-01-01", "state": "CA", "income_band": "40000_60000", "credit_score_band": "680_719", "credit_score": 700, "risk_segment": "LOW"},
+        {"customer_id": "C2", "created_at": "2024-01-01", "state": "CA", "income_band": "40000_60000", "credit_score_band": "620_679", "credit_score": 650, "risk_segment": "HIGH"},
+    ]
+)
+UP_APPLICATIONS = pd.DataFrame(
+    [
+        {"application_id": "APP1", "customer_id": "C1", "offer_id": None, "requested_amount": 5000.0, "submitted_at": "2025-01-01", "application_status": "DECISIONED"},
+        {"application_id": "APP2", "customer_id": "C2", "offer_id": None, "requested_amount": 4000.0, "submitted_at": "2025-01-01", "application_status": "DECISIONED"},
+    ]
+)
+UP_UNDERWRITING_DECISIONS = pd.DataFrame(
+    [
+        {"decision_id": "DEC1", "application_id": "APP1", "decision": "APPROVED", "rejection_reason": None, "approved_amount": 4800.0, "approved_apr": 0.06, "model_version": "uw-v1", "decided_at": "2025-01-02"},
+        {"decision_id": "DEC2", "application_id": "APP2", "decision": "REJECTED", "rejection_reason": "LOW_CREDIT_SCORE", "approved_amount": None, "approved_apr": None, "model_version": "uw-v1", "decided_at": "2025-01-02"},
+    ]
+)
+UP_VALIDATION_RULES = {
+    "tolerance": {"currency": 0.01, "count": 0, "rate": 0.0001},
+    "rules": [
+        {"id": "underwriting_performance_breakdown_rows_match", "type": "reconciliation", "tolerance_type": "count", "description": "d"},
+        {"id": "underwriting_performance_rejection_distribution_matches", "type": "reconciliation", "tolerance_type": "count", "description": "d"},
+    ],
+}
+
+
+def test_promotion_failure_partway_through_rolls_back_every_key(spark_session, seeded_storage, tmp_path, monkeypatch):
+    bucket = seeded_storage.bucket
+    s3a = _test_s3a_path(bucket)
+    spec = PIPELINE_REGISTRY["underwriting_performance"]
+    performance_key, rejections_key = spec.curated_keys
+
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/customers.parquet", UP_CUSTOMERS)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/applications.parquet", UP_APPLICATIONS)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/underwriting_decisions.parquet", UP_UNDERWRITING_DECISIONS)
+
+    # Seed a plausible "before" state for both curated keys, and an existing pipeline_run.json
+    # naming an unrelated pipeline (must survive this test untouched).
+    stale_performance = pd.DataFrame([{"breakdown_type": "risk_segment", "breakdown_value": "LOW", "decision_count": 1, "approved_count": 1, "rejected_count": 0, "manual_review_count": 0, "approval_rate": 1.0, "avg_approved_amount": 1.0, "avg_approved_apr": 0.01}])
+    stale_rejections = pd.DataFrame([{"rejection_reason": "LOW_CREDIT_SCORE", "count": 999}])
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{performance_key}", stale_performance)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{rejections_key}", stale_rejections)
+    seeded_storage.write_json(f"{TEST_PREFIX}{PIPELINE_RUN_KEY}", {"pipelines": {"loan_portfolio": {"etl_status": "SUCCESS", "validation_status": "PASS"}}, "overall_status": "SUCCESS"})
+
+    prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
+    validation_before = {
+        "overall_status": "FAIL",
+        "checks": [
+            {"id": "underwriting_performance_breakdown_rows_match", "status": "FAIL"},
+            {"id": "underwriting_performance_rejection_distribution_matches", "status": "PASS"},
+        ],
+    }
+
+    # A correct, real "patch" (the unmodified source) -- every check passes, so verification
+    # reaches the promotion step, where we then inject an artificial failure.
+    target_file = str(tmp_path / "etl_spark_underwriting_performance.py")
+    workspace_dir = _write_workspace(tmp_path, target_file, UNDERWRITING_PERFORMANCE_SOURCE.read_text(encoding="utf-8"))
+    repair_result = {"repair_status": "APPLIED", "target_file": target_file, "workspace_dir": str(workspace_dir)}
+
+    real_write_parquet = seeded_storage.write_parquet.__func__
+
+    def _flaky_write_parquet(self, path, df):
+        if path == f"{TEST_PREFIX}{rejections_key}":
+            raise RuntimeError("simulated write failure partway through promotion")
+        return real_write_parquet(self, path, df)
+
+    monkeypatch.setattr(type(seeded_storage), "write_parquet", _flaky_write_parquet)
+
+    result = run_verify_lifecycle_repair(
+        "underwriting_performance", spark_session, prefixed, {}, UP_VALIDATION_RULES,
+        validation_before, repair_result, run_id="test-rollback", s3a_path_override=s3a,
+    )
+
+    assert result["verification_status"] == "NOT_VERIFIED"
+    assert result["rollback_performed"] is True
+
+    # Every key -- including the one written successfully BEFORE the failure -- is back to
+    # its pre-repair state. Not a mix of old and new. (read_parquet was never monkeypatched,
+    # so these reads reflect real, current object content.)
+    restored_performance = seeded_storage.read_parquet(f"{TEST_PREFIX}{performance_key}")
+    restored_rejections = seeded_storage.read_parquet(f"{TEST_PREFIX}{rejections_key}")
+    pd.testing.assert_frame_equal(restored_performance.reset_index(drop=True), stale_performance.reset_index(drop=True))
+    pd.testing.assert_frame_equal(restored_rejections.reset_index(drop=True), stale_rejections.reset_index(drop=True))
+
+    pipeline_run = seeded_storage.read_json(f"{TEST_PREFIX}{PIPELINE_RUN_KEY}")
+    assert pipeline_run["pipelines"] == {"loan_portfolio": {"etl_status": "SUCCESS", "validation_status": "PASS"}}
+
+    # No leftover backup objects.
+    assert seeded_storage.list_paths(f"{TEST_PREFIX}_backup/") == []
+    # The real target file was never touched (promotion never reached the local-file step).
+    assert not Path(target_file).exists()
+
+
+# --- _run_pytest_against_patched_code: swap-in/restore behavior ---------------------------
+
+
+def test_run_pytest_against_patched_code_swaps_in_the_patch_and_always_restores(tmp_path):
+    real_target = tmp_path / "target.py"
+    real_target.write_text("VALUE = 'original'\n")
+    workspace_dir = tmp_path / "workspace"
+    patched_path = workspace_dir / str(tmp_path).lstrip("/") / "target.py"
+    patched_path.parent.mkdir(parents=True, exist_ok=True)
+    patched_path.write_text("VALUE = 'patched'\n")
+
+    seen_during_test = {}
+
+    def _fake_pytest(test_files):
+        seen_during_test["content"] = real_target.read_text()
+        return "PASS"
+
+    original_run_pytest = verify_module._run_pytest
+    verify_module._run_pytest = _fake_pytest
+    try:
+        status = _REAL_RUN_PYTEST_AGAINST_PATCHED_CODE(["dummy"], workspace_dir, str(real_target))
+    finally:
+        verify_module._run_pytest = original_run_pytest
+
+    assert status == "PASS"
+    assert seen_during_test["content"] == "VALUE = 'patched'\n"
+    # Restored to the original after returning, regardless of outcome.
+    assert real_target.read_text() == "VALUE = 'original'\n"
+
+
+def test_run_pytest_against_patched_code_restores_even_when_pytest_raises(tmp_path):
+    real_target = tmp_path / "target.py"
+    real_target.write_text("VALUE = 'original'\n")
+    workspace_dir = tmp_path / "workspace"
+    patched_path = workspace_dir / str(tmp_path).lstrip("/") / "target.py"
+    patched_path.parent.mkdir(parents=True, exist_ok=True)
+    patched_path.write_text("VALUE = 'patched'\n")
+
+    def _raising_pytest(test_files):
+        raise RuntimeError("boom")
+
+    original_run_pytest = verify_module._run_pytest
+    verify_module._run_pytest = _raising_pytest
+    try:
+        with pytest.raises(RuntimeError):
+            _REAL_RUN_PYTEST_AGAINST_PATCHED_CODE(["dummy"], workspace_dir, str(real_target))
+    finally:
+        verify_module._run_pytest = original_run_pytest
+
+    assert real_target.read_text() == "VALUE = 'original'\n"

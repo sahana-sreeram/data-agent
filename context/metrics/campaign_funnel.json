@@ -4,22 +4,203 @@
   "curated_path": "s3://data-agent/curated/campaign_funnel.parquet",
   "grain": "one row per campaign_id, plus one campaign_id=NULL 'organic' row",
   "source_tables": [
-    "lifecycle.campaigns", "lifecycle.email_events", "lifecycle.prequal_offers",
-    "lifecycle.applications", "lifecycle.underwriting_decisions", "lifecycle.loans"
+    "lifecycle.campaigns",
+    "lifecycle.email_events",
+    "lifecycle.prequal_offers",
+    "lifecycle.applications",
+    "lifecycle.underwriting_decisions",
+    "lifecycle.loans"
   ],
   "metrics": {
-    "emails_sent": {"business_definition": "Emails sent for this campaign.", "formula": "count(email_events where event_type == 'SENT' and campaign_id matches)", "source_tables": ["lifecycle.email_events"], "filters": [], "grain": "per campaign", "expected_range": ">= 0", "caveats": ["Always 0 for the organic row -- email_events.campaign_id is never null."], "qa_supported": true},
-    "emails_opened": {"business_definition": "Emails opened for this campaign.", "formula": "count(email_events where event_type == 'OPENED' and campaign_id matches)", "source_tables": ["lifecycle.email_events"], "filters": [], "grain": "per campaign", "expected_range": ">= 0, <= emails_sent", "caveats": [], "qa_supported": true},
-    "emails_clicked": {"business_definition": "Emails clicked for this campaign.", "formula": "count(email_events where event_type == 'CLICKED' and campaign_id matches)", "source_tables": ["lifecycle.email_events"], "filters": [], "grain": "per campaign", "expected_range": ">= 0, <= emails_opened", "caveats": [], "qa_supported": true},
-    "offers_created": {"business_definition": "Prequalified offers attributed to this campaign (NULL/organic for non-campaign offers).", "formula": "count(prequal_offers where campaign_id matches)", "source_tables": ["lifecycle.prequal_offers"], "filters": [], "grain": "per campaign", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "applications_submitted": {"business_definition": "Applications attributed to this campaign via their offer (organic offer or no-offer application both attribute to the organic row).", "formula": "count(applications joined to prequal_offers via offer_id, grouped by the offer's campaign_id)", "source_tables": ["lifecycle.applications", "lifecycle.prequal_offers"], "filters": [], "grain": "per campaign", "expected_range": ">= 0", "caveats": ["Attribution is via offer_id, not a direct campaign_id column on applications -- this is intentional, see context/data_dictionary.json's note on lifecycle_loans not denormalizing campaign attribution."], "qa_supported": true},
-    "applications_approved": {"business_definition": "Applications attributed to this campaign whose underwriting decision was APPROVED.", "formula": "count(underwriting_decisions where decision == 'APPROVED' and the application attributes to this campaign)", "source_tables": ["lifecycle.underwriting_decisions", "lifecycle.applications", "lifecycle.prequal_offers"], "filters": ["decision == 'APPROVED'"], "grain": "per campaign", "expected_range": ">= 0, <= applications_submitted", "caveats": [], "qa_supported": true},
-    "loans_funded": {"business_definition": "Loans funded whose originating application attributes to this campaign.", "formula": "count(loans where the loan's application attributes to this campaign)", "source_tables": ["lifecycle.loans", "lifecycle.applications", "lifecycle.prequal_offers"], "filters": [], "grain": "per campaign", "expected_range": ">= 0, <= applications_approved", "caveats": ["Answers 'which campaign produced the most funded loans?'"], "qa_supported": true},
-    "open_rate": {"business_definition": "Share of sent emails that were opened.", "formula": "emails_opened / emails_sent", "source_tables": ["lifecycle.email_events"], "filters": [], "grain": "per campaign", "expected_range": "0-1 or null if emails_sent == 0", "caveats": ["Null (not 0) for the organic row and any campaign with zero emails sent -- avoids implying a 0% open rate where there was no denominator."], "qa_supported": true},
-    "click_through_rate": {"business_definition": "Share of opened emails that were clicked.", "formula": "emails_clicked / emails_opened", "source_tables": ["lifecycle.email_events"], "filters": [], "grain": "per campaign", "expected_range": "0-1 or null", "caveats": [], "qa_supported": true},
-    "click_to_offer_rate": {"business_definition": "Offers created relative to clicks -- an aggregate-level rate, not a per-click causal trace.", "formula": "offers_created / emails_clicked", "source_tables": ["lifecycle.prequal_offers", "lifecycle.email_events"], "filters": [], "grain": "per campaign", "expected_range": ">= 0 or null (can exceed 1 if organic-style repeat offers occur)", "caveats": ["Answers 'what percentage of customers who clicked applied?' at the aggregate level."], "qa_supported": true},
-    "offer_to_application_rate": {"business_definition": "Applications submitted relative to offers created.", "formula": "applications_submitted / offers_created", "source_tables": ["lifecycle.applications", "lifecycle.prequal_offers"], "filters": [], "grain": "per campaign", "expected_range": "0-1 or null", "caveats": [], "qa_supported": true},
-    "application_to_approval_rate": {"business_definition": "Applications approved relative to applications submitted.", "formula": "applications_approved / applications_submitted", "source_tables": ["lifecycle.underwriting_decisions", "lifecycle.applications"], "filters": [], "grain": "per campaign", "expected_range": "0-1 or null", "caveats": [], "qa_supported": true},
-    "approval_to_funded_rate": {"business_definition": "Loans funded relative to applications approved (not every approval funds).", "formula": "loans_funded / applications_approved", "source_tables": ["lifecycle.loans", "lifecycle.underwriting_decisions"], "filters": [], "grain": "per campaign", "expected_range": "0-1 or null", "caveats": [], "qa_supported": true}
+    "emails_sent": {
+      "business_definition": "Emails sent for this campaign.",
+      "formula": "count(email_events where event_type == 'SENT' and campaign_id matches)",
+      "source_tables": [
+        "lifecycle.email_events"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0",
+      "caveats": [
+        "Always 0 for the organic row -- email_events.campaign_id is never null."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "emails_opened": {
+      "business_definition": "Emails opened for this campaign.",
+      "formula": "count(email_events where event_type == 'OPENED' and campaign_id matches)",
+      "source_tables": [
+        "lifecycle.email_events"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0, <= emails_sent",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "emails_clicked": {
+      "business_definition": "Emails clicked for this campaign.",
+      "formula": "count(email_events where event_type == 'CLICKED' and campaign_id matches)",
+      "source_tables": [
+        "lifecycle.email_events"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0, <= emails_opened",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "offers_created": {
+      "business_definition": "Prequalified offers attributed to this campaign (NULL/organic for non-campaign offers).",
+      "formula": "count(prequal_offers where campaign_id matches)",
+      "source_tables": [
+        "lifecycle.prequal_offers"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "applications_submitted": {
+      "business_definition": "Applications attributed to this campaign via their offer (organic offer or no-offer application both attribute to the organic row).",
+      "formula": "count(applications joined to prequal_offers via offer_id, grouped by the offer's campaign_id)",
+      "source_tables": [
+        "lifecycle.applications",
+        "lifecycle.prequal_offers"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0",
+      "caveats": [
+        "Attribution is via offer_id, not a direct campaign_id column on applications -- this is intentional, see context/data_dictionary.json's note on lifecycle_loans not denormalizing campaign attribution."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "applications_approved": {
+      "business_definition": "Applications attributed to this campaign whose underwriting decision was APPROVED.",
+      "formula": "count(underwriting_decisions where decision == 'APPROVED' and the application attributes to this campaign)",
+      "source_tables": [
+        "lifecycle.underwriting_decisions",
+        "lifecycle.applications",
+        "lifecycle.prequal_offers"
+      ],
+      "filters": [
+        "decision == 'APPROVED'"
+      ],
+      "grain": "per campaign",
+      "expected_range": ">= 0, <= applications_submitted",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "loans_funded": {
+      "business_definition": "Loans funded whose originating application attributes to this campaign.",
+      "formula": "count(loans where the loan's application attributes to this campaign)",
+      "source_tables": [
+        "lifecycle.loans",
+        "lifecycle.applications",
+        "lifecycle.prequal_offers"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0, <= applications_approved",
+      "caveats": [
+        "Answers 'which campaign produced the most funded loans?'"
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "open_rate": {
+      "business_definition": "Share of sent emails that were opened.",
+      "formula": "emails_opened / emails_sent",
+      "source_tables": [
+        "lifecycle.email_events"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": "0-1 or null if emails_sent == 0",
+      "caveats": [
+        "Null (not 0) for the organic row and any campaign with zero emails sent -- avoids implying a 0% open rate where there was no denominator."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "click_through_rate": {
+      "business_definition": "Share of opened emails that were clicked.",
+      "formula": "emails_clicked / emails_opened",
+      "source_tables": [
+        "lifecycle.email_events"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": "0-1 or null",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "click_to_offer_rate": {
+      "business_definition": "Offers created relative to clicks -- an aggregate-level rate, not a per-click causal trace.",
+      "formula": "offers_created / emails_clicked",
+      "source_tables": [
+        "lifecycle.prequal_offers",
+        "lifecycle.email_events"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": ">= 0 or null (can exceed 1 if organic-style repeat offers occur)",
+      "caveats": [
+        "Answers 'what percentage of customers who clicked applied?' at the aggregate level."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "offer_to_application_rate": {
+      "business_definition": "Applications submitted relative to offers created.",
+      "formula": "applications_submitted / offers_created",
+      "source_tables": [
+        "lifecycle.applications",
+        "lifecycle.prequal_offers"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": "0-1 or null",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "application_to_approval_rate": {
+      "business_definition": "Applications approved relative to applications submitted.",
+      "formula": "applications_approved / applications_submitted",
+      "source_tables": [
+        "lifecycle.underwriting_decisions",
+        "lifecycle.applications"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": "0-1 or null",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "approval_to_funded_rate": {
+      "business_definition": "Loans funded relative to applications approved (not every approval funds).",
+      "formula": "loans_funded / applications_approved",
+      "source_tables": [
+        "lifecycle.loans",
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [],
+      "grain": "per campaign",
+      "expected_range": "0-1 or null",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    }
   }
 }

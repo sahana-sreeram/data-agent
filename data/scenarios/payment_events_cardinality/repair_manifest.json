@@ -15,7 +15,7 @@
   },
   "pipeline_configuration_file": null,
   "etl_function_name": "compute_portfolio_summary_from_payment_events",
-  "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py"],
+  "test_inventory": ["tests/legacy/test_transform.py", "tests/legacy/test_validate_portfolio.py"],
   "file_hash_aliases": {
     "CURRENT_BUSINESS_RULES": "data/scenarios/payment_events_cardinality/business_rules.json",
     "ETL_SOURCE": "src/transform.py"

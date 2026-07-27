@@ -112,3 +112,42 @@ def test_dispatch_tool_catches_tool_error_without_raising(tools):
 def test_dispatch_tool_rejects_unknown_tool_name(tools):
     result = dispatch_tool(tools, "delete_everything", {})
     assert "error" in result
+
+
+# --- Bounded query tools: aggregate/sample/join over the multi-row curated tables ----------
+
+
+def test_aggregate_curated_data_groups_and_sums_by_channel(tools):
+    result = tools.aggregate_curated_data(
+        dataset="campaign_funnel", group_by=["channel"], metrics=[{"agg": "sum", "column": "loans_funded"}]
+    )
+    assert result["groups"]
+    for group in result["groups"]:
+        assert "channel" in group
+        assert "sum_loans_funded" in group
+    _assert_no_nan_in_json(result)
+
+
+def test_sample_curated_data_filters_with_comparison_operator(tools):
+    result = tools.sample_curated_data(dataset="campaign_funnel", filters={"open_rate": {"gt": 0.5}})
+    assert all(row["open_rate"] > 0.5 for row in result["samples"])
+    _assert_no_nan_in_json(result)
+
+
+def test_sample_curated_data_rejects_unknown_dataset(tools):
+    with pytest.raises(ToolError):
+        tools.sample_curated_data(dataset="loan_portfolio")
+
+
+def test_join_curated_data_joins_underwriting_performance_to_delinquency_default_by_risk_segment(tools):
+    result = tools.join_curated_data(
+        left_dataset="underwriting_performance",
+        right_dataset="delinquency_default",
+        join_keys=["breakdown_value"],
+        left_filters={"breakdown_type": "risk_segment"},
+    )
+    assert result["matched_row_count"] > 0
+    for row in result["rows"]:
+        assert "approval_rate" in row
+        assert "default_rate" in row
+    _assert_no_nan_in_json(result)

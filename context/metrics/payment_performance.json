@@ -3,17 +3,169 @@
   "produced_by": "src/etl_spark_payment_performance.py",
   "curated_path": "s3://data-agent/curated/payment_performance.parquet",
   "grain": "single row -- portfolio-wide, as of as_of_date",
-  "source_tables": ["lifecycle.payment_schedule", "lifecycle.payment_events"],
+  "source_tables": [
+    "lifecycle.payment_schedule",
+    "lifecycle.payment_events"
+  ],
   "metrics": {
-    "expected_payment_count": {"business_definition": "Installments due on or before as_of_date.", "formula": "count(payment_schedule where due_date <= as_of_date)", "source_tables": ["lifecycle.payment_schedule"], "filters": ["due_date <= as_of_date"], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "expected_amount_due": {"business_definition": "Total dollar amount expected across due installments.", "formula": "sum(payment_schedule.scheduled_amount where due_date <= as_of_date)", "source_tables": ["lifecycle.payment_schedule"], "filters": ["due_date <= as_of_date"], "grain": "portfolio-wide", "expected_range": "> 0", "caveats": ["Answers 'how much was due versus collected this month?' when combined with a due_date filter."], "qa_supported": true},
-    "successful_payment_count": {"business_definition": "Number of payment_events that succeeded.", "formula": "count(payment_events where payment_status in business_rules.successful_payment_statuses)", "source_tables": ["lifecycle.payment_events"], "filters": [], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "total_collected_amount": {"business_definition": "Total amount actually collected, net of any reversals.", "formula": "sum(payment_events.amount where payment_status in business_rules.successful_payment_statuses + ['REVERSED'])", "source_tables": ["lifecycle.payment_events"], "filters": [], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": ["Nets REVERSED events against their original PAID amount, same discipline as loan_portfolio.total_outstanding_principal."], "qa_supported": true},
-    "missed_payment_count": {"business_definition": "Installments never paid.", "formula": "count(payment_events where payment_status == 'MISSED')", "source_tables": ["lifecycle.payment_events"], "filters": ["payment_status == 'MISSED'"], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "missed_amount": {"business_definition": "Total dollar amount of missed installments.", "formula": "sum(payment_schedule.scheduled_amount joined to payment_events where payment_status == 'MISSED')", "source_tables": ["lifecycle.payment_schedule", "lifecycle.payment_events"], "filters": ["payment_status == 'MISSED'"], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": ["payment_events.amount is 0 for MISSED rows by construction -- the dollar figure has to come from payment_schedule, not the event itself."], "qa_supported": true},
-    "late_payment_count": {"business_definition": "Installments paid after their due date.", "formula": "count(payment_events where payment_status == 'LATE')", "source_tables": ["lifecycle.payment_events"], "filters": ["payment_status == 'LATE'"], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "failed_payment_count": {"business_definition": "Payment attempts that failed to process.", "formula": "count(payment_events where payment_status == 'FAILED')", "source_tables": ["lifecycle.payment_events"], "filters": ["payment_status == 'FAILED'"], "grain": "portfolio-wide", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "collection_rate": {"business_definition": "Share of expected dollars actually collected.", "formula": "total_collected_amount / expected_amount_due", "source_tables": ["lifecycle.payment_schedule", "lifecycle.payment_events"], "filters": [], "grain": "portfolio-wide", "expected_range": "0-1 (can exceed 1 if prepayments outpace what's strictly due)", "caveats": [], "qa_supported": true},
-    "prepayment_rate": {"business_definition": "Share of successful payments made well before their due date.", "formula": "count(successful payment_events where due_date - payment_date >= business_rules.prepayment_threshold_days) / successful_payment_count", "source_tables": ["lifecycle.payment_events", "lifecycle.payment_schedule"], "filters": [], "grain": "portfolio-wide", "expected_range": "0-1", "caveats": ["Threshold (business_rules.prepayment_threshold_days, currently 3) is a business judgment call, not a fixed industry definition."], "qa_supported": true}
+    "expected_payment_count": {
+      "business_definition": "Installments due on or before as_of_date.",
+      "formula": "count(payment_schedule where due_date <= as_of_date)",
+      "source_tables": [
+        "lifecycle.payment_schedule"
+      ],
+      "filters": [
+        "due_date <= as_of_date"
+      ],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "expected_amount_due": {
+      "business_definition": "Total dollar amount expected across due installments.",
+      "formula": "sum(payment_schedule.scheduled_amount where due_date <= as_of_date)",
+      "source_tables": [
+        "lifecycle.payment_schedule"
+      ],
+      "filters": [
+        "due_date <= as_of_date"
+      ],
+      "grain": "portfolio-wide",
+      "expected_range": "> 0",
+      "caveats": [
+        "Answers 'how much was due versus collected this month?' when combined with a due_date filter."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "successful_payment_count": {
+      "business_definition": "Number of payment_events that succeeded.",
+      "formula": "count(payment_events where payment_status in business_rules.successful_payment_statuses)",
+      "source_tables": [
+        "lifecycle.payment_events"
+      ],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": [
+        "successful_payment_statuses"
+      ]
+    },
+    "total_collected_amount": {
+      "business_definition": "Total amount actually collected, net of any reversals.",
+      "formula": "sum(payment_events.amount where payment_status in business_rules.successful_payment_statuses + ['REVERSED'])",
+      "source_tables": [
+        "lifecycle.payment_events"
+      ],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [
+        "Nets REVERSED events against their original PAID amount, same discipline as loan_portfolio.total_outstanding_principal."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": [
+        "successful_payment_statuses"
+      ]
+    },
+    "missed_payment_count": {
+      "business_definition": "Installments never paid.",
+      "formula": "count(payment_events where payment_status == 'MISSED')",
+      "source_tables": [
+        "lifecycle.payment_events"
+      ],
+      "filters": [
+        "payment_status == 'MISSED'"
+      ],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "missed_amount": {
+      "business_definition": "Total dollar amount of missed installments.",
+      "formula": "sum(payment_schedule.scheduled_amount joined to payment_events where payment_status == 'MISSED')",
+      "source_tables": [
+        "lifecycle.payment_schedule",
+        "lifecycle.payment_events"
+      ],
+      "filters": [
+        "payment_status == 'MISSED'"
+      ],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [
+        "payment_events.amount is 0 for MISSED rows by construction -- the dollar figure has to come from payment_schedule, not the event itself."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "late_payment_count": {
+      "business_definition": "Installments paid after their due date.",
+      "formula": "count(payment_events where payment_status == 'LATE')",
+      "source_tables": [
+        "lifecycle.payment_events"
+      ],
+      "filters": [
+        "payment_status == 'LATE'"
+      ],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "failed_payment_count": {
+      "business_definition": "Payment attempts that failed to process.",
+      "formula": "count(payment_events where payment_status == 'FAILED')",
+      "source_tables": [
+        "lifecycle.payment_events"
+      ],
+      "filters": [
+        "payment_status == 'FAILED'"
+      ],
+      "grain": "portfolio-wide",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "collection_rate": {
+      "business_definition": "Share of expected dollars actually collected.",
+      "formula": "total_collected_amount / expected_amount_due",
+      "source_tables": [
+        "lifecycle.payment_schedule",
+        "lifecycle.payment_events"
+      ],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": "0-1 (can exceed 1 if prepayments outpace what's strictly due)",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "prepayment_rate": {
+      "business_definition": "Share of successful payments made well before their due date.",
+      "formula": "count(successful payment_events where due_date - payment_date >= business_rules.prepayment_threshold_days) / successful_payment_count",
+      "source_tables": [
+        "lifecycle.payment_events",
+        "lifecycle.payment_schedule"
+      ],
+      "filters": [],
+      "grain": "portfolio-wide",
+      "expected_range": "0-1",
+      "caveats": [
+        "Threshold (business_rules.prepayment_threshold_days, currently 3) is a business judgment call, not a fixed industry definition."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": [
+        "prepayment_threshold_days"
+      ]
+    }
   }
 }

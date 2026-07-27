@@ -123,6 +123,9 @@ class S3Storage:
             Bucket=self.bucket, Key=path, Body=buffer.getvalue(), ContentType="application/octet-stream"
         )
 
+    def delete(self, path: str) -> None:
+        self._client.delete_object(Bucket=self.bucket, Key=path)
+
     def copy_or_promote(self, source: str, destination: str) -> None:
         """Server-side copy within the same bucket -- no download/re-upload.
 

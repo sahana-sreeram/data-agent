@@ -1,17 +1,19 @@
 """Answer a business question from the 5 curated lifecycle pipeline outputs in S3.
 
-Deliberately simpler than src/ask.py: there is no diagnose/repair/verify loop
-for this model yet (no failure-injection scenario has been built on top of it),
-so this only does the "detect a bad answer, refuse rather than fabricate"
-half of ask.py's contract, not the auto-heal half. It reads
-s3://<bucket>/curated/pipeline_run.json (written by
-src/run_lifecycle_etl_pipelines.py) and refuses to answer if any pipeline's
-last run didn't fully succeed and validate -- exactly the same "don't answer
-from data known to be wrong" discipline as ask.py, minus the repair attempt.
+Unlike the original ask.py's manifest-driven orchestration, this determines "question
+lineage" empirically: it answers the question once against current curated data, sees
+which tool(s) the model actually called, and only treats a pipeline as relevant if a tool
+belonging to it was called. A pipeline failure the question never touched neither blocks
+nor triggers a repair attempt -- only a failure in a pipeline the question actually needed
+does. When that happens, this automatically diagnoses/repairs/verifies every relevant,
+failing pipeline (via src/lifecycle_run_self_healing.py, generalized across all 5
+pipelines) and, if every one of them fully verifies, re-answers from the now-corrected
+data. Only when a relevant pipeline can't be fixed does this fall back to refusing to
+answer, exactly like ask.py's "don't fabricate on top of known-bad data" discipline.
 
-See src/lifecycle_business_tools.py and src/lifecycle_business_agent.py for
-why this needed its own tool/grounding stack rather than reusing
-src/business_tools.py/src/business_agent.py directly.
+See src/lifecycle_business_tools.py and src/lifecycle_business_agent.py for why this
+needed its own tool/grounding stack rather than reusing src/business_tools.py/
+src/business_agent.py directly.
 """
 
 from __future__ import annotations
@@ -26,7 +28,12 @@ from src.lifecycle_answer_models import (
 )
 from src.lifecycle_business_agent import LifecycleBusinessAgentError, run_lifecycle_business_qa
 from src.lifecycle_business_tools import LifecycleBusinessTools
-from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
+from src.model_client import (
+    DiagnosisModelClient,
+    ModelClientError,
+    OpenAIDiagnosisModelClient,
+    OpenAIResponsesModelClient,
+)
 from src.storage import S3Storage
 
 ANSWER_MODEL_ENV_VAR = "ANSWER_MODEL"
@@ -34,6 +41,32 @@ ANSWER_MODEL_ENV_VAR = "ANSWER_MODEL"
 METRICS_PIPELINES = ["loan_portfolio", "campaign_funnel", "underwriting_performance", "payment_performance", "delinquency_default"]
 
 IDENTIFYING_COLUMNS = {"breakdown_type", "breakdown_value", "campaign_id", "name", "channel", "as_of_date"}
+
+# Which pipeline a Q&A tool's result comes from -- the "question lineage" used to decide
+# whether a currently-failing pipeline actually matters for THIS question.
+# get_metric_definition is deliberately absent: its relevant pipeline comes from its own
+# "pipeline" argument instead (see _relevant_pipelines_from). get_business_rules is
+# cross-cutting (not backed by any one pipeline's curated/pipeline_run-guarded data) and
+# contributes no pipeline.
+TOOL_NAME_TO_PIPELINE = {
+    "get_loan_portfolio_summary": "loan_portfolio",
+    "get_campaign_funnel": "campaign_funnel",
+    "get_underwriting_performance": "underwriting_performance",
+    "get_underwriting_rejection_distribution": "underwriting_performance",
+    "get_payment_performance_summary": "payment_performance",
+    "get_delinquency_default": "delinquency_default",
+}
+
+# The 3 bounded query tools (src/lifecycle_business_tools.py) name which curated table(s)
+# they touch via an argument rather than the tool name itself -- without this map, a
+# question answered via e.g. aggregate_curated_data(dataset="campaign_funnel", ...) would
+# never register campaign_funnel as relevant, silently breaking self-heal triggering and the
+# "don't answer from known-bad data" guarantee for any question using these tools.
+DATASET_ARG_TOOL_NAMES = {
+    "aggregate_curated_data": ("dataset",),
+    "sample_curated_data": ("dataset",),
+    "join_curated_data": ("left_dataset", "right_dataset"),
+}
 
 
 class AskLifecycleError(Exception):
@@ -73,18 +106,51 @@ def _load_tools(storage: S3Storage, business_rules: dict, metrics_by_pipeline: d
     )
 
 
-def _failed_pipelines(pipeline_run: dict) -> list:
-    return [
+def _failed_pipelines(pipeline_run: dict) -> set:
+    return {
         name for name, result in pipeline_run.get("pipelines", {}).items()
         if result.get("etl_status") != "SUCCESS" or result.get("validation_status") != "PASS"
-    ]
+    }
 
 
-def _attempt_self_heal(storage: S3Storage, model_client_factory) -> dict:
-    """Diagnose, repair, and verify the loan_portfolio pipeline. Returns the
-    repair_verification dict (or a synthetic one if the flow raised an application-level
-    error, e.g. a model/API failure) -- never raises, so the caller can always fall back to
-    an UNRELIABLE_DATA answer citing what happened.
+def _relevant_pipelines_from(called_tool_calls: list) -> set:
+    """Which pipeline(s) a question actually needed data from, derived from the tools the
+    QA agent actually called this session -- the "question lineage.\""""
+    relevant: set = set()
+    for call in called_tool_calls:
+        name = call["name"]
+        arguments = call.get("arguments", {})
+        if name == "get_metric_definition":
+            pipeline = arguments.get("pipeline")
+            if pipeline:
+                relevant.add(pipeline)
+        elif name in DATASET_ARG_TOOL_NAMES:
+            for arg_name in DATASET_ARG_TOOL_NAMES[name]:
+                dataset = arguments.get(arg_name)
+                if dataset:
+                    relevant.add(dataset)
+        elif name in TOOL_NAME_TO_PIPELINE:
+            relevant.add(TOOL_NAME_TO_PIPELINE[name])
+    return relevant
+
+
+def _repair_model_client_factory() -> DiagnosisModelClient:
+    """Repair planning gets its own, dedicated model choice -- a Codex-branded model via the
+    Responses API (see src/model_client.py's OpenAIResponsesModelClient) -- independent of
+    whatever model diagnosis/Q&A are using. REPAIR_MODEL overrides the default."""
+    from src.lifecycle_apply_repair import REPAIR_MODEL_ENV_VAR
+
+    model_name = os.environ.get(REPAIR_MODEL_ENV_VAR)
+    return OpenAIResponsesModelClient(model=model_name) if model_name else OpenAIResponsesModelClient()
+
+
+def _attempt_self_heal(pipeline_name: str, storage: S3Storage, diagnosis_model_client_factory) -> dict:
+    """Diagnose, repair, and verify one lifecycle pipeline. Returns the full
+    {run_id, diagnosis, repair_plan, repair_result, repair_verification} dict (or a synthetic
+    one with only repair_verification populated if the flow raised an application-level
+    error, e.g. a model/API failure) -- never raises, so the caller can always fall back to an
+    UNRELIABLE_DATA answer citing what happened, and a UI can always render the same shape
+    regardless of how far the flow got.
     """
     from src.lifecycle_run_self_healing import run_lifecycle_self_healing
     from src.spark_session import get_spark_session
@@ -92,50 +158,24 @@ def _attempt_self_heal(storage: S3Storage, model_client_factory) -> dict:
     spark = get_spark_session("lifecycle-self-healing")
     spark.sparkContext.setLogLevel("WARN")
     try:
-        result = run_lifecycle_self_healing(spark, storage, model_client_factory, model_client_factory)
-        return result["repair_verification"]
+        return run_lifecycle_self_healing(
+            pipeline_name, spark, storage, diagnosis_model_client_factory, _repair_model_client_factory
+        )
     except Exception as exc:  # noqa: BLE001 -- any self-heal failure just means "could not auto-correct"
-        return {"verification_status": "NOT_VERIFIED", "summary": f"Automatic repair attempt failed: {exc}"}
+        return {
+            "run_id": None,
+            "diagnosis": None,
+            "repair_plan": None,
+            "repair_result": None,
+            "repair_verification": {"verification_status": "NOT_VERIFIED", "summary": f"Automatic repair attempt failed: {exc}"},
+        }
     finally:
         spark.stop()
 
 
-def answer_lifecycle_question(question: str, storage: S3Storage, model_client_factory) -> dict:
-    """Answer a business question from the curated lifecycle data. Returns the result dict
-    (also written to s3://<bucket>/curated/lifecycle_answer.json).
-
-    If the loan_portfolio pipeline (the one pipeline with diagnose/repair/verify machinery)
-    is the cause of a failed pipeline_run, this automatically attempts to diagnose, repair,
-    and verify it in an isolated workspace before answering -- returning the CORRECTED
-    answer if that repair is fully VERIFIED, and only otherwise falling back to refusing to
-    answer. No other pipeline has repair machinery yet, so a failure there still refuses.
-    """
-    if not storage.exists("curated/pipeline_run.json"):
-        raise AskLifecycleError(
-            "curated/pipeline_run.json not found -- run python3 -m src.run_lifecycle_etl_pipelines first"
-        )
-    pipeline_run = storage.read_json("curated/pipeline_run.json")
-    self_heal_summary = None
-
-    if pipeline_run.get("overall_status") != "SUCCESS":
-        failed = _failed_pipelines(pipeline_run)
-
-        if "loan_portfolio" in failed:
-            repair_verification = _attempt_self_heal(storage, model_client_factory)
-            self_heal_summary = repair_verification.get("summary")
-            if repair_verification.get("verification_status") == "VERIFIED":
-                pipeline_run = storage.read_json("curated/pipeline_run.json")
-                failed = _failed_pipelines(pipeline_run)
-
-        if pipeline_run.get("overall_status") != "SUCCESS" or failed:
-            reason = f"The curated lifecycle data failed validation in these pipelines: {failed or 'unknown'}. Rerun python3 -m src.run_lifecycle_etl_pipelines and investigate before trusting this data."
-            if self_heal_summary:
-                reason += f" An automatic repair was attempted: {self_heal_summary}"
-            answer = build_unreliable_data_answer(question, reason)
-            result = {"answer": business_answer_to_dict(answer), "self_heal": self_heal_summary}
-            storage.write_json("curated/lifecycle_answer.json", result)
-            return result
-
+def _answer_once(question: str, storage: S3Storage, model_client_factory):
+    """Run the QA loop once against current curated data. Returns (answer_dict_or_None,
+    LifecycleQAResult_or_None, error_answer_or_None) -- exactly one of the last two is set."""
     business_rules = storage.read_json("context/business_rules.json")
     metrics_by_pipeline = _load_metrics_by_pipeline(storage)
     known_metrics = _known_metric_names(business_rules, metrics_by_pipeline)
@@ -143,30 +183,141 @@ def answer_lifecycle_question(question: str, storage: S3Storage, model_client_fa
     try:
         tools = _load_tools(storage, business_rules, metrics_by_pipeline)
         model_client = model_client_factory()
-        answer = run_lifecycle_business_qa(question, tools, model_client, known_metric_names=known_metrics)
+        qa_result = run_lifecycle_business_qa(question, tools, model_client, known_metric_names=known_metrics)
+        return qa_result, None
     except (LifecycleBusinessAgentError, AnswerValidationError, ModelClientError) as exc:
-        answer = build_unreliable_data_answer(question, f"Could not produce a grounded answer: {exc}")
+        return None, build_unreliable_data_answer(question, f"Could not produce a grounded answer: {exc}")
 
-    result = {"answer": business_answer_to_dict(answer), "self_heal": self_heal_summary}
+
+def _validation_failures_from(self_heal: dict) -> dict:
+    return {
+        pipeline_name: heal["repair_verification"].get("failed_checks_before", [])
+        for pipeline_name, heal in self_heal.items()
+    }
+
+
+def answer_lifecycle_question(question: str, storage: S3Storage, model_client_factory) -> dict:
+    """Answer a business question from the curated lifecycle data. Returns the result dict
+    (also written to s3://<bucket>/curated/lifecycle_answer.json):
+
+    {"question", "relevant_pipelines", "validation_failures", "answer", "self_heal",
+    "corrected_answer"} -- self_heal (when not None) maps each broken, relevant pipeline to
+    its full {run_id, diagnosis, repair_plan, repair_result, repair_verification} self-healing
+    attempt; corrected_answer is set only when every one of them fully verified and the
+    question was successfully re-answered from the now-corrected data.
+    """
+    if not storage.exists("curated/pipeline_run.json"):
+        raise AskLifecycleError(
+            "curated/pipeline_run.json not found -- run python3 -m src.run_lifecycle_etl_pipelines first"
+        )
+    pipeline_run = storage.read_json("curated/pipeline_run.json")
+    failed = _failed_pipelines(pipeline_run)
+
+    qa_result, error_answer = _answer_once(question, storage, model_client_factory)
+    if error_answer is not None:
+        result = {
+            "question": question,
+            "relevant_pipelines": [],
+            "validation_failures": {},
+            "answer": business_answer_to_dict(error_answer),
+            "self_heal": None,
+            "corrected_answer": None,
+        }
+        storage.write_json("curated/lifecycle_answer.json", result)
+        return result
+
+    relevant = _relevant_pipelines_from(qa_result.called_tool_calls)
+    broken_relevant = relevant & failed
+
+    if not broken_relevant:
+        # Either fully healthy, or the question only touched healthy pipelines -- the
+        # answer we already have is trustworthy regardless of any UNRELATED failure.
+        result = {
+            "question": question,
+            "relevant_pipelines": sorted(relevant),
+            "validation_failures": {},
+            "answer": business_answer_to_dict(qa_result.answer),
+            "self_heal": None,
+            "corrected_answer": None,
+        }
+        storage.write_json("curated/lifecycle_answer.json", result)
+        return result
+
+    # The first answer was grounded in at least one broken, relevant pipeline's data --
+    # discard it (never return an answer built on known-bad data) and try to fix each one.
+    self_heal: dict = {}
+    for pipeline_name in sorted(broken_relevant):
+        self_heal[pipeline_name] = _attempt_self_heal(pipeline_name, storage, model_client_factory)
+    validation_failures = _validation_failures_from(self_heal)
+
+    still_broken = broken_relevant & _failed_pipelines(storage.read_json("curated/pipeline_run.json"))
+
+    if not still_broken:
+        # Every relevant, previously-broken pipeline is now verified healthy -- re-answer
+        # fresh from the corrected data rather than returning the stale first answer.
+        qa_result2, error_answer2 = _answer_once(question, storage, model_client_factory)
+        corrected_answer = business_answer_to_dict(error_answer2 if error_answer2 is not None else qa_result2.answer)
+        result = {
+            "question": question,
+            "relevant_pipelines": sorted(relevant),
+            "validation_failures": validation_failures,
+            "answer": business_answer_to_dict(qa_result.answer),
+            "self_heal": self_heal,
+            "corrected_answer": corrected_answer,
+        }
+        storage.write_json("curated/lifecycle_answer.json", result)
+        return result
+
+    reason = (
+        f"The curated lifecycle data this question depends on failed validation in: "
+        f"{sorted(still_broken)}. Rerun python3 -m src.run_lifecycle_etl_pipelines and investigate before trusting this data."
+    )
+    for pipeline_name, heal in self_heal.items():
+        reason += f" [{pipeline_name}] automatic repair attempt: {heal['repair_verification'].get('summary')}"
+    answer = build_unreliable_data_answer(question, reason)
+    result = {
+        "question": question,
+        "relevant_pipelines": sorted(relevant),
+        "validation_failures": validation_failures,
+        "answer": business_answer_to_dict(answer),
+        "self_heal": self_heal,
+        "corrected_answer": None,
+    }
     storage.write_json("curated/lifecycle_answer.json", result)
     return result
 
 
 def print_result(result: dict) -> None:
-    answer = result["answer"]
+    print(f"Question: {result['question']}")
+    if result.get("relevant_pipelines"):
+        print(f"Relevant pipelines: {', '.join(result['relevant_pipelines'])}")
     if result.get("self_heal"):
-        print(f"Self-heal attempted: {result['self_heal']}")
-    print("Answer")
-    print(f"  status: {answer['answer_status']}")
-    print(f"  {answer['answer_summary']}")
-    if answer["cited_metrics"]:
-        print("  cited metrics:")
-        for metric in answer["cited_metrics"]:
-            print(f"    {metric['metric_name']} = {metric['value']}")
-    if answer["caveats"]:
-        print("  caveats:")
-        for caveat in answer["caveats"]:
-            print(f"    - {caveat}")
+        for pipeline_name, heal in result["self_heal"].items():
+            verification = heal["repair_verification"]
+            print(f"Self-heal attempted [{pipeline_name}]: {verification.get('summary')}")
+            if heal.get("diagnosis"):
+                diagnosis = heal["diagnosis"]
+                print(f"  diagnosis: {diagnosis.get('root_cause_category')} -- {diagnosis.get('root_cause')}")
+            if heal.get("repair_result"):
+                print(f"  repair_status: {heal['repair_result'].get('repair_status')}")
+            print(f"  verification_status: {verification.get('verification_status')}")
+
+    def _print_answer(label: str, answer: dict) -> None:
+        print(label)
+        print(f"  status: {answer['answer_status']}")
+        print(f"  {answer['answer_summary']}")
+        if answer["cited_metrics"]:
+            print("  cited metrics:")
+            for metric in answer["cited_metrics"]:
+                print(f"    {metric['metric_name']} = {metric['value']}")
+        if answer["caveats"]:
+            print("  caveats:")
+            for caveat in answer["caveats"]:
+                print(f"    - {caveat}")
+
+    _print_answer("Answer", result["answer"])
+    if result.get("corrected_answer"):
+        _print_answer("Corrected answer", result["corrected_answer"])
 
 
 def parse_args(argv: list = None) -> argparse.Namespace:

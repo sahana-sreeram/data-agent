@@ -95,3 +95,17 @@ def test_copy_or_promote_creates_new_object_with_same_content(storage):
     assert storage.read_json(destination) == value
     # The source is untouched by a copy (unlike a move).
     assert storage.exists(source) is True
+
+
+def test_delete_removes_the_object(storage):
+    path = f"{TEST_PREFIX}to_delete.json"
+    storage.write_json(path, {"x": 1})
+    assert storage.exists(path) is True
+
+    storage.delete(path)
+
+    assert storage.exists(path) is False
+
+
+def test_delete_of_missing_key_does_not_raise(storage):
+    storage.delete(f"{TEST_PREFIX}never_existed.json")

@@ -6,15 +6,133 @@
     "s3://data-agent/curated/underwriting_performance_rejections.parquet"
   ],
   "grain": "one row per (breakdown_type, breakdown_value) where breakdown_type is 'risk_segment' or 'model_version'; a separate table has one row per rejection_reason",
-  "source_tables": ["lifecycle.underwriting_decisions", "lifecycle.applications", "lifecycle.customers"],
+  "source_tables": [
+    "lifecycle.underwriting_decisions",
+    "lifecycle.applications",
+    "lifecycle.customers"
+  ],
   "metrics": {
-    "decision_count": {"business_definition": "Number of underwriting decisions in this breakdown group.", "formula": "count(underwriting_decisions grouped by risk_segment or model_version)", "source_tables": ["lifecycle.underwriting_decisions"], "filters": [], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "approved_count": {"business_definition": "Decisions in this group that were APPROVED.", "formula": "count(decision == 'APPROVED')", "source_tables": ["lifecycle.underwriting_decisions"], "filters": ["decision == 'APPROVED'"], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "rejected_count": {"business_definition": "Decisions in this group that were REJECTED.", "formula": "count(decision == 'REJECTED')", "source_tables": ["lifecycle.underwriting_decisions"], "filters": ["decision == 'REJECTED'"], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "manual_review_count": {"business_definition": "Decisions in this group flagged for MANUAL_REVIEW.", "formula": "count(decision == 'MANUAL_REVIEW')", "source_tables": ["lifecycle.underwriting_decisions"], "filters": ["decision == 'MANUAL_REVIEW'"], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "approval_rate": {"business_definition": "Share of decisions in this group that were approved.", "formula": "approved_count / decision_count", "source_tables": ["lifecycle.underwriting_decisions"], "filters": [], "grain": "per breakdown_value", "expected_range": "0-1", "caveats": ["Answers 'what was the approval rate this week?' when filtered by decided_at, and 'did approval rates change after the new underwriting model?' via the model_version breakdown."], "qa_supported": true},
-    "avg_approved_amount": {"business_definition": "Average approved loan amount for APPROVED decisions in this group.", "formula": "mean(approved_amount where decision == 'APPROVED')", "source_tables": ["lifecycle.underwriting_decisions"], "filters": ["decision == 'APPROVED'"], "grain": "per breakdown_value", "expected_range": "> 0 or null if no approvals", "caveats": [], "qa_supported": true},
-    "avg_approved_apr": {"business_definition": "Average approved APR for APPROVED decisions in this group.", "formula": "mean(approved_apr where decision == 'APPROVED')", "source_tables": ["lifecycle.underwriting_decisions"], "filters": ["decision == 'APPROVED'"], "grain": "per breakdown_value", "expected_range": "0.04-0.25 or null if no approvals", "caveats": ["Answers 'which customer segment received the highest rates?' via the risk_segment breakdown."], "qa_supported": true},
-    "rejection_reason_count": {"business_definition": "Count of REJECTED decisions by rejection_reason, portfolio-wide.", "formula": "count(underwriting_decisions where decision == 'REJECTED', grouped by rejection_reason)", "source_tables": ["lifecycle.underwriting_decisions"], "filters": ["decision == 'REJECTED'"], "grain": "per rejection_reason", "expected_range": ">= 0", "caveats": ["Answers 'which rejection reason was most common?'"], "qa_supported": true}
+    "decision_count": {
+      "business_definition": "Number of underwriting decisions in this breakdown group.",
+      "formula": "count(underwriting_decisions grouped by risk_segment or model_version)",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "approved_count": {
+      "business_definition": "Decisions in this group that were APPROVED.",
+      "formula": "count(decision == 'APPROVED')",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [
+        "decision == 'APPROVED'"
+      ],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "rejected_count": {
+      "business_definition": "Decisions in this group that were REJECTED.",
+      "formula": "count(decision == 'REJECTED')",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [
+        "decision == 'REJECTED'"
+      ],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "manual_review_count": {
+      "business_definition": "Decisions in this group flagged for MANUAL_REVIEW.",
+      "formula": "count(decision == 'MANUAL_REVIEW')",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [
+        "decision == 'MANUAL_REVIEW'"
+      ],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "approval_rate": {
+      "business_definition": "Share of decisions in this group that were approved.",
+      "formula": "approved_count / decision_count",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": "0-1",
+      "caveats": [
+        "Answers 'what was the approval rate this week?' when filtered by decided_at, and 'did approval rates change after the new underwriting model?' via the model_version breakdown."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "avg_approved_amount": {
+      "business_definition": "Average approved loan amount for APPROVED decisions in this group.",
+      "formula": "mean(approved_amount where decision == 'APPROVED')",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [
+        "decision == 'APPROVED'"
+      ],
+      "grain": "per breakdown_value",
+      "expected_range": "> 0 or null if no approvals",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "avg_approved_apr": {
+      "business_definition": "Average approved APR for APPROVED decisions in this group.",
+      "formula": "mean(approved_apr where decision == 'APPROVED')",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [
+        "decision == 'APPROVED'"
+      ],
+      "grain": "per breakdown_value",
+      "expected_range": "0.04-0.25 or null if no approvals",
+      "caveats": [
+        "Answers 'which customer segment received the highest rates?' via the risk_segment breakdown."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "rejection_reason_count": {
+      "business_definition": "Count of REJECTED decisions by rejection_reason, portfolio-wide.",
+      "formula": "count(underwriting_decisions where decision == 'REJECTED', grouped by rejection_reason)",
+      "source_tables": [
+        "lifecycle.underwriting_decisions"
+      ],
+      "filters": [
+        "decision == 'REJECTED'"
+      ],
+      "grain": "per rejection_reason",
+      "expected_range": ">= 0",
+      "caveats": [
+        "Answers 'which rejection reason was most common?'"
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    }
   }
 }

@@ -13,9 +13,13 @@ from pathlib import Path
 import pytest
 
 from src.lifecycle_apply_repair import ApplyLifecycleRepairError, run_apply_lifecycle_repair
+from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.lifecycle_repair_agent import SUBMIT_REPAIR_PLAN_TOOL_NAME
-from src.lifecycle_repair_tools import ETL_SOURCE_FILE
 from src.model_client import ModelResponse, ScriptedDiagnosisModelClient, ToolCall
+from src.legacy.repair_models import RepairEligibility, evaluate_repair_eligibility
+
+PIPELINE_NAME = "loan_portfolio"
+ETL_SOURCE_FILE = PIPELINE_REGISTRY[PIPELINE_NAME].etl_source_file
 
 VALIDATION_RESULTS = {
     "overall_status": "FAIL",
@@ -109,6 +113,7 @@ def test_no_incident_short_circuits_without_calling_model(tmp_path):
         raise AssertionError("model should not be called for NO_INCIDENT")
 
     plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
         _FakeStorage(), diagnosis, VALIDATION_RESULTS, factory, repair_targets_file=str(_repair_targets_file(tmp_path))
     )
     assert result["repair_status"] == "NO_REPAIR"
@@ -122,6 +127,7 @@ def test_ineligible_root_cause_is_blocked_without_calling_model(tmp_path):
         raise AssertionError("model should not be called when eligibility blocks the incident")
 
     plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
         _FakeStorage(), diagnosis, VALIDATION_RESULTS, factory, repair_targets_file=str(_repair_targets_file(tmp_path))
     )
     assert result["repair_status"] == "BLOCKED"
@@ -134,6 +140,7 @@ def test_eligible_incident_applies_code_change_in_isolation(tmp_path):
     original_content = Path(ETL_SOURCE_FILE).read_text()
 
     plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
         _FakeStorage(),
         diagnosis,
         VALIDATION_RESULTS,
@@ -164,6 +171,7 @@ def test_malformed_model_output_raises_apply_lifecycle_repair_error(tmp_path):
 
     with pytest.raises(ApplyLifecycleRepairError):
         run_apply_lifecycle_repair(
+            PIPELINE_NAME,
             _FakeStorage(),
             diagnosis,
             VALIDATION_RESULTS,
@@ -194,6 +202,7 @@ def test_patch_producing_no_change_is_blocked(tmp_path):
     responses = [ModelResponse(tool_calls=[ToolCall(id="1", name=SUBMIT_REPAIR_PLAN_TOOL_NAME, arguments=_code_submission(no_op_diff))])]
 
     plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
         _FakeStorage(),
         diagnosis,
         VALIDATION_RESULTS,
@@ -230,6 +239,7 @@ def test_no_safe_repair_decision_yields_no_repair_status(tmp_path):
     responses = [ModelResponse(tool_calls=[ToolCall(id="1", name=SUBMIT_REPAIR_PLAN_TOOL_NAME, arguments=raw)])]
 
     plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
         _FakeStorage(),
         diagnosis,
         VALIDATION_RESULTS,
@@ -237,3 +247,26 @@ def test_no_safe_repair_decision_yields_no_repair_status(tmp_path):
         repair_targets_file=str(_repair_targets_file(tmp_path)),
     )
     assert result["repair_status"] == "NO_REPAIR"
+
+
+# --- Eligibility/allowlist consistency across every registered pipeline -------------------
+
+
+@pytest.mark.parametrize("pipeline_name", list(PIPELINE_REGISTRY))
+def test_every_pipelines_etl_source_is_eligible_and_registered_as_a_repair_target(pipeline_name):
+    spec = PIPELINE_REGISTRY[pipeline_name]
+    diagnosis = {
+        "diagnosis_status": "DIAGNOSED",
+        "root_cause_category": "ETL_LOGIC",
+        "confidence": "HIGH",
+        "evidence": [{"source_type": "ETL_SOURCE", "source_reference": "get_relevant_etl_source"}],
+        "recommended_fix": {"target_file": spec.etl_source_file, "change_summary": "x", "scope": "MINIMAL"},
+    }
+    decision = evaluate_repair_eligibility(diagnosis, allowed_target_files={spec.etl_source_file})
+    assert decision.decision == RepairEligibility.ELIGIBLE_FOR_REPAIR
+
+    real_targets = json.loads(Path("context/repair_targets.json").read_text())["targets"]
+    assert spec.etl_source_file in real_targets
+    assert real_targets[spec.etl_source_file]["repair_type"] == "CODE_CHANGE"
+    assert set(real_targets[spec.etl_source_file].get("editable_symbols", [])) == set(spec.etl_function_names)
+    assert Path(spec.etl_source_file).exists()

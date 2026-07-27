@@ -73,7 +73,7 @@
   },
   "portfolio_summary": {
     "path": "data/processed/portfolio_summary.json",
-    "description": "Single aggregate object (not an array) produced by src/transform.py from loans.json and payments.json.",
+    "description": "Single aggregate object (not an array) produced by src/legacy/transform.py from loans.json and payments.json.",
     "fields": {
       "as_of_date": {"type": "string (ISO date)", "description": "The business date this summary represents."},
       "loan_count": {"type": "int", "description": "Total number of loans."},

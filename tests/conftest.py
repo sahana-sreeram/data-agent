@@ -70,3 +70,9 @@ class PrefixedStorage:
 
     def exists(self, path: str) -> bool:
         return self._storage.exists(f"{self._prefix}{path}")
+
+    def delete(self, path: str) -> None:
+        self._storage.delete(f"{self._prefix}{path}")
+
+    def copy_or_promote(self, source: str, destination: str) -> None:
+        self._storage.copy_or_promote(f"{self._prefix}{source}", f"{self._prefix}{destination}")

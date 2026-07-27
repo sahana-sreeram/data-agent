@@ -13,7 +13,8 @@
       "grain": "portfolio-wide",
       "expected_range": ">= 0",
       "caveats": [],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": []
     },
     "active_loan_count": {
       "business_definition": "Loans still within their term as of as_of_date.",
@@ -23,7 +24,8 @@
       "grain": "portfolio-wide",
       "expected_range": ">= 0",
       "caveats": [],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": []
     },
     "closed_loan_count": {
       "business_definition": "Loans whose full term has elapsed and were repaid.",
@@ -33,7 +35,8 @@
       "grain": "portfolio-wide",
       "expected_range": ">= 0",
       "caveats": [],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": []
     },
     "defaulted_loan_count": {
       "business_definition": "Loans that defaulted (see lifecycle.defaults for detail).",
@@ -43,7 +46,8 @@
       "grain": "portfolio-wide",
       "expected_range": ">= 0",
       "caveats": [],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": []
     },
     "total_funded_principal": {
       "business_definition": "Total original principal across all funded loans.",
@@ -53,7 +57,8 @@
       "grain": "portfolio-wide",
       "expected_range": "> 0",
       "caveats": [],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": []
     },
     "total_outstanding_principal": {
       "business_definition": "Total remaining principal owed across the portfolio, net of successful payments and any reversals.",
@@ -65,7 +70,8 @@
       "caveats": [
         "Deliberately nets REVERSED events against their original PAID amount (REVERSAL rows carry a negative amount by construction) -- a naive filter of payment_status == 'PAID' alone would overstate how much has actually been collected. See the 'reversed payments counted as successful' failure category this guards against."
       ],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": ["successful_payment_statuses"]
     },
     "avg_interest_rate": {
       "business_definition": "Average interest rate across all funded loans.",
@@ -75,7 +81,8 @@
       "grain": "portfolio-wide",
       "expected_range": "0.04 - 0.25 (see generate_data.py's INTEREST_RATE_RANGE_BY_RISK)",
       "caveats": [],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": []
     },
     "total_accrued_interest": {
       "business_definition": "Simple interest accrued since origination, ACTIVE loans only.",
@@ -88,7 +95,8 @@
         "CLOSED/DEFAULTED loans do not contribute -- their interest is treated as already realized/resolved, not separately tracked, per business_rules.interest_accrual.",
         "ACT/365 simple-interest day-count convention, per business_rules.interest_accrual.day_count_convention -- not compounding, not the loan's actual amortization schedule."
       ],
-      "qa_supported": true
+      "qa_supported": true,
+      "business_rule_dependencies": ["interest_accrual.accrues_on_statuses"]
     }
   }
 }

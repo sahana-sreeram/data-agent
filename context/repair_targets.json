@@ -11,7 +11,7 @@
       },
       "description": "Points the settled_rule_adopted scenario's ETL execution at which business_rules.json file to use. The stale (checked-in) value points at the old, pre-rule-change file; the fix points it at the already-existing adopted-rule file living in the same scenario directory. No file CONTENT is edited by this target -- only which file the ETL is told to read."
     },
-    "src/transform.py": {
+    "src/legacy/transform.py": {
       "repair_type": "CODE_CHANGE",
       "editable_symbols": ["compute_portfolio_summary_from_payment_events", "compute_portfolio_summary_with_payment_join"],
       "description": "Two independent ETL functions live in this file and may each be repaired independently, but a repair must touch only ONE of them (the one implicated by its own diagnosis), never both, and never compute_portfolio_summary. compute_portfolio_summary_from_payment_events: collapse SETTLED events to one per payment_id (per business_rules.payment_event_rules.duplicate_policy) before aggregating, refusing to collapse when a payment_id has conflicting SETTLED amounts. compute_portfolio_summary_with_payment_join: preserve every loan by using how='left' (not 'inner') when joining aggregated payment totals onto loans, treating a missing payment total as zero rather than dropping the loan."
@@ -20,11 +20,31 @@
       "repair_type": "CODE_CHANGE",
       "editable_symbols": ["compute_loan_portfolio"],
       "description": "The lifecycle model's loan_portfolio PySpark ETL. Its only function, compute_loan_portfolio, must preserve every loan by using how='left' (not 'inner') when joining the aggregated net-successful-payment total onto loans, treating a missing/zero net-paid amount as 0.0 rather than dropping the loan from the entire portfolio."
+    },
+    "src/etl_spark_campaign_funnel.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_campaign_funnel", "_attribute_applications_to_campaigns"],
+      "description": "The lifecycle model's campaign_funnel PySpark ETL. Its main function, compute_campaign_funnel, must attribute every campaign_id=NULL ('organic') row's activity correctly by joining on the reserved sentinel string (never a raw NULL column, since Spark's equi-join treats NULL != NULL and would silently drop the organic row's data), and must compute each of the 6 funnel rates (open_rate through approval_to_funded_rate) as numerator/denominator with the denominator guarded against zero. _attribute_applications_to_campaigns (its private helper) must attribute every application -- via its offer, or organically if it has none -- to exactly one campaign_id or the organic sentinel, never dropping or double-counting an application."
+    },
+    "src/etl_spark_underwriting_performance.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_underwriting_performance", "compute_rejection_distribution", "_decisions_with_risk_segment", "_breakdown"],
+      "description": "The lifecycle model's underwriting_performance PySpark ETL has two independent top-level functions plus two private helpers; a repair must touch only the ONE function/helper implicated by its own diagnosis, never more than one at once. compute_underwriting_performance (using helpers _decisions_with_risk_segment and _breakdown): break out decision counts/rates correctly by BOTH risk_segment and model_version (two separate breakdown_type rows per key), joining underwriting_decisions to applications/customers only where needed for the risk_segment view. compute_rejection_distribution: count only decision == 'REJECTED' rows, grouped by rejection_reason."
+    },
+    "src/etl_spark_payment_performance.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_payment_performance"],
+      "description": "The lifecycle model's payment_performance PySpark ETL. Its only function, compute_payment_performance, must net a REVERSAL's (negative) amount against its original PAID amount when computing total_collected_amount, count only payment_schedule rows due on/before as_of_date as 'expected', and compute missed_amount from the SCHEDULED amount (via a join back to payment_schedule) rather than the (always-zero) MISSED event's own amount."
+    },
+    "src/etl_spark_delinquency_default.py": {
+      "repair_type": "CODE_CHANGE",
+      "editable_symbols": ["compute_delinquency_default", "_metrics_for_group"],
+      "description": "The lifecycle model's delinquency_default PySpark ETL. _metrics_for_group (the private helper compute_delinquency_default calls once for the overall row and once per risk_segment) must compute loss_rate using business_rules.loss_rate_denominator (a column NAME -- 'total_funded_principal' today -- naming which column in the same breakdown row to divide by), never a hardcoded denominator column. compute_delinquency_default itself must produce both an overall ('ALL') row and one row per risk_segment."
     }
   },
   "notes": [
     "This is the STRICT, write-capable registry used by src.repair_models.parse_repair_plan to validate a repair agent's proposed target_file and patch. It is deliberately narrower than what a diagnosis's recommended_fix.target_file may name (e.g. a diagnosis may point at 'context/business_rules.json' as the conceptual problem area without knowing about pipeline_config.json's indirection) -- the repair agent's own get_allowed_repair_targets/get_pipeline_configuration tools are what let it discover and propose the REAL, precise, safe target registered here.",
     "Adding a future repair target is a data change to this file, not a code change -- consistent with how business_rules.json and validation_rules.json are also treated as data, not code.",
-    "editable_symbols for a CODE_CHANGE target is advisory/documentation, not schema-enforced by parse_repair_plan (unlike CONFIGURATION_CHANGE's editable_fields/allowed_values, which ARE enforced) -- the repair agent's system prompt ('touch only the one function implicated by the diagnosis') is what actually keeps a multi-function file's repair narrowly scoped, same as it already does for src/transform.py's two other functions."
+    "editable_symbols for a CODE_CHANGE target is advisory/documentation, not schema-enforced by parse_repair_plan (unlike CONFIGURATION_CHANGE's editable_fields/allowed_values, which ARE enforced) -- the repair agent's system prompt ('touch only the one function implicated by the diagnosis') is what actually keeps a multi-function file's repair narrowly scoped, same as it already does for src/legacy/transform.py's two other functions."
   ]
 }

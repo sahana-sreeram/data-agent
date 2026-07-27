@@ -1,8 +1,9 @@
-"""Read-only, allowlisted planning tools for repairing the loan_portfolio lifecycle pipeline.
+"""Read-only, allowlisted planning tools for repairing any of the 5 lifecycle pipelines.
 Parallel to src/repair_tools.py (left completely unmodified) for the S3-backed lifecycle
-model, which has only one pipeline with repair machinery and no pipeline_configuration
-concept -- so get_pipeline_configuration always reports unavailable, and get_lineage/
-get_relevant_etl_source resolve a single fixed entry rather than choosing among several.
+model, which has no pipeline_configuration concept -- so get_pipeline_configuration always
+reports unavailable. Which lineage key / ETL source file / function(s) apply to a given
+pipeline are instance fields (from src/lifecycle_pipeline_registry.py), not hardcoded, so
+the same class serves all 5 pipelines.
 
 The repair agent never receives a write-capable tool; applying a plan is done entirely by
 deterministic code in src/lifecycle_apply_repair.py, after the plan passes policy
@@ -13,14 +14,8 @@ from __future__ import annotations
 
 import hashlib
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-
-from src.etl_spark_loan_portfolio import compute_loan_portfolio
-
-LINEAGE_DATASET_KEY = "curated.loan_portfolio"
-ETL_FUNCTION_NAME = "compute_loan_portfolio"
-ETL_SOURCE_FILE = "src/etl_spark_loan_portfolio.py"
 
 
 class ToolError(Exception):
@@ -33,9 +28,12 @@ class LifecycleRepairTools:
     validation_results: dict
     business_rules: dict  # context/business_rules.json content, verbatim
     lineage: dict  # full context/lineage.json content
-    metrics: dict  # context/metrics/loan_portfolio.json content
+    metrics: dict  # context/metrics/<pipeline>.json content
     allowed_repair_targets: dict  # target_file -> descriptor, from context/repair_targets.json
     test_inventory: list
+    lineage_key: str = ""  # e.g. "curated.loan_portfolio"
+    etl_source_file: str = ""
+    etl_functions: dict = field(default_factory=dict)  # function name -> callable
 
     def get_diagnosis(self) -> dict:
         """The full diagnosis this repair is addressing."""
@@ -47,29 +45,27 @@ class LifecycleRepairTools:
         return {"failed_checks": failed}
 
     def get_business_rules(self, alias: str = "CURRENT") -> dict:
-        """context/business_rules.json content. Only one rules file exists for this
+        """context/business_rules.json content. Only one rules file exists for any
         pipeline, so alias is accepted for tool-surface parity but always resolves to it."""
         return {"alias": alias, "content": self.business_rules}
 
     def get_lineage(self, metric: str) -> dict:
-        """The lineage entry (producer, dependencies) for curated.loan_portfolio."""
-        entry = self.lineage.get("datasets", {}).get(LINEAGE_DATASET_KEY)
+        """The lineage entry (producer, dependencies) for this pipeline's curated dataset."""
+        entry = self.lineage.get("datasets", {}).get(self.lineage_key)
         if entry is None:
-            raise ToolError(f"lineage entry for {LINEAGE_DATASET_KEY!r} not found")
+            raise ToolError(f"lineage entry for {self.lineage_key!r} not found")
         return {"metric": metric, "lineage": entry}
 
     def get_pipeline_configuration(self) -> dict:
-        """No configuration file exists for this pipeline -- compute_loan_portfolio's
-        logic in src/etl_spark_loan_portfolio.py is the only place metric formulas live."""
+        """No configuration file exists for any lifecycle pipeline -- the ETL source is the
+        only place metric formulas live."""
         return {"available": False}
 
-    def get_relevant_etl_source(self, metric_name: str) -> dict:
-        """The source of compute_loan_portfolio, the only ETL function for this pipeline."""
+    def get_relevant_etl_source(self) -> dict:
+        """The source of every ETL function that computes this pipeline's curated output(s)."""
         return {
-            "metric_name": metric_name,
-            "file": ETL_SOURCE_FILE,
-            "function": ETL_FUNCTION_NAME,
-            "source": inspect.getsource(compute_loan_portfolio),
+            "file": self.etl_source_file,
+            "functions": {name: inspect.getsource(fn) for name, fn in self.etl_functions.items()},
         }
 
     def get_allowed_repair_targets(self) -> dict:
@@ -84,7 +80,7 @@ class LifecycleRepairTools:
         """sha256 of the ETL source file's CURRENT content. Only one alias exists here."""
         if target_alias != "ETL_SOURCE":
             raise ToolError(f"unknown target_alias {target_alias!r}; known aliases: ['ETL_SOURCE']")
-        path = Path(ETL_SOURCE_FILE)
+        path = Path(self.etl_source_file)
         if not path.exists():
             raise ToolError(f"file for alias {target_alias!r} does not exist: {path}")
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -152,10 +148,10 @@ TOOL_SPECS: list = [
         "type": "function",
         "function": {
             "name": "get_lineage",
-            "description": "Return the lineage entry (producer, dependencies) for the loan_portfolio curated dataset.",
+            "description": "Return the lineage entry (producer, dependencies) for this pipeline's curated dataset.",
             "parameters": {
                 "type": "object",
-                "properties": {"metric": {"type": "string", "description": "A loan_portfolio curated metric name."}},
+                "properties": {"metric": {"type": "string", "description": "A curated metric name from this pipeline."}},
                 "required": ["metric"],
             },
         },
@@ -164,7 +160,7 @@ TOOL_SPECS: list = [
         "type": "function",
         "function": {
             "name": "get_pipeline_configuration",
-            "description": "Return this pipeline's configuration, if it has one (this pipeline has none -- always reports unavailable).",
+            "description": "Return this pipeline's configuration, if it has one (no lifecycle pipeline has one -- always reports unavailable).",
             "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
@@ -172,12 +168,8 @@ TOOL_SPECS: list = [
         "type": "function",
         "function": {
             "name": "get_relevant_etl_source",
-            "description": "Return the bounded source of compute_loan_portfolio, the ETL function relevant to this incident.",
-            "parameters": {
-                "type": "object",
-                "properties": {"metric_name": {"type": "string", "description": "A loan_portfolio curated metric name."}},
-                "required": ["metric_name"],
-            },
+            "description": "Return the bounded source of every ETL function relevant to this pipeline's curated output(s).",
+            "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
     {

@@ -25,9 +25,15 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 
+import pandas as pd
 
-class ToolError(Exception):
-    """Raised for invalid tool arguments. Caught by dispatch_tool; never crashes the agent loop."""
+from src import dataset_registry_tools as registry_tools
+from src.dataset_registry_tools import DEFAULT_SAMPLE_LIMIT, ToolError
+
+# Curated tables with more than one row -- the only ones that support bounded
+# filter/group/aggregate/join queries. loan_portfolio and payment_performance are already
+# single-row summaries, so query support would be meaningless for them.
+QUERYABLE_DATASETS = ("campaign_funnel", "underwriting_performance", "delinquency_default")
 
 
 def _clean_value(value):
@@ -55,6 +61,13 @@ class LifecycleBusinessTools:
     delinquency_default: list
     business_rules: dict
     metrics_by_pipeline: dict = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self._registry = {
+            "campaign_funnel": pd.DataFrame(self.campaign_funnel),
+            "underwriting_performance": pd.DataFrame(self.underwriting_performance),
+            "delinquency_default": pd.DataFrame(self.delinquency_default),
+        }
 
     def get_loan_portfolio_summary(self) -> dict:
         """The trusted, curated loan_portfolio summary: funded/outstanding principal, loan counts by status, accrued interest."""
@@ -93,6 +106,22 @@ class LifecycleBusinessTools:
         """The approved business rules (e.g. which payment statuses count as successful, prepayment threshold, interest accrual convention, loss rate denominator)."""
         return self.business_rules
 
+    def aggregate_curated_data(self, dataset: str, group_by: list, metrics: list, filters: dict = None) -> dict:
+        """Bounded group-by aggregation over one of the multi-row curated tables (campaign_funnel, underwriting_performance, delinquency_default) -- e.g. sum(loans_funded) per channel."""
+        return _clean_for_json(registry_tools.aggregate_dataset(self._registry, dataset, group_by, metrics, filters))
+
+    def sample_curated_data(self, dataset: str, filters: dict = None, columns: list = None, limit: int = DEFAULT_SAMPLE_LIMIT) -> dict:
+        """Bounded, filtered row sampling from one of the multi-row curated tables, with optional column selection -- e.g. campaigns with open_rate above 0.5."""
+        return _clean_for_json(registry_tools.sample_dataset(self._registry, dataset, filters, columns, limit))
+
+    def join_curated_data(
+        self, left_dataset: str, right_dataset: str, join_keys: list, left_filters: dict = None, right_filters: dict = None
+    ) -> dict:
+        """Row-level join of two multi-row curated tables on shared key column(s), each side optionally pre-filtered -- e.g. joining underwriting_performance (filtered to breakdown_type='risk_segment') to delinquency_default on breakdown_value, to compare approval and default rates for the same segment."""
+        return _clean_for_json(
+            registry_tools.join_datasets(self._registry, left_dataset, right_dataset, join_keys, left_filters, right_filters)
+        )
+
 
 ALLOWLISTED_TOOL_NAMES = frozenset(
     {
@@ -104,6 +133,9 @@ ALLOWLISTED_TOOL_NAMES = frozenset(
         "get_delinquency_default",
         "get_metric_definition",
         "get_business_rules",
+        "aggregate_curated_data",
+        "sample_curated_data",
+        "join_curated_data",
     }
 )
 
@@ -194,6 +226,81 @@ TOOL_SPECS: list = [
             "name": "get_business_rules",
             "description": "Return the approved business rules (e.g. prepayment threshold, interest accrual convention, loss rate denominator) for context on how metrics were computed.",
             "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "aggregate_curated_data",
+            "description": "Return a bounded group-by aggregation (count/sum/mean/nunique) over one of the multi-row curated tables (campaign_funnel, underwriting_performance, delinquency_default) -- e.g. total loans_funded per channel, or average approval_rate per model_version.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "dataset": {"type": "string", "enum": list(QUERYABLE_DATASETS)},
+                    "group_by": {"type": "array", "items": {"type": "string"}, "description": "Column(s) to group by."},
+                    "metrics": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "column": {"type": "string", "description": "Required unless agg is 'count'."},
+                                "agg": {"type": "string", "enum": ["count", "sum", "mean", "nunique"]},
+                            },
+                            "required": ["agg"],
+                        },
+                        "description": "e.g. [{\"agg\": \"sum\", \"column\": \"loans_funded\"}]",
+                    },
+                    "filters": {
+                        "type": "object",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters applied before aggregating.",
+                    },
+                },
+                "required": ["dataset", "group_by", "metrics"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sample_curated_data",
+            "description": "Return up to `limit` filtered rows from one of the multi-row curated tables (campaign_funnel, underwriting_performance, delinquency_default) -- e.g. campaigns with open_rate above 0.5.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "dataset": {"type": "string", "enum": list(QUERYABLE_DATASETS)},
+                    "filters": {
+                        "type": "object",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters, e.g. {\"open_rate\": {\"gt\": 0.5}}.",
+                    },
+                    "columns": {"type": "array", "items": {"type": "string"}, "description": "Optional column subset to return."},
+                    "limit": {"type": "integer", "description": "1-20, defaults to 5."},
+                },
+                "required": ["dataset"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "join_curated_data",
+            "description": "Return the row-level join of two multi-row curated tables on a shared key column -- e.g. joining underwriting_performance (filtered to breakdown_type='risk_segment') to delinquency_default on breakdown_value, to compare approval_rate against default_rate/loss_rate for the same segment in one result.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "left_dataset": {"type": "string", "enum": list(QUERYABLE_DATASETS)},
+                    "right_dataset": {"type": "string", "enum": list(QUERYABLE_DATASETS)},
+                    "join_keys": {"type": "array", "items": {"type": "string"}, "description": "Column(s) present in both datasets to join on, e.g. [\"breakdown_value\"]."},
+                    "left_filters": {
+                        "type": "object",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters applied to left_dataset before joining, e.g. {\"breakdown_type\": \"risk_segment\"}.",
+                    },
+                    "right_filters": {
+                        "type": "object",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters applied to right_dataset before joining.",
+                    },
+                },
+                "required": ["left_dataset", "right_dataset", "join_keys"],
+            },
         },
     },
 ]

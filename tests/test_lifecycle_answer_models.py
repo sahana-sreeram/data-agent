@@ -19,13 +19,15 @@ MULTI_ROW_RESULTS = {
 }
 
 
-def _submission(metric_name, value, source_reference, status="ANSWERED"):
+def _submission(metric_name, value, source_reference, status="ANSWERED", row_identifier=None):
     return {
         "answer_status": status,
         "question": "q",
         "answer_summary": "summary",
         "as_of_date": None,
-        "cited_metrics": [{"metric_name": metric_name, "value": value, "source_reference": source_reference}],
+        "cited_metrics": [
+            {"metric_name": metric_name, "value": value, "source_reference": source_reference, "row_identifier": row_identifier}
+        ],
         "caveats": [] if status == "ANSWERED" else ["reason"],
     }
 
@@ -42,12 +44,84 @@ def test_grounds_successfully_against_a_flat_dict_result():
 
 def test_grounds_successfully_against_a_row_in_a_multi_row_result():
     result = parse_lifecycle_business_answer(
-        _submission("loans_funded", 23, "get_campaign_funnel"),
+        _submission("loans_funded", 23, "get_campaign_funnel", row_identifier={"campaign_id": "CMP0008"}),
         called_tool_names={"get_campaign_funnel"},
         known_metric_names=KNOWN_METRICS,
         tool_results_by_name=MULTI_ROW_RESULTS,
     )
     assert result.cited_metrics[0].value == 23
+
+
+def test_rejects_a_multi_row_citation_with_no_row_identifier_even_when_the_value_is_unique():
+    # 23 is unique to CMP0008 in the fixture, but omitting row_identifier must still fail --
+    # the model must always be explicit about which row it means, not rely on the value
+    # happening to be unique. This is the exact gap this phase closes.
+    with pytest.raises(AnswerValidationError, match="was not found"):
+        parse_lifecycle_business_answer(
+            _submission("loans_funded", 23, "get_campaign_funnel"),
+            called_tool_names={"get_campaign_funnel"},
+            known_metric_names=KNOWN_METRICS,
+            tool_results_by_name=MULTI_ROW_RESULTS,
+        )
+
+
+def test_rejects_a_row_identifier_that_does_not_match_any_row():
+    with pytest.raises(AnswerValidationError, match="was not found"):
+        parse_lifecycle_business_answer(
+            _submission("loans_funded", 23, "get_campaign_funnel", row_identifier={"campaign_id": "CMP9999"}),
+            called_tool_names={"get_campaign_funnel"},
+            known_metric_names=KNOWN_METRICS,
+            tool_results_by_name=MULTI_ROW_RESULTS,
+        )
+
+
+def test_rejects_a_row_identifier_that_matches_the_wrong_row():
+    # loans_funded=3 is real, but only for CMP0001 -- citing it against CMP0008 must fail.
+    with pytest.raises(AnswerValidationError, match="was not found"):
+        parse_lifecycle_business_answer(
+            _submission("loans_funded", 3, "get_campaign_funnel", row_identifier={"campaign_id": "CMP0008"}),
+            called_tool_names={"get_campaign_funnel"},
+            known_metric_names=KNOWN_METRICS,
+            tool_results_by_name=MULTI_ROW_RESULTS,
+        )
+
+
+def test_row_identifier_is_optional_for_a_single_row_result():
+    single_row_results = {"get_delinquency_default": [{"rows": [{"breakdown_value": "ALL", "loan_count": 5}]}]}
+    result = parse_lifecycle_business_answer(
+        _submission("loan_count", 5, "get_delinquency_default"),
+        called_tool_names={"get_delinquency_default"},
+        known_metric_names=KNOWN_METRICS | {"loan_count"},
+        tool_results_by_name=single_row_results,
+    )
+    assert result.cited_metrics[0].value == 5
+
+
+def test_grounds_a_dynamically_named_aggregate_field_not_in_known_metric_names():
+    # aggregate_curated_data's field names (e.g. "sum_loans_funded") are computed from the
+    # model's own group_by/metrics choice at call time and can never be pre-registered in
+    # known_metric_names -- but a real value from a real result is just as strongly grounded.
+    aggregate_results = {
+        "aggregate_curated_data": [{"groups": [{"channel": "EMAIL", "sum_loans_funded": 42}, {"channel": "SOCIAL", "sum_loans_funded": 7}]}]
+    }
+    result = parse_lifecycle_business_answer(
+        _submission("sum_loans_funded", 42, "aggregate_curated_data", row_identifier={"channel": "EMAIL"}),
+        called_tool_names={"aggregate_curated_data"},
+        known_metric_names=KNOWN_METRICS,  # deliberately does NOT contain "sum_loans_funded"
+        tool_results_by_name=aggregate_results,
+    )
+    assert result.cited_metrics[0].value == 42
+
+
+def test_still_rejects_a_truly_fabricated_field_name_never_returned_by_any_tool():
+    aggregate_results = {"aggregate_curated_data": [{"groups": [{"channel": "EMAIL", "sum_loans_funded": 42}]}]}
+    with pytest.raises(AnswerValidationError, match="unknown metric name"):
+        parse_lifecycle_business_answer(
+            _submission("totally_made_up_field", 1, "aggregate_curated_data", row_identifier={"channel": "EMAIL"}),
+            called_tool_names={"aggregate_curated_data"},
+            known_metric_names=KNOWN_METRICS,
+            tool_results_by_name=aggregate_results,
+        )
 
 
 def test_rejects_a_value_not_present_in_any_row():

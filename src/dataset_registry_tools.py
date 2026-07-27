@@ -18,6 +18,7 @@ import pandas as pd
 MAX_SAMPLE_LIMIT = 20
 DEFAULT_SAMPLE_LIMIT = 5
 MAX_AGGREGATE_GROUPS = 50
+MAX_JOIN_ROWS = 50
 _SUPPORTED_AGGS = frozenset({"count", "sum", "mean", "nunique"})
 
 
@@ -39,18 +40,39 @@ def _require_known_columns(df: pd.DataFrame, columns: list, dataset: str) -> Non
         raise ToolError(f"unknown column(s) {unknown} for dataset {dataset!r}; known columns: {sorted(df.columns)}")
 
 
+_COMPARISON_OPS = {
+    "gt": lambda series, value: series > value,
+    "gte": lambda series, value: series >= value,
+    "lt": lambda series, value: series < value,
+    "lte": lambda series, value: series <= value,
+    "ne": lambda series, value: series != value,
+}
+
+_FILTER_CONDITION_DESCRIPTION = (
+    "a scalar (equality), {'in': [...]} (set membership), or exactly one of "
+    f"{{{', '.join(repr(op) for op in _COMPARISON_OPS)}}} (comparison)"
+)
+
+
 def _apply_filters(df: pd.DataFrame, dataset: str, filters: dict) -> pd.DataFrame:
     if not filters:
         return df
     if not isinstance(filters, dict):
-        raise ToolError("filters must be an object of {column: value} or {column: {'in': [...]}}")
+        raise ToolError(f"filters must be an object of {{column: condition}} where each condition is {_FILTER_CONDITION_DESCRIPTION}")
     _require_known_columns(df, list(filters), dataset)
     result = df
     for column, condition in filters.items():
         if isinstance(condition, dict):
-            if "in" not in condition or not isinstance(condition["in"], list):
-                raise ToolError(f"filter for column {column!r} must be a scalar or an object with an 'in' list")
-            result = result[result[column].isin(condition["in"])]
+            if "in" in condition:
+                if not isinstance(condition["in"], list):
+                    raise ToolError(f"filter for column {column!r}: 'in' must be a list")
+                result = result[result[column].isin(condition["in"])]
+            else:
+                matched_ops = [op for op in _COMPARISON_OPS if op in condition]
+                if len(matched_ops) != 1:
+                    raise ToolError(f"filter for column {column!r} must be {_FILTER_CONDITION_DESCRIPTION}")
+                op = matched_ops[0]
+                result = result[_COMPARISON_OPS[op](result[column], condition[op])]
         else:
             result = result[result[column] == condition]
     return result
@@ -186,6 +208,42 @@ def aggregate_dataset(registry: dict, dataset: str, group_by: list, metrics: lis
     }
 
 
+def join_datasets(
+    registry: dict,
+    left_dataset: str,
+    right_dataset: str,
+    join_keys: list,
+    left_filters: dict = None,
+    right_filters: dict = None,
+) -> dict:
+    """Row-level inner join of two datasets on join_keys (columns present in both), each
+    side optionally pre-filtered first. Unlike compare_dataset_keys (which only reports
+    which keys match), this returns the actual merged rows -- e.g. joining
+    underwriting_performance (filtered to breakdown_type='risk_segment') to
+    delinquency_default on breakdown_value, to compare approval and default rates for the
+    same segment in one result."""
+    left_df = _require_dataset(registry, left_dataset)
+    right_df = _require_dataset(registry, right_dataset)
+    if not isinstance(join_keys, list) or not join_keys or not all(isinstance(k, str) for k in join_keys):
+        raise ToolError("join_keys must be a non-empty list of strings")
+    _require_known_columns(left_df, join_keys, left_dataset)
+    _require_known_columns(right_df, join_keys, right_dataset)
+
+    left_filtered = _apply_filters(left_df, left_dataset, left_filters or {})
+    right_filtered = _apply_filters(right_df, right_dataset, right_filters or {})
+    merged = left_filtered.merge(right_filtered, on=join_keys, suffixes=(f"_{left_dataset}", f"_{right_dataset}"))
+
+    total = len(merged)
+    return {
+        "left_dataset": left_dataset,
+        "right_dataset": right_dataset,
+        "join_keys": join_keys,
+        "matched_row_count": int(total),
+        "truncated": total > MAX_JOIN_ROWS,
+        "rows": merged.head(MAX_JOIN_ROWS).to_dict(orient="records"),
+    }
+
+
 def sample_dataset(registry: dict, dataset: str, filters: dict = None, columns: list = None, limit: int = DEFAULT_SAMPLE_LIMIT) -> dict:
     """Bounded row sampling from an aliased dataset, with optional equality/'in' filters and column selection."""
     if not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0 or limit > MAX_SAMPLE_LIMIT:
@@ -206,6 +264,7 @@ DATASET_REGISTRY_TOOL_NAMES = frozenset(
         "analyze_key_cardinality",
         "compare_dataset_keys",
         "aggregate_dataset",
+        "join_datasets",
         "sample_dataset",
     }
 )
@@ -298,10 +357,34 @@ DATASET_REGISTRY_TOOL_SPECS: list[dict] = [
                     },
                     "filters": {
                         "type": "object",
-                        "description": "Optional {column: value} or {column: {\"in\": [...]}} filters applied before aggregating.",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters applied before aggregating.",
                     },
                 },
                 "required": ["dataset", "group_by", "metrics"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "join_datasets",
+            "description": "Return the row-level inner join of two datasets on join_keys (columns present in both), each side optionally pre-filtered first. Unlike compare_dataset_keys (key-set diff only), this returns the actual merged rows so you can compare columns from both datasets together.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "left_dataset": {"type": "string", "description": "A dataset alias from list_datasets."},
+                    "right_dataset": {"type": "string", "description": "A dataset alias from list_datasets."},
+                    "join_keys": {"type": "array", "items": {"type": "string"}, "description": "Column(s) present in both datasets to join on."},
+                    "left_filters": {
+                        "type": "object",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters applied to left_dataset before joining.",
+                    },
+                    "right_filters": {
+                        "type": "object",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters applied to right_dataset before joining.",
+                    },
+                },
+                "required": ["left_dataset", "right_dataset", "join_keys"],
             },
         },
     },
@@ -316,7 +399,7 @@ DATASET_REGISTRY_TOOL_SPECS: list[dict] = [
                     "dataset": {"type": "string", "description": "A dataset alias from list_datasets."},
                     "filters": {
                         "type": "object",
-                        "description": "Optional {column: value} or {column: {\"in\": [...]}} filters.",
+                        "description": "Optional {column: value}, {column: {\"in\": [...]}}, or {column: {\"gt\"|\"gte\"|\"lt\"|\"lte\"|\"ne\": value}} filters.",
                     },
                     "columns": {"type": "array", "items": {"type": "string"}, "description": "Optional column subset to return."},
                     "limit": {"type": "integer", "description": f"1-{MAX_SAMPLE_LIMIT}, defaults to {DEFAULT_SAMPLE_LIMIT}."},

@@ -1,12 +1,15 @@
-"""Tests for the read-only loan_portfolio repair-planning tools: facts only, no
+"""Tests for the generic, read-only lifecycle repair-planning tools: facts only, no
 write/execute capability. Parallel to tests/test_repair_tools.py."""
 
 from __future__ import annotations
 
+import importlib
 import inspect
 
 import pytest
 
+from src.etl_spark_loan_portfolio import compute_loan_portfolio
+from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.lifecycle_repair_tools import ALLOWLISTED_TOOL_NAMES, LifecycleRepairTools, ToolError, dispatch_tool
 
 DIAGNOSIS = {"diagnosis_status": "DIAGNOSED", "root_cause_category": "ETL_LOGIC", "confidence": "HIGH"}
@@ -36,6 +39,9 @@ def tools():
         metrics=METRICS,
         allowed_repair_targets=ALLOWED_REPAIR_TARGETS,
         test_inventory=TEST_INVENTORY,
+        lineage_key="curated.loan_portfolio",
+        etl_source_file="src/etl_spark_loan_portfolio.py",
+        etl_functions={"compute_loan_portfolio": compute_loan_portfolio},
     )
 
 
@@ -59,15 +65,25 @@ def test_get_lineage_returns_entry(tools):
     assert result["lineage"]["path"] == "s3://x/curated/loan_portfolio.parquet"
 
 
+def test_get_lineage_rejects_unknown_key():
+    tools = LifecycleRepairTools(
+        diagnosis=DIAGNOSIS, validation_results=VALIDATION_RESULTS, business_rules=BUSINESS_RULES,
+        lineage=LINEAGE, metrics=METRICS, allowed_repair_targets=ALLOWED_REPAIR_TARGETS,
+        test_inventory=TEST_INVENTORY, lineage_key="curated.does_not_exist",
+    )
+    with pytest.raises(ToolError):
+        tools.get_lineage("loan_count")
+
+
 def test_get_pipeline_configuration_always_unavailable(tools):
     assert tools.get_pipeline_configuration() == {"available": False}
 
 
-def test_get_relevant_etl_source_returns_real_function_source(tools):
-    result = tools.get_relevant_etl_source("loan_count")
+def test_get_relevant_etl_source_returns_every_functions_source(tools):
+    result = tools.get_relevant_etl_source()
     assert result["file"] == "src/etl_spark_loan_portfolio.py"
-    assert result["function"] == "compute_loan_portfolio"
-    assert "def compute_loan_portfolio" in result["source"]
+    assert set(result["functions"]) == {"compute_loan_portfolio"}
+    assert "def compute_loan_portfolio" in result["functions"]["compute_loan_portfolio"]
 
 
 def test_get_allowed_repair_targets_returns_the_full_registry(tools):
@@ -120,3 +136,32 @@ def test_no_tool_accepts_a_raw_filesystem_path_parameter():
         params = list(inspect.signature(method).parameters)
         for param in params:
             assert "path" not in param.lower(), f"{name} accepts a path-like parameter: {param}"
+
+
+# --- Generic construction against every registered pipeline's real ETL source -------------
+
+
+@pytest.mark.parametrize("pipeline_name", list(PIPELINE_REGISTRY))
+def test_get_relevant_etl_source_and_file_hash_work_for_every_pipeline(pipeline_name):
+    spec = PIPELINE_REGISTRY[pipeline_name]
+    module_name = spec.etl_source_file.replace("/", ".").removesuffix(".py")
+    etl_module = importlib.import_module(module_name)
+    etl_functions = {name: getattr(etl_module, name) for name in spec.etl_function_names}
+
+    tools = LifecycleRepairTools(
+        diagnosis=DIAGNOSIS, validation_results=VALIDATION_RESULTS, business_rules=BUSINESS_RULES,
+        lineage={"datasets": {spec.lineage_key: {"path": "x", "depends_on": []}}}, metrics=METRICS,
+        allowed_repair_targets={spec.etl_source_file: {"repair_type": "CODE_CHANGE"}},
+        test_inventory=[spec.test_file], lineage_key=spec.lineage_key,
+        etl_source_file=spec.etl_source_file, etl_functions=etl_functions,
+    )
+
+    source = tools.get_relevant_etl_source()
+    assert source["file"] == spec.etl_source_file
+    assert set(source["functions"]) == set(spec.etl_function_names)
+
+    file_hash = tools.get_file_hash("ETL_SOURCE")
+    assert len(file_hash["sha256"]) == 64
+
+    lineage_result = tools.get_lineage("some_metric")
+    assert lineage_result["lineage"]["path"] == "x"

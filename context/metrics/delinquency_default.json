@@ -3,15 +3,127 @@
   "produced_by": "src/etl_spark_delinquency_default.py",
   "curated_path": "s3://data-agent/curated/delinquency_default.parquet",
   "grain": "one overall row (breakdown_value='ALL') plus one row per risk_segment",
-  "source_tables": ["lifecycle.loans", "lifecycle.customers", "lifecycle.delinquency_events", "lifecycle.defaults"],
+  "source_tables": [
+    "lifecycle.loans",
+    "lifecycle.customers",
+    "lifecycle.delinquency_events",
+    "lifecycle.defaults"
+  ],
   "metrics": {
-    "delinquent_loan_count": {"business_definition": "Distinct loans with at least one delinquency_events row.", "formula": "count(distinct loan_id in delinquency_events, restricted to this group's loans)", "source_tables": ["lifecycle.delinquency_events", "lifecycle.loans"], "filters": [], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "delinquency_rate": {"business_definition": "Share of loans in this group that are delinquent.", "formula": "delinquent_loan_count / loan_count", "source_tables": ["lifecycle.delinquency_events", "lifecycle.loans"], "filters": [], "grain": "per breakdown_value", "expected_range": "0-1", "caveats": [], "qa_supported": true},
-    "default_count": {"business_definition": "Loans in this group that defaulted.", "formula": "count(defaults, restricted to this group's loans)", "source_tables": ["lifecycle.defaults", "lifecycle.loans"], "filters": [], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "default_rate": {"business_definition": "Share of loans in this group that defaulted.", "formula": "default_count / loan_count", "source_tables": ["lifecycle.defaults", "lifecycle.loans"], "filters": [], "grain": "per breakdown_value", "expected_range": "0-1", "caveats": ["Answers 'what is the default rate by risk tier?' via the per-risk_segment rows."], "qa_supported": true},
-    "total_balance_at_default": {"business_definition": "Total outstanding balance at the moment of default across this group's defaulted loans.", "formula": "sum(defaults.balance_at_default, restricted to this group's loans)", "source_tables": ["lifecycle.defaults"], "filters": [], "grain": "per breakdown_value", "expected_range": ">= 0", "caveats": [], "qa_supported": true},
-    "total_recovery_amount": {"business_definition": "Total amount recovered after default across this group.", "formula": "sum(defaults.recovery_amount, restricted to this group's loans)", "source_tables": ["lifecycle.defaults"], "filters": [], "grain": "per breakdown_value", "expected_range": ">= 0, <= total_balance_at_default", "caveats": [], "qa_supported": true},
-    "recovery_rate": {"business_definition": "Share of defaulted balance ultimately recovered.", "formula": "total_recovery_amount / total_balance_at_default", "source_tables": ["lifecycle.defaults"], "filters": [], "grain": "per breakdown_value", "expected_range": "0-1 or null if no defaults", "caveats": [], "qa_supported": true},
-    "loss_rate": {"business_definition": "Net loss (unrecovered defaulted balance) as a fraction of total funded principal for this group.", "formula": "(total_balance_at_default - total_recovery_amount) / total_funded_principal", "source_tables": ["lifecycle.defaults", "lifecycle.loans"], "filters": [], "grain": "per breakdown_value", "expected_range": ">= 0, typically small", "caveats": ["Denominator is business_rules.loss_rate_denominator (currently total_funded_principal, a portfolio-level loss rate) -- NOT total_balance_at_default (which would be a loss-given-default rate, a different valid convention). Answers 'what is the default rate by risk tier?' and related loss questions via the per-risk_segment rows."], "qa_supported": true}
+    "delinquent_loan_count": {
+      "business_definition": "Distinct loans with at least one delinquency_events row.",
+      "formula": "count(distinct loan_id in delinquency_events, restricted to this group's loans)",
+      "source_tables": [
+        "lifecycle.delinquency_events",
+        "lifecycle.loans"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "delinquency_rate": {
+      "business_definition": "Share of loans in this group that are delinquent.",
+      "formula": "delinquent_loan_count / loan_count",
+      "source_tables": [
+        "lifecycle.delinquency_events",
+        "lifecycle.loans"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": "0-1",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "default_count": {
+      "business_definition": "Loans in this group that defaulted.",
+      "formula": "count(defaults, restricted to this group's loans)",
+      "source_tables": [
+        "lifecycle.defaults",
+        "lifecycle.loans"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "default_rate": {
+      "business_definition": "Share of loans in this group that defaulted.",
+      "formula": "default_count / loan_count",
+      "source_tables": [
+        "lifecycle.defaults",
+        "lifecycle.loans"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": "0-1",
+      "caveats": [
+        "Answers 'what is the default rate by risk tier?' via the per-risk_segment rows."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "total_balance_at_default": {
+      "business_definition": "Total outstanding balance at the moment of default across this group's defaulted loans.",
+      "formula": "sum(defaults.balance_at_default, restricted to this group's loans)",
+      "source_tables": [
+        "lifecycle.defaults"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "total_recovery_amount": {
+      "business_definition": "Total amount recovered after default across this group.",
+      "formula": "sum(defaults.recovery_amount, restricted to this group's loans)",
+      "source_tables": [
+        "lifecycle.defaults"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0, <= total_balance_at_default",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "recovery_rate": {
+      "business_definition": "Share of defaulted balance ultimately recovered.",
+      "formula": "total_recovery_amount / total_balance_at_default",
+      "source_tables": [
+        "lifecycle.defaults"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": "0-1 or null if no defaults",
+      "caveats": [],
+      "qa_supported": true,
+      "business_rule_dependencies": []
+    },
+    "loss_rate": {
+      "business_definition": "Net loss (unrecovered defaulted balance) as a fraction of total funded principal for this group.",
+      "formula": "(total_balance_at_default - total_recovery_amount) / total_funded_principal",
+      "source_tables": [
+        "lifecycle.defaults",
+        "lifecycle.loans"
+      ],
+      "filters": [],
+      "grain": "per breakdown_value",
+      "expected_range": ">= 0, typically small",
+      "caveats": [
+        "Denominator is business_rules.loss_rate_denominator (currently total_funded_principal, a portfolio-level loss rate) -- NOT total_balance_at_default (which would be a loss-given-default rate, a different valid convention). Answers 'what is the default rate by risk tier?' and related loss questions via the per-risk_segment rows."
+      ],
+      "qa_supported": true,
+      "business_rule_dependencies": [
+        "loss_rate_denominator"
+      ]
+    }
   }
 }

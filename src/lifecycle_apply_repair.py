@@ -1,13 +1,18 @@
-"""Deterministic repair application for the loan_portfolio lifecycle pipeline: eligibility
-gate -> repair agent planning -> policy validation -> isolated-workspace patch application.
+"""Deterministic repair application for any of the 5 lifecycle pipelines: eligibility gate
+-> repair agent planning -> policy validation -> isolated-workspace patch application.
 Parallel to src/apply_repair.py (left completely unmodified) for the S3-backed lifecycle
-model, which has exactly one repairable pipeline/target file (no manifest-file abstraction
-needed for a single scenario).
+model. Generalized (via src/lifecycle_pipeline_registry.py) rather than hardcoded to
+loan_portfolio -- each pipeline still has exactly one repairable target file (its ETL
+source), so no manifest-file abstraction is needed.
 
 Reuses the fully generic pieces of apply_repair.py directly (pure functions, zero
 modification): _create_isolated_workspace, _validate_and_apply_patch, _workspace_path,
 _sha256_of_file, PatchApplyError, load_repair_targets. Only the tool-surface/data-loading
 front end differs (S3-backed business rules/lineage/metrics instead of local scenario files).
+
+This function is pure (returns data, does not write to S3) -- src/lifecycle_run_self_healing.py
+is responsible for persisting repair artifacts as part of a full self-healing run; this
+module's own main() persists a "latest" convenience copy only when run standalone.
 
 This module never decides whether a repair SUCCEEDED -- only that it was safely applied to
 an isolated COPY of its target file. src/lifecycle_verify_repair.py is the only thing that
@@ -16,12 +21,13 @@ may mark a repair VERIFIED and promote it into the real repository.
 
 from __future__ import annotations
 
+import importlib
 import json
 import os
 from pathlib import Path
 from typing import Callable
 
-from src.apply_repair import (
+from src.legacy.apply_repair import (
     DEFAULT_REPAIR_TARGETS_FILE,
     PatchApplyError,
     _create_isolated_workspace,
@@ -30,10 +36,16 @@ from src.apply_repair import (
     _workspace_path,
     load_repair_targets,
 )
+from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.lifecycle_repair_agent import RepairAgentError, run_lifecycle_repair_planning
-from src.lifecycle_repair_tools import ETL_SOURCE_FILE, LifecycleRepairTools
-from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
-from src.repair_models import (
+from src.lifecycle_repair_tools import LifecycleRepairTools
+from src.model_client import (
+    DiagnosisModelClient,
+    ModelClientError,
+    OpenAIDiagnosisModelClient,
+    OpenAIResponsesModelClient,
+)
+from src.legacy.repair_models import (
     RepairDecision,
     RepairEligibility,
     RepairPlanValidationError,
@@ -46,8 +58,6 @@ from src.storage import S3Storage
 
 DEFAULT_CONFIDENCE_THRESHOLD = "HIGH"
 REPAIR_MODEL_ENV_VAR = "REPAIR_MODEL"
-INCIDENT_ID = "loan_portfolio"
-TEST_INVENTORY = ["tests/test_etl_spark_loan_portfolio.py"]
 
 
 class ApplyLifecycleRepairError(Exception):
@@ -55,11 +65,15 @@ class ApplyLifecycleRepairError(Exception):
 
 
 def build_lifecycle_repair_tools(
-    storage: S3Storage, diagnosis: dict, validation_results: dict, allowed_targets: dict
+    pipeline_name: str, storage: S3Storage, diagnosis: dict, validation_results: dict, allowed_targets: dict
 ) -> LifecycleRepairTools:
+    spec = PIPELINE_REGISTRY[pipeline_name]
     business_rules = storage.read_json("context/business_rules.json")
     lineage = storage.read_json("context/lineage.json")
-    metrics = storage.read_json("context/metrics/loan_portfolio.json")
+    metrics = storage.read_json(spec.metrics_key)
+    module_name = spec.etl_source_file.replace("/", ".").removesuffix(".py")
+    etl_module = importlib.import_module(module_name)
+    etl_functions = {name: getattr(etl_module, name) for name in spec.etl_function_names}
     return LifecycleRepairTools(
         diagnosis=diagnosis,
         validation_results=validation_results,
@@ -67,7 +81,10 @@ def build_lifecycle_repair_tools(
         lineage=lineage,
         metrics=metrics,
         allowed_repair_targets=allowed_targets,
-        test_inventory=TEST_INVENTORY,
+        test_inventory=[spec.test_file],
+        lineage_key=spec.lineage_key,
+        etl_source_file=spec.etl_source_file,
+        etl_functions=etl_functions,
     )
 
 
@@ -87,6 +104,7 @@ def _outcome_result(reason: str, *, repair_status: str) -> dict:
 
 
 def run_apply_lifecycle_repair(
+    pipeline_name: str,
     storage: S3Storage,
     diagnosis: dict,
     validation_results: dict,
@@ -95,30 +113,31 @@ def run_apply_lifecycle_repair(
     repair_targets_file: str = DEFAULT_REPAIR_TARGETS_FILE,
     confidence_threshold: str = DEFAULT_CONFIDENCE_THRESHOLD,
 ) -> tuple[dict, dict]:
-    """Run the full apply-repair flow for the loan_portfolio pipeline. Returns
+    """Run the full apply-repair flow for one lifecycle pipeline. Returns
     (repair_plan_dict, repair_result_dict)."""
-    diagnosis_reference = diagnosis.get("incident_summary", INCIDENT_ID)
+    spec = PIPELINE_REGISTRY[pipeline_name]
+    diagnosis_reference = diagnosis.get("incident_summary", pipeline_name)
 
     eligibility = evaluate_repair_eligibility(
         diagnosis,
-        allowed_target_files={ETL_SOURCE_FILE},
+        allowed_target_files={spec.etl_source_file},
         confidence_threshold=confidence_threshold,
     )
 
     if eligibility.decision == RepairEligibility.NO_REPAIR_NEEDED:
-        plan = build_no_repair_needed_plan(incident_id=INCIDENT_ID, diagnosis_reference=diagnosis_reference)
+        plan = build_no_repair_needed_plan(incident_id=pipeline_name, diagnosis_reference=diagnosis_reference)
         return repair_plan_to_dict(plan), _outcome_result("; ".join(eligibility.reasons), repair_status="NO_REPAIR")
 
     if eligibility.decision in (RepairEligibility.HUMAN_REVIEW_REQUIRED, RepairEligibility.INVALID_DIAGNOSIS):
         plan = build_blocked_repair_plan(
-            "; ".join(eligibility.reasons), incident_id=INCIDENT_ID, diagnosis_reference=diagnosis_reference
+            "; ".join(eligibility.reasons), incident_id=pipeline_name, diagnosis_reference=diagnosis_reference
         )
         return repair_plan_to_dict(plan), _outcome_result("; ".join(eligibility.reasons), repair_status="BLOCKED")
 
     # ELIGIBLE_FOR_REPAIR: proceed to the repair model.
     try:
         allowed_targets = load_repair_targets(Path(repair_targets_file))
-        tools = build_lifecycle_repair_tools(storage, diagnosis, validation_results, allowed_targets)
+        tools = build_lifecycle_repair_tools(pipeline_name, storage, diagnosis, validation_results, allowed_targets)
         starting_context = {
             "diagnosis_status": diagnosis["diagnosis_status"],
             "root_cause_category": diagnosis["root_cause_category"],
@@ -167,7 +186,7 @@ def run_apply_lifecycle_repair(
 
 
 def print_repair_result(result: dict) -> None:
-    print("Repair application (loan_portfolio)")
+    print("Repair application")
     print(f"  repair_status:       {result['repair_status']}")
     print(f"  repair_type:         {result['repair_type']}")
     print(f"  target_file:         {result['target_file']}")
@@ -176,8 +195,14 @@ def print_repair_result(result: dict) -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
-    from src.lifecycle_diagnose_loan_portfolio import run_diagnose_loan_portfolio
-    from src.validate_loan_portfolio import validate_loan_portfolio
+    import argparse
+
+    from src.lifecycle_diagnose_pipeline import run_diagnose_pipeline
+    from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE
+
+    parser = argparse.ArgumentParser(description="Diagnose-and-plan-a-repair for one lifecycle pipeline.")
+    parser.add_argument("pipeline_name", choices=sorted(PIPELINE_REGISTRY))
+    args = parser.parse_args(argv)
 
     model_name = os.environ.get(REPAIR_MODEL_ENV_VAR)
 
@@ -185,24 +210,28 @@ def main(argv: list[str] | None = None) -> None:
         return OpenAIDiagnosisModelClient()
 
     def repair_model_client_factory() -> DiagnosisModelClient:
-        return OpenAIDiagnosisModelClient(model=model_name) if model_name else OpenAIDiagnosisModelClient()
+        # Repair planning uses a Codex-branded model (only available via the Responses API,
+        # not chat.completions -- see src/model_client.py's OpenAIResponsesModelClient
+        # docstring) by default; REPAIR_MODEL can override to any other Responses-API model.
+        return OpenAIResponsesModelClient(model=model_name) if model_name else OpenAIResponsesModelClient()
 
     storage = S3Storage()
-    diagnosis = run_diagnose_loan_portfolio(storage, diagnosis_model_client_factory)
+    spec = PIPELINE_REGISTRY[args.pipeline_name]
+    diagnosis = run_diagnose_pipeline(args.pipeline_name, storage, diagnosis_model_client_factory)
     business_rules = storage.read_json("context/business_rules.json")
-    validation_rules = storage.read_json("context/validations/loan_portfolio.json")
-    validation_results = validate_loan_portfolio(storage, business_rules, validation_rules)
+    validation_rules = storage.read_json(spec.validation_rules_key)
+    validation_results = spec.run_validate(storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
 
     try:
         plan_dict, result = run_apply_lifecycle_repair(
-            storage, diagnosis, validation_results, repair_model_client_factory
+            args.pipeline_name, storage, diagnosis, validation_results, repair_model_client_factory
         )
     except ApplyLifecycleRepairError as exc:
         print(f"Repair application failed: {exc}")
         raise SystemExit(1)
 
-    storage.write_json("curated/loan_portfolio_repair_plan.json", plan_dict)
-    storage.write_json("curated/loan_portfolio_repair_result.json", result)
+    storage.write_json(f"curated/{args.pipeline_name}_repair_plan.json", plan_dict)
+    storage.write_json(f"curated/{args.pipeline_name}_repair_result.json", result)
     print_repair_result(result)
 
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 
 from src.model_client import DiagnosisModelClient, ToolCall
-from src.repair_agent import (
+from src.legacy.repair_agent import (
     DEFAULT_MAX_TURNS,
     SUBMIT_REPAIR_PLAN_TOOL_NAME,
     SYSTEM_PROMPT,
@@ -18,7 +18,7 @@ from src.repair_agent import (
     _serialize_tool_call,
     _submit_repair_plan_tool_spec,
 )
-from src.repair_models import RepairPlan, parse_repair_plan
+from src.legacy.repair_models import RepairPlan, parse_repair_plan
 from src.lifecycle_repair_tools import TOOL_SPECS, LifecycleRepairTools, dispatch_tool
 
 __all__ = ["RepairAgentError", "run_lifecycle_repair_planning"]

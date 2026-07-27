@@ -14,7 +14,7 @@
   },
   "pipeline_configuration_file": null,
   "etl_function_name": "compute_portfolio_summary",
-  "test_inventory": ["tests/test_transform.py", "tests/test_validate_portfolio.py", "tests/test_run_pipeline.py"],
+  "test_inventory": ["tests/legacy/test_transform.py", "tests/legacy/test_validate_portfolio.py", "tests/legacy/test_run_pipeline.py"],
   "file_hash_aliases": {
     "CURRENT_BUSINESS_RULES": "context/business_rules.json"
   },

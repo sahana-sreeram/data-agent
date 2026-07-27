@@ -6,7 +6,7 @@
   "notes": [
     "Scoped to the 12-table lifecycle raw dataset (data/lifecycle/raw/) only -- separate from context/validation_rules.json, which governs the original 3-scenario customers/loans/payments model and is unmodified.",
     "Only schema, enum, and referential_integrity checks exist here. No reconciliation checks -- those compare a curated/ETL output against raw data, and no curated output exists yet for this model.",
-    "Executed by src/validate_lifecycle_raw.py, which is the actual authority on these checks -- this file only documents ids/descriptions, consistent with how context/validation_rules.json relates to src/validate_portfolio.py."
+    "Executed by src/validate_lifecycle_raw.py, which is the actual authority on these checks -- this file only documents ids/descriptions, consistent with how context/validation_rules.json relates to src/legacy/validate_portfolio.py."
   ],
   "rules": [
     {"id": "customers_required_columns_present", "type": "schema", "tolerance_type": null, "description": "lifecycle customers data must contain all required columns: customer_id, created_at, state, income_band, credit_score_band, credit_score, risk_segment."},

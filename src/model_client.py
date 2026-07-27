@@ -24,6 +24,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_MODEL = "gpt-5"
+# gpt-5-codex/gpt-5.1-codex are real, tool-calling-capable models but are NOT available on
+# chat.completions (confirmed live: both 404 there) -- they only work via the Responses API,
+# hence OpenAIResponsesModelClient below rather than just passing a different model string
+# to OpenAIDiagnosisModelClient.
+DEFAULT_CODEX_MODEL = "gpt-5-codex"
 # None means "don't send temperature at all". Newer reasoning models (gpt-5
 # and friends) only support their default temperature and reject any
 # explicit value, including 0.0, with a 400 error -- so we omit the
@@ -99,6 +104,114 @@ class OpenAIDiagnosisModelClient:
             except (json.JSONDecodeError, TypeError) as exc:
                 raise ModelClientError(f"model returned malformed tool-call arguments: {exc}") from exc
             tool_calls.append(ToolCall(id=call.id, name=call.function.name, arguments=arguments))
+
+        return ModelResponse(tool_calls=tool_calls)
+
+
+def _tools_to_responses_format(tools: list[dict]) -> list[dict]:
+    """Flatten chat.completions-shaped tool specs ({"type": "function", "function": {name,
+    description, parameters}}) into the Responses API's flat shape ({"type": "function",
+    name, description, parameters}) -- every agent loop in this codebase builds the former;
+    only this translation needs to know about the latter."""
+    converted = []
+    for tool in tools:
+        fn = tool["function"]
+        converted.append(
+            {
+                "type": "function",
+                "name": fn["name"],
+                "description": fn.get("description", ""),
+                "parameters": fn["parameters"],
+            }
+        )
+    return converted
+
+
+def _messages_to_responses_input(messages: list[dict]) -> list[dict]:
+    """Convert the same chat.completions-shaped `messages` list every agent loop already
+    builds into the Responses API's `input` list: system/user messages pass through
+    unchanged, an assistant message's tool_calls become one function_call item each, and a
+    tool-role message becomes a function_call_output keyed by the same call id. Resends the
+    full history every call (stateless), matching how OpenAIDiagnosisModelClient already
+    works -- no dependency on the Responses API's previous_response_id chaining."""
+    items: list[dict] = []
+    for message in messages:
+        role = message.get("role")
+        if role in ("system", "user"):
+            items.append({"role": role, "content": message["content"]})
+        elif role == "assistant":
+            for call in message.get("tool_calls", []):
+                items.append(
+                    {
+                        "type": "function_call",
+                        "call_id": call["id"],
+                        "name": call["function"]["name"],
+                        "arguments": call["function"]["arguments"],
+                    }
+                )
+        elif role == "tool":
+            items.append(
+                {"type": "function_call_output", "call_id": message["tool_call_id"], "output": message["content"]}
+            )
+        else:
+            raise ModelClientError(f"unrecognized message role for Responses API translation: {role!r}")
+    return items
+
+
+class OpenAIResponsesModelClient:
+    """Calls OpenAI's Responses API (client.responses.create) with tool calling, forcing a
+    tool call every turn. Required for Codex-branded models (gpt-5-codex, gpt-5.1-codex),
+    which are not available on the chat.completions endpoint OpenAIDiagnosisModelClient
+    uses (confirmed live: both 404 there).
+
+    Implements the same DiagnosisModelClient protocol by translating the exact same
+    chat.completions-shaped messages/tools every agent loop already builds -- so no agent
+    loop, tool-spec definition, or prompt needs to change; only which client class gets
+    constructed differs. See _tools_to_responses_format/_messages_to_responses_input.
+    """
+
+    def __init__(
+        self,
+        model: str = DEFAULT_CODEX_MODEL,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> None:
+        try:
+            import openai
+        except ImportError as exc:
+            raise ModelClientError("the 'openai' package is required to use OpenAIResponsesModelClient") from exc
+
+        if not os.environ.get("OPENAI_API_KEY"):
+            raise ModelClientError(
+                "OPENAI_API_KEY is not set. Copy .env.example to .env at the project root and fill in "
+                "your key, or export OPENAI_API_KEY in your shell."
+            )
+
+        self._model = model
+        self._client = openai.OpenAI(timeout=timeout)
+
+    def send(self, messages: list[dict], tools: list[dict]) -> ModelResponse:
+        input_items = _messages_to_responses_input(messages)
+        responses_tools = _tools_to_responses_format(tools)
+
+        try:
+            response = self._client.responses.create(
+                model=self._model, input=input_items, tools=responses_tools, tool_choice="required"
+            )
+        except Exception as exc:  # noqa: BLE001 -- any SDK/timeout/API error becomes a controlled failure
+            raise ModelClientError(f"model request failed: {exc}") from exc
+
+        tool_calls = []
+        for item in response.output:
+            if item.type != "function_call":
+                continue
+            try:
+                arguments = json.loads(item.arguments)
+            except (json.JSONDecodeError, TypeError) as exc:
+                raise ModelClientError(f"model returned malformed tool-call arguments: {exc}") from exc
+            tool_calls.append(ToolCall(id=item.call_id, name=item.name, arguments=arguments))
+
+        if not tool_calls:
+            raise ModelClientError("model response contained no tool calls (tool_choice='required' was not honored)")
 
         return ModelResponse(tool_calls=tool_calls)
 

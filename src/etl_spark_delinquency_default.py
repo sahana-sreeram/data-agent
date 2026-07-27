@@ -54,13 +54,22 @@ def _metrics_for_group(loans_with_segment: DataFrame, delinquency_events: DataFr
         "recovery_rate",
         F.when(F.col("total_balance_at_default") > 0, F.round(F.col("total_recovery_amount") / F.col("total_balance_at_default"), 4)),
     )
-
-    loss_denominator_column = business_rules["loss_rate_denominator"]
+    # Determine the denominator for loss_rate from business rules (defaults to portfolio-level rate)
+    loss_denominator_column = business_rules.get("loss_rate_denominator", "total_funded_principal")
+    if loss_denominator_column not in result.columns:
+        raise ValueError(
+            f"Configured loss rate denominator column '{loss_denominator_column}' "
+            f"not found in delinquency_default metrics (available columns: {', '.join(result.columns)})"
+        )
     result = result.withColumn(
         "loss_rate",
         F.when(
             F.col(loss_denominator_column) > 0,
-            F.round((F.col("total_balance_at_default") - F.col("total_recovery_amount")) / F.col(loss_denominator_column), 4),
+            F.round(
+                (F.col("total_balance_at_default") - F.col("total_recovery_amount"))
+                / F.col(loss_denominator_column),
+                4,
+            ),
         ),
     )
     return result
