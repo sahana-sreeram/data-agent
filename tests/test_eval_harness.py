@@ -13,7 +13,7 @@ from types import SimpleNamespace
 import pytest
 
 import src.eval_harness as eval_harness_module
-from src.eval_scenarios import BugScenario
+from src.eval_scenarios import BugScenario, UpstreamContractScenario
 from src.model_client import ModelClientError, ModelResponse, ScriptedDiagnosisModelClient, ToolCall
 
 PIPELINE_NAME = "fake_pipeline"
@@ -256,3 +256,162 @@ def test_run_bug_scenario_raises_eval_scenario_error_when_find_string_is_not_uni
         eval_harness_module.run_bug_scenario(scenario, "fake-spark", _FakeStorage(), lambda: None, lambda: None)
 
     assert target.read_text() == "X = 1\nX = 1\n"
+
+
+# --- run_upstream_contract_scenario orchestration --------------------------------------------
+#
+# Event generation/reconstruction (produce_events, _build_specs, events_to_dataframe,
+# _strip_envelope) run for REAL here -- they're pure, fast, and local, so there's no reason to
+# mock them. Only the ETL/diagnosis/repair/verify stages (which would otherwise need real
+# Spark/S3/a live model) are faked, mirroring run_bug_scenario's own test style above.
+
+
+class _FakeContractStorage:
+    def __init__(self) -> None:
+        self.parquet: dict = {}
+        self.json: dict = {"context/business_rules.json": {}, "context/validations/fake.json": {}}
+
+    def read_json(self, path: str):
+        return self.json[path]
+
+    def write_json(self, path: str, value) -> None:
+        self.json[path] = value
+
+    def exists(self, path: str) -> bool:
+        return path in self.json or path in self.parquet
+
+    def write_parquet(self, path: str, df) -> None:
+        self.parquet[path] = df
+
+    def copy_or_promote(self, source: str, destination: str) -> None:
+        self.parquet[destination] = self.parquet[source]
+
+    def delete(self, path: str) -> None:
+        del self.parquet[path]
+
+
+def _make_upstream_contract_scenario() -> UpstreamContractScenario:
+    return UpstreamContractScenario(
+        name="fake_upstream_contract",
+        pipeline_name=PIPELINE_NAME,
+        contract_version="v2",
+        num_customers=50,
+        seed=42,
+        expected_root_cause_category="SOURCE_CONTRACT_CHANGE",
+        description="throwaway fixture",
+    )
+
+
+def test_run_upstream_contract_scenario_injects_via_real_events_diagnoses_and_always_restores(monkeypatch):
+    scenario = _make_upstream_contract_scenario()
+    storage = _FakeContractStorage()
+    storage.parquet["raw/payment_schedule.parquet"] = "original-schedule"
+    storage.parquet["raw/payment_events.parquet"] = "original-events"
+    calls: list = []
+    raw_payment_events_seen: list = []
+
+    def fake_run_etl(etl_module, spark, business_rules, as_of_date):
+        calls.append("run_etl")
+        raw_payment_events_seen.append(storage.parquet["raw/payment_events.parquet"])
+        return {"curated/fake.parquet": "df-stand-in"}
+
+    def fake_run_validate(storage_arg, business_rules, validation_rules, as_of_date):
+        calls.append("run_validate")
+        return {"overall_status": "PASS", "checks": []}
+
+    fake_spec = type(
+        "Spec",
+        (),
+        {
+            "run_etl": staticmethod(fake_run_etl),
+            "run_validate": staticmethod(fake_run_validate),
+            "validation_rules_key": "context/validations/fake.json",
+            "raw_tables": ("payment_schedule", "payment_events"),
+            "etl_source_file": "fake_etl_source.py",
+        },
+    )()
+    monkeypatch.setattr(eval_harness_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: fake_spec})
+    monkeypatch.setattr(eval_harness_module, "_reload_etl_module", lambda target_file: "fake-module")
+    monkeypatch.setattr(eval_harness_module, "_ensure_spark_session", lambda spark: spark)
+
+    def fake_diagnose(pipeline_name, storage_arg, factory):
+        calls.append("diagnose")
+        return {"diagnosis_status": "DIAGNOSED", "root_cause_category": "SOURCE_CONTRACT_CHANGE", "confidence": "HIGH"}
+
+    monkeypatch.setattr(eval_harness_module, "run_diagnose_pipeline", fake_diagnose)
+
+    def fake_apply(pipeline_name, storage_arg, diagnosis, validation_before, factory):
+        calls.append("apply")
+        # SOURCE_CONTRACT_CHANGE is always refused by the real eligibility gate -- BLOCKED here
+        # reflects what evaluate_repair_eligibility would really do, not a test shortcut.
+        return {"repair_decision": "BLOCKED"}, {"repair_status": "BLOCKED", "workspace_dir": None, "target_file": None}
+
+    monkeypatch.setattr(eval_harness_module, "run_apply_lifecycle_repair", fake_apply)
+
+    def fake_verify(pipeline_name, spark, storage_arg, business_rules, validation_rules, validation_before, repair_result, run_id=None):
+        calls.append("verify")
+        return {"verification_status": "BLOCKED"}
+
+    monkeypatch.setattr(eval_harness_module, "run_verify_lifecycle_repair", fake_verify)
+    monkeypatch.setattr(
+        eval_harness_module, "_persist_run_artifacts", lambda storage_arg, pipeline_name, run_id, artifacts: calls.append("persist")
+    )
+
+    result = eval_harness_module.run_upstream_contract_scenario(
+        scenario, "fake-spark", storage, lambda: ScriptedDiagnosisModelClient([]), lambda: ScriptedDiagnosisModelClient([])
+    )
+
+    assert calls == ["run_etl", "diagnose", "run_validate", "apply", "verify", "persist", "run_etl", "run_validate"]
+
+    # the ETL ran against genuinely reconstructed, SETTLED-relabeled payment_events -- not the
+    # original fixture value -- proving the real event pipeline actually ran
+    assert not isinstance(raw_payment_events_seen[0], str)  # a real reconstructed DataFrame, not the original fixture string
+    assert "SETTLED" in set(raw_payment_events_seen[0]["payment_status"])
+    assert "PAID" not in set(raw_payment_events_seen[0]["payment_status"])
+
+    # both affected raw tables are restored to their exact original values afterward
+    assert storage.parquet["raw/payment_schedule.parquet"] == "original-schedule"
+    assert storage.parquet["raw/payment_events.parquet"] == "original-events"
+    assert not any(key.startswith("_backup/") for key in storage.parquet)
+
+    assert result["diagnosis"]["root_cause_category"] == "SOURCE_CONTRACT_CHANGE"
+    assert result["diagnosis"]["matches_expected"] is True
+    assert result["repair"]["repair_status"] == "BLOCKED"
+    assert result["verify"]["promoted"] is False
+    assert result["bug_class"] == "SOURCE_CONTRACT_CHANGE"
+
+
+def test_run_upstream_contract_scenario_restores_even_when_diagnosis_raises(monkeypatch):
+    scenario = _make_upstream_contract_scenario()
+    storage = _FakeContractStorage()
+    storage.parquet["raw/payment_schedule.parquet"] = "original-schedule"
+    storage.parquet["raw/payment_events.parquet"] = "original-events"
+
+    fake_spec = type(
+        "Spec",
+        (),
+        {
+            "run_etl": staticmethod(lambda etl_module, spark, business_rules, as_of_date: {"curated/fake.parquet": "df"}),
+            "run_validate": staticmethod(lambda storage_arg, business_rules, validation_rules, as_of_date: {"overall_status": "PASS", "checks": []}),
+            "validation_rules_key": "context/validations/fake.json",
+            "raw_tables": ("payment_schedule", "payment_events"),
+            "etl_source_file": "fake_etl_source.py",
+        },
+    )()
+    monkeypatch.setattr(eval_harness_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: fake_spec})
+    monkeypatch.setattr(eval_harness_module, "_reload_etl_module", lambda target_file: "fake-module")
+    monkeypatch.setattr(eval_harness_module, "_ensure_spark_session", lambda spark: spark)
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("diagnosis model exploded")
+
+    monkeypatch.setattr(eval_harness_module, "run_diagnose_pipeline", boom)
+
+    with pytest.raises(RuntimeError):
+        eval_harness_module.run_upstream_contract_scenario(
+            scenario, "fake-spark", storage, lambda: ScriptedDiagnosisModelClient([]), lambda: ScriptedDiagnosisModelClient([])
+        )
+
+    assert storage.parquet["raw/payment_schedule.parquet"] == "original-schedule"
+    assert storage.parquet["raw/payment_events.parquet"] == "original-events"
+    assert not any(key.startswith("_backup/") for key in storage.parquet)

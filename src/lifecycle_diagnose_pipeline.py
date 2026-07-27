@@ -27,6 +27,7 @@ from src.lifecycle_diagnostic_tools import build_diagnostic_tools_for_pipeline
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
 from src.storage import S3Storage
+from src.validate_lifecycle_raw import TABLE_FILENAMES, validate_lifecycle_raw
 
 DIAGNOSIS_MODEL_ENV_VAR = "DIAGNOSIS_MODEL"
 
@@ -52,6 +53,23 @@ def known_file_paths_for(pipeline_name: str) -> set[str]:
     }
 
 
+def _raw_validation_status(storage: S3Storage, business_rules: dict) -> dict | None:
+    """The 12-table raw validator (schema/enum/referential-integrity, independent of any one
+    curated pipeline) catches a class of failure curated reconciliation checks structurally
+    cannot: a genuine upstream contract change where the ETL and its own validator apply the
+    identical (now-wrong) filter to the identical data and simply agree with each other --
+    reconciliation only ever compares them to EACH OTHER, never to an external source of
+    truth like an approved enum vocabulary. Returns None if the raw tables aren't fully
+    available (defensive -- a missing-table error here should never block diagnosing a
+    pipeline whose real problem is unrelated)."""
+    try:
+        tables = {name: storage.read_parquet(f"raw/{name}.parquet") for name in TABLE_FILENAMES}
+        validation_rules = storage.read_json("context/validations/lifecycle_raw.json")
+    except Exception:  # noqa: BLE001 -- any read failure here just means "can't check this", not "diagnosis should crash"
+        return None
+    return validate_lifecycle_raw(tables, business_rules, validation_rules)
+
+
 def run_diagnose_pipeline(pipeline_name: str, storage: S3Storage, model_client_factory) -> dict:
     """Core logic. Takes a model_client_factory so tests can inject a fake client. Returns
     the diagnosis dict; does not write anything to S3 (see module docstring)."""
@@ -61,7 +79,14 @@ def run_diagnose_pipeline(pipeline_name: str, storage: S3Storage, model_client_f
     validation_results = spec.run_validate(storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
 
     if validation_results["overall_status"] == "PASS":
-        return diagnosis_to_dict(build_no_incident_diagnosis())
+        # Curated validation passing doesn't guarantee the raw data itself is healthy -- see
+        # _raw_validation_status's docstring. Fall back to it before concluding there's
+        # genuinely no incident; every existing ETL-logic/business-rule-mismatch scenario
+        # already fails curated validation directly and never reaches this branch.
+        raw_validation = _raw_validation_status(storage, business_rules)
+        if raw_validation is None or raw_validation["overall_status"] == "PASS":
+            return diagnosis_to_dict(build_no_incident_diagnosis())
+        validation_results = raw_validation
 
     try:
         tools = build_diagnostic_tools_for_pipeline(pipeline_name, storage, validation_results, business_rules)

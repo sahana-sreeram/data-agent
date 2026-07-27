@@ -35,6 +35,44 @@ class BugScenario:
     description: str
 
 
+@dataclass(frozen=True)
+class UpstreamContractScenario:
+    """A genuine upstream contract change, not a source-code bug: the injected difference is
+    in the DATA payment_service produces, not in any ETL file. src.eval_harness's
+    run_upstream_contract_scenario regenerates raw/payment_schedule.parquet and
+    raw/payment_events.parquet for real, through the real payment_service running at
+    `contract_version` and the real events_to_lifecycle_tables adapter -- src/etl_spark_*.py
+    is never touched for this scenario, only the raw data it reads."""
+
+    name: str
+    pipeline_name: str
+    contract_version: str
+    num_customers: int
+    seed: int
+    expected_root_cause_category: str
+    description: str
+
+
+UPSTREAM_CONTRACT_SCENARIOS: list[UpstreamContractScenario] = [
+    UpstreamContractScenario(
+        name="payment_service_v2_settled_rename",
+        pipeline_name="payment_performance",
+        contract_version="v2",
+        num_customers=300,
+        seed=42,
+        expected_root_cause_category="SOURCE_CONTRACT_CHANGE",
+        description=(
+            "payment_service v2 renames a successfully collected installment's payment_status "
+            "from PAID to SETTLED -- a real upstream contract change, not a bug. "
+            "payment_performance's ETL only recognizes PAID as successful, so total_collected_amount "
+            "and collection_rate silently understate reality once payment_service runs at v2. "
+            "Per policy, SOURCE_CONTRACT_CHANGE is never auto-repaired regardless of diagnosis "
+            "confidence -- evaluate_repair_eligibility routes it to HUMAN_REVIEW_REQUIRED."
+        ),
+    )
+]
+
+
 BUG_SCENARIOS: list[BugScenario] = [
     BugScenario(
         name="loan_portfolio_inner_join",

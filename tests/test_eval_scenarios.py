@@ -9,7 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from src.eval_scenarios import BUG_SCENARIOS, REFUSAL_CASES
+from src.eval_scenarios import BUG_SCENARIOS, REFUSAL_CASES, UPSTREAM_CONTRACT_SCENARIOS
+from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.legacy.repair_models import RepairEligibility
 
 
@@ -42,6 +43,19 @@ def test_scenarios_cover_at_least_two_pipelines_per_bug_class():
         by_class.setdefault(scenario.bug_class, set()).add(scenario.pipeline_name)
     for bug_class, pipelines in by_class.items():
         assert len(pipelines) >= 2, f"{bug_class} only covers {pipelines} -- no by-bug-class-and-pipeline signal"
+
+
+@pytest.mark.parametrize("scenario", UPSTREAM_CONTRACT_SCENARIOS, ids=lambda s: s.name)
+def test_upstream_contract_scenario_targets_a_real_registered_pipeline(scenario):
+    assert scenario.pipeline_name in PIPELINE_REGISTRY
+    assert "payment_events" in PIPELINE_REGISTRY[scenario.pipeline_name].raw_tables
+
+
+def test_upstream_contract_scenario_expects_source_contract_change():
+    for scenario in UPSTREAM_CONTRACT_SCENARIOS:
+        assert scenario.expected_root_cause_category == "SOURCE_CONTRACT_CHANGE"
+        assert scenario.contract_version == "v2"
+        assert scenario.num_customers > 0
 
 
 def test_refusal_cases_are_well_formed():

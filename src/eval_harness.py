@@ -1,7 +1,17 @@
-"""Repeatable evals for the lifecycle self-healing pipeline: inject a known bug, run the
+"""Repeatable evals for the lifecycle self-healing pipeline: inject a known failure, run the
 real diagnose -> repair -> verify -> promote flow, and score it against six dimensions --
 diagnosis success, tool-call efficiency, repair success, refusal accuracy, latency, and
 failure by bug class -- instead of relying on ad hoc, one-off live-fire testing.
+
+Two distinct failure shapes are covered: BugScenario (a surgical find/replace bug injected
+into a real etl_spark_*.py source file -- see run_bug_scenario) and UpstreamContractScenario
+(a genuine upstream contract change -- payment_service emitting SETTLED instead of PAID --
+where no ETL file is ever touched; only the raw data payment_service produces changes -- see
+run_upstream_contract_scenario). The latter is the reason run_diagnose_pipeline
+(src/lifecycle_diagnose_pipeline.py) falls back to the 12-table raw validator when curated
+reconciliation passes: reconciliation alone cannot catch a case where the ETL and its own
+validator apply the identical (now-wrong) filter to the identical data and simply agree with
+each other.
 
 Purely additive: this module only CALLS the existing generalized lifecycle pipeline
 (src/lifecycle_diagnose_pipeline.py, src/lifecycle_apply_repair.py,
@@ -9,11 +19,11 @@ src/lifecycle_verify_repair.py, src/repair_models.py) -- it does not modify any 
 tool, or model client, and never touches src/apply_repair.py, src/diagnosis_agent.py,
 src/repair_agent.py, or any of the original 3-scenario files.
 
-Each BugScenario run is a real, repeatable benchmark, not a permanent fix: regardless of
-whether the repair verifies and promotes, the harness always restores its target ETL file to
-its pre-scenario bytes and reruns that pipeline's clean ETL afterward, so running the suite
-never leaves a lasting code change behind (unlike a real production self-heal, where a
-verified fix is meant to stick) and the system is left fully healthy between scenarios.
+Each scenario run is a real, repeatable benchmark, not a permanent fix: regardless of whether
+the repair verifies and promotes, the harness always restores whatever it changed (a
+BugScenario's target ETL file, or an UpstreamContractScenario's affected raw tables) to its
+pre-scenario bytes and reruns that pipeline's clean ETL afterward, so running the suite never
+leaves a lasting change behind and the system is left fully healthy between scenarios.
 """
 
 from __future__ import annotations
@@ -26,7 +36,9 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.eval_scenarios import BUG_SCENARIOS, REFUSAL_CASES, BugScenario
+import pandas as pd
+
+from src.eval_scenarios import BUG_SCENARIOS, REFUSAL_CASES, UPSTREAM_CONTRACT_SCENARIOS, BugScenario, UpstreamContractScenario
 from src.lifecycle_apply_repair import run_apply_lifecycle_repair
 from src.lifecycle_diagnose_pipeline import run_diagnose_pipeline
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
@@ -234,6 +246,128 @@ def run_bug_scenario(
     }
 
 
+def run_upstream_contract_scenario(
+    scenario: UpstreamContractScenario,
+    spark,
+    storage: S3Storage,
+    diagnosis_model_client_factory,
+    repair_model_client_factory,
+) -> dict:
+    """Regenerates raw/payment_schedule.parquet + raw/payment_events.parquet for real, via the
+    real payment_service running at scenario.contract_version and the real
+    events_to_lifecycle_tables adapter, then runs the same diagnose -> repair -> verify flow
+    as run_bug_scenario -- but the injected difference is in the DATA, never in any
+    etl_spark_*.py file. Per policy, evaluate_repair_eligibility refuses SOURCE_CONTRACT_CHANGE
+    regardless of confidence (src/legacy/repair_models.py), so repair_result is always expected
+    to come back BLOCKED here -- this scenario proves the diagnosis traces the failure back to
+    the upstream service, not that it gets auto-repaired. ALWAYS restores the original raw
+    tables and reruns clean ETL afterward, regardless of outcome."""
+    from services.common.envelope import events_to_dataframe
+    from services.common.runner import produce_events
+    from services.payment_service.main import _build_specs
+    from src.events_to_lifecycle_tables import EVENT_TYPE_TO_TABLE, _strip_envelope
+
+    spec = PIPELINE_REGISTRY[scenario.pipeline_name]
+    spark = _ensure_spark_session(spark)
+    business_rules = storage.read_json("context/business_rules.json")
+
+    affected_raw_tables = ["payment_schedule", "payment_events"]
+    backup_prefix = f"_backup/eval_upstream_contract/{uuid.uuid4().hex[:8]}/"
+    for table in affected_raw_tables:
+        storage.copy_or_promote(f"raw/{table}.parquet", f"{backup_prefix}raw/{table}.parquet")
+
+    try:
+        # Built entirely in memory -- never touches the real events/ S3 prefix, so this
+        # scenario can't pollute real upstream-service event history.
+        payment_specs = _build_specs(scenario.contract_version, scenario.num_customers, scenario.seed, DEFAULT_AS_OF_DATE)
+        events_by_type = produce_events(
+            "payment_service", "v1", payment_specs, scenario.num_customers, scenario.seed, DEFAULT_AS_OF_DATE
+        )
+        by_table: dict[str, list[pd.DataFrame]] = {}
+        for event_type, events in events_by_type.items():
+            table_name = EVENT_TYPE_TO_TABLE[event_type]
+            by_table.setdefault(table_name, []).append(_strip_envelope(events_to_dataframe(events)))
+        reconstructed = {
+            name: pd.concat(parts, ignore_index=True) if len(parts) > 1 else parts[0] for name, parts in by_table.items()
+        }
+        for table in affected_raw_tables:
+            storage.write_parquet(f"raw/{table}.parquet", reconstructed[table])
+
+        module = _reload_etl_module(spec.etl_source_file)
+        broken_outputs = spec.run_etl(module, spark, business_rules, DEFAULT_AS_OF_DATE)
+        for key, df in broken_outputs.items():
+            storage.write_parquet(key, df)
+
+        diagnosis_client = InstrumentedModelClient(diagnosis_model_client_factory())
+        diagnosis_start = time.monotonic()
+        diagnosis = run_diagnose_pipeline(scenario.pipeline_name, storage, lambda: diagnosis_client)
+        diagnosis_latency = time.monotonic() - diagnosis_start
+
+        validation_rules = storage.read_json(spec.validation_rules_key)
+        validation_before = spec.run_validate(storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
+
+        repair_client = InstrumentedModelClient(repair_model_client_factory())
+        repair_start = time.monotonic()
+        repair_plan, repair_result = run_apply_lifecycle_repair(
+            scenario.pipeline_name, storage, diagnosis, validation_before, lambda: repair_client
+        )
+        repair_latency = time.monotonic() - repair_start
+
+        run_id = uuid.uuid4().hex[:12]
+        verify_start = time.monotonic()
+        repair_verification = run_verify_lifecycle_repair(
+            scenario.pipeline_name, spark, storage, business_rules, validation_rules, validation_before, repair_result, run_id=run_id
+        )
+        verify_latency = time.monotonic() - verify_start
+
+        _persist_run_artifacts(
+            storage,
+            scenario.pipeline_name,
+            run_id,
+            {"diagnosis": diagnosis, "repair_plan": repair_plan, "repair_result": repair_result, "repair_verification": repair_verification},
+        )
+    finally:
+        for table in affected_raw_tables:
+            storage.copy_or_promote(f"{backup_prefix}raw/{table}.parquet", f"raw/{table}.parquet")
+            storage.delete(f"{backup_prefix}raw/{table}.parquet")
+        clean_module = _reload_etl_module(spec.etl_source_file)
+        spark = _ensure_spark_session(spark)
+        clean_outputs = spec.run_etl(clean_module, spark, business_rules, DEFAULT_AS_OF_DATE)
+        for key, df in clean_outputs.items():
+            storage.write_parquet(key, df)
+        clean_validation_rules = storage.read_json(spec.validation_rules_key)
+        clean_validation = spec.run_validate(storage, business_rules, clean_validation_rules, DEFAULT_AS_OF_DATE)
+        _restore_pipeline_run_entry(storage, scenario.pipeline_name, clean_validation["overall_status"])
+
+    return {
+        "scenario_name": scenario.name,
+        "pipeline_name": scenario.pipeline_name,
+        "bug_class": "SOURCE_CONTRACT_CHANGE",
+        "error": None,
+        "diagnosis": {
+            "status": diagnosis["diagnosis_status"],
+            "root_cause_category": diagnosis.get("root_cause_category"),
+            "confidence": diagnosis.get("confidence"),
+            "matches_expected": diagnosis.get("root_cause_category") == scenario.expected_root_cause_category,
+            "turns_used": diagnosis_client.stats.turns_used,
+            "tool_calls_used": diagnosis_client.stats.tool_calls_used,
+            "latency_seconds": diagnosis_latency,
+        },
+        "repair": {
+            "repair_status": repair_result["repair_status"],
+            "repair_decision": repair_plan["repair_decision"],
+            "turns_used": repair_client.stats.turns_used,
+            "latency_seconds": repair_latency,
+        },
+        "verify": {
+            "verification_status": repair_verification["verification_status"],
+            "promoted": repair_verification["verification_status"] == "VERIFIED",
+            "latency_seconds": verify_latency,
+        },
+        "end_to_end_latency_seconds": diagnosis_latency + repair_latency + verify_latency,
+    }
+
+
 def run_refusal_accuracy_suite() -> dict:
     """Deterministic (no model, no Spark) accuracy check against the real, production
     repair-eligibility gate (src.repair_models.evaluate_repair_eligibility) -- the actual
@@ -307,10 +441,12 @@ def run_evals(
     spark,
     *,
     scenarios: list[BugScenario] | None = None,
+    upstream_contract_scenarios: list[UpstreamContractScenario] | None = None,
     diagnosis_model: str | None = None,
     repair_model: str | None = None,
 ) -> dict:
     scenarios = BUG_SCENARIOS if scenarios is None else scenarios
+    upstream_contract_scenarios = UPSTREAM_CONTRACT_SCENARIOS if upstream_contract_scenarios is None else upstream_contract_scenarios
 
     def diagnosis_model_client_factory() -> DiagnosisModelClient:
         return OpenAIDiagnosisModelClient(model=diagnosis_model) if diagnosis_model else OpenAIDiagnosisModelClient()
@@ -328,6 +464,23 @@ def run_evals(
                 "scenario_name": scenario.name,
                 "pipeline_name": scenario.pipeline_name,
                 "bug_class": scenario.bug_class,
+                "error": str(exc),
+                "diagnosis": None,
+                "repair": None,
+                "verify": None,
+                "end_to_end_latency_seconds": None,
+            }
+        scenario_results.append(result)
+
+    for scenario in upstream_contract_scenarios:
+        spark = _ensure_spark_session(spark)
+        try:
+            result = run_upstream_contract_scenario(scenario, spark, storage, diagnosis_model_client_factory, repair_model_client_factory)
+        except Exception as exc:  # noqa: BLE001 -- a scenario-level application failure is a reportable outcome, not a harness crash
+            result = {
+                "scenario_name": scenario.name,
+                "pipeline_name": scenario.pipeline_name,
+                "bug_class": "SOURCE_CONTRACT_CHANGE",
                 "error": str(exc),
                 "diagnosis": None,
                 "repair": None,
@@ -385,8 +538,8 @@ def parse_args(argv: list[str] | None = None):
         action="append",
         dest="scenario_names",
         default=None,
-        choices=[s.name for s in BUG_SCENARIOS],
-        help="Run only these scenarios (repeatable). Default: all.",
+        choices=[s.name for s in BUG_SCENARIOS] + [s.name for s in UPSTREAM_CONTRACT_SCENARIOS],
+        help="Run only these scenarios (repeatable). Default: all, including the upstream-contract scenario.",
     )
     return parser.parse_args(argv)
 
@@ -396,6 +549,9 @@ def main(argv: list[str] | None = None) -> None:
 
     args = parse_args(argv)
     scenarios = BUG_SCENARIOS if not args.scenario_names else [s for s in BUG_SCENARIOS if s.name in args.scenario_names]
+    upstream_contract_scenarios = (
+        UPSTREAM_CONTRACT_SCENARIOS if not args.scenario_names else [s for s in UPSTREAM_CONTRACT_SCENARIOS if s.name in args.scenario_names]
+    )
 
     storage = S3Storage()
     spark = get_spark_session("lifecycle-eval-harness")
@@ -405,6 +561,7 @@ def main(argv: list[str] | None = None) -> None:
             storage,
             spark,
             scenarios=scenarios,
+            upstream_contract_scenarios=upstream_contract_scenarios,
             diagnosis_model=os.environ.get(DIAGNOSIS_MODEL_ENV_VAR),
             repair_model=os.environ.get(REPAIR_MODEL_ENV_VAR),
         )
