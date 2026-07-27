@@ -69,3 +69,28 @@ def reconciliation_check(rule: dict, tolerances: dict, expected, actual) -> dict
         "difference": difference,
         "details": None,
     }
+
+
+def bound_check(check_id: str, description: str, gap: float, reference: float, max_fraction: float) -> dict:
+    """A check for signals that aren't a two-sided reconciliation (there's no single
+    "expected" value two independently-computed sides should agree on exactly), but where a
+    bounded gap between two independently-derived readings is itself the evidence of a
+    healthy, unsurprising system. FAILs when |gap| / reference exceeds max_fraction.
+
+    Used by validate_loan_portfolio.py to compare business_rules("successful_payment_statuses")
+    -driven collected-amount recognition against a label-agnostic (amount-field-only)
+    recomputation that stays correct even if the payment_status vocabulary is renamed
+    upstream -- the two readings are expected to differ a little (e.g. LATE payments are
+    deliberately excluded from the business-rule definition) but not by an amount that implies
+    the business rule and the data have drifted out of sync."""
+    ratio = abs(gap) / reference if reference else 0.0
+    status = "PASS" if ratio <= max_fraction else "FAIL"
+    return {
+        "id": check_id,
+        "description": description,
+        "status": status,
+        "expected": None,
+        "actual": round(ratio, 4),
+        "difference": None,
+        "details": None if status == "PASS" else f"gap={round(gap, 2)}, reference={round(reference, 2)}, max_allowed_fraction={max_fraction}",
+    }

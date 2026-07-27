@@ -8,6 +8,7 @@ tmp_path file, never a real one. Skips cleanly if Spark/S3 aren't reachable.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +20,7 @@ from src.etl_spark_delinquency_default import compute_delinquency_default
 from src.etl_spark_loan_portfolio import compute_loan_portfolio
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.lifecycle_verify_repair import PIPELINE_RUN_KEY, run_verify_lifecycle_repair
+from src.sandbox.backend import GitWorktreeSandbox, TempDirSandbox
 from src.validate_delinquency_default import validate_delinquency_default
 from src.validate_loan_portfolio import validate_loan_portfolio
 from tests.conftest import PrefixedStorage
@@ -70,7 +72,7 @@ def _skip_nested_pytest(monkeypatch):
     # target_file, not the real repo file, so there'd be nothing meaningful to swap anyway.
     import src.lifecycle_verify_repair as verify_module
 
-    monkeypatch.setattr(verify_module, "_run_pytest_against_patched_code", lambda test_files, workspace_dir, target_file: "PASS")
+    monkeypatch.setattr(verify_module, "_run_pytest_against_patched_code", lambda test_files, workspace_dir, target_file, sandbox_backend: "PASS")
 
 
 # --- loan_portfolio: reproves the original inner-join bug through the generalized path ----
@@ -228,7 +230,7 @@ def test_loan_portfolio_create_pr_mode_builds_artifact_and_never_promotes(spark_
     patched_source = real_source_before + "\n# test fixture: cosmetic-only change\n"
     workspace_dir = _write_workspace(tmp_path, real_target_file, patched_source)
     repair_result = {"repair_status": "APPLIED", "target_file": real_target_file, "workspace_dir": str(workspace_dir)}
-    diagnosis = {"root_cause_category": "ETL_LOGIC", "root_cause": "test fixture"}
+    diagnosis = {"root_cause_category": "ETL_LOGIC", "root_cause": "test fixture", "affected_metrics": ["total_outstanding_principal"]}
     repair_plan = {"change_summary": "test fixture patch"}
 
     result = run_verify_lifecycle_repair(
@@ -245,6 +247,10 @@ def test_loan_portfolio_create_pr_mode_builds_artifact_and_never_promotes(spark_
         assert result["pr_artifact"]["pipeline_name"] == "loan_portfolio"
         assert result["pr_artifact"]["risk_classification"] == "LOW"
         assert result["pr_artifact"]["branch"] is not None
+        # context_provenance is populated for real from ContextRetriever, for the metric(s)
+        # diagnosis named as affected -- loan_portfolio has generated+human context populated
+        # (context/human/loan_portfolio.yaml), so this is real, non-legacy provenance.
+        assert result["pr_artifact"]["context_provenance"]["total_outstanding_principal"]["provenance"] in ("human", "merged", "generated")
 
         # the real repo file and the real (still-buggy) curated output are BOTH untouched
         assert LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8") == real_source_before
@@ -257,6 +263,76 @@ def test_loan_portfolio_create_pr_mode_builds_artifact_and_never_promotes(spark_
             import subprocess
 
             subprocess.run(["git", "branch", "-D", branch], capture_output=True)
+
+
+def test_loan_portfolio_create_pr_mode_with_real_git_worktree_sandbox(spark_session, seeded_storage, tmp_path):
+    """The GitWorktreeSandbox wiring (src.lifecycle_run_self_healing's mode="create_pr" path):
+    the SAME real git worktree/branch run_apply_lifecycle_repair would have produced the patch
+    in is what this function reruns Spark against and what ends up holding the committed fix
+    -- not a second, disconnected worktree created just for the PR artifact. Uses a real `git
+    worktree add`/`commit` against this actual repo; branch (and worktree, if left over on
+    failure) is force-cleaned up afterward regardless of outcome."""
+    bucket = seeded_storage.bucket
+    s3a = _test_s3a_path(bucket)
+    curated_key = PIPELINE_REGISTRY["loan_portfolio"].curated_keys[0]
+
+    import src.etl_spark_loan_portfolio as etl_module
+
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_WITHOUT_L3)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", LOAN_PORTFOLIO_PAYMENT_EVENTS)
+    original_s3a_path = etl_module.s3a_path
+    etl_module.s3a_path = s3a
+    try:
+        buggy_summary_pd = compute_loan_portfolio(spark_session, LOAN_PORTFOLIO_BUSINESS_RULES, AS_OF_DATE).toPandas()
+    finally:
+        etl_module.s3a_path = original_s3a_path
+    seeded_storage.write_parquet(f"{TEST_PREFIX}{curated_key}", buggy_summary_pd)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/loans.parquet", LOANS_ALL)
+
+    prefixed = PrefixedStorage(seeded_storage, TEST_PREFIX)
+    validation_before = validate_loan_portfolio(prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES, AS_OF_DATE)
+    assert validation_before["overall_status"] == "FAIL"
+
+    real_target_file = str(LOAN_PORTFOLIO_SOURCE)
+    real_source_before = LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8")
+    marker = "# test fixture: real-git-worktree-sandbox cosmetic-only change\n"
+    patched_source = real_source_before + "\n" + marker
+
+    sandbox = GitWorktreeSandbox(repo_root=Path("."))
+    workspace_dir = sandbox.create_workspace(real_target_file)
+    branch_created = sandbox._branches_by_workspace.get(str(workspace_dir))
+    try:
+        sandbox.workspace_path(workspace_dir, real_target_file).write_text(patched_source, encoding="utf-8")
+        repair_result = {"repair_status": "APPLIED", "target_file": real_target_file, "workspace_dir": str(workspace_dir)}
+        diagnosis = {"root_cause_category": "ETL_LOGIC", "root_cause": "test fixture"}
+        repair_plan = {"change_summary": "real-git-worktree-sandbox test fixture patch"}
+
+        result = run_verify_lifecycle_repair(
+            "loan_portfolio", spark_session, prefixed, LOAN_PORTFOLIO_BUSINESS_RULES, LOAN_PORTFOLIO_VALIDATION_RULES,
+            validation_before, repair_result, run_id="test-loan-portfolio-real-worktree", s3a_path_override=s3a,
+            mode="create_pr", diagnosis=diagnosis, repair_plan=repair_plan, sandbox_backend=sandbox,
+        )
+
+        assert result["verification_status"] == "VERIFIED_PENDING_PR"
+        assert result["pr_artifact"] is not None
+        branch = result["pr_artifact"]["branch"]
+        assert branch == branch_created  # the SAME worktree/branch apply would have used, not a second one
+
+        # The branch really has the fix committed...
+        committed_content = subprocess.run(
+            ["git", "show", f"{branch}:{real_target_file}"], capture_output=True, text=True, check=True
+        ).stdout
+        assert marker.strip() in committed_content
+
+        # ...while the real repo file at HEAD, and the real (still-buggy) curated output, are untouched.
+        assert LOAN_PORTFOLIO_SOURCE.read_text(encoding="utf-8") == real_source_before
+        still_buggy_curated = seeded_storage.read_parquet(f"{TEST_PREFIX}{curated_key}")
+        assert still_buggy_curated.iloc[0]["loan_count"] == 2
+        assert not workspace_dir.exists()  # worktree checkout removed; branch kept
+    finally:
+        subprocess.run(["git", "worktree", "remove", "--force", str(workspace_dir)], capture_output=True)
+        if branch_created:
+            subprocess.run(["git", "branch", "-D", branch_created], capture_output=True)
 
 
 def test_blocked_repair_status_short_circuits_without_touching_anything(spark_session, seeded_storage):
@@ -535,7 +611,7 @@ def test_run_pytest_against_patched_code_swaps_in_the_patch_and_always_restores(
     original_run_pytest = verify_module._run_pytest
     verify_module._run_pytest = _fake_pytest
     try:
-        status = _REAL_RUN_PYTEST_AGAINST_PATCHED_CODE(["dummy"], workspace_dir, str(real_target))
+        status = _REAL_RUN_PYTEST_AGAINST_PATCHED_CODE(["dummy"], workspace_dir, str(real_target), TempDirSandbox())
     finally:
         verify_module._run_pytest = original_run_pytest
 
@@ -560,7 +636,7 @@ def test_run_pytest_against_patched_code_restores_even_when_pytest_raises(tmp_pa
     verify_module._run_pytest = _raising_pytest
     try:
         with pytest.raises(RuntimeError):
-            _REAL_RUN_PYTEST_AGAINST_PATCHED_CODE(["dummy"], workspace_dir, str(real_target))
+            _REAL_RUN_PYTEST_AGAINST_PATCHED_CODE(["dummy"], workspace_dir, str(real_target), TempDirSandbox())
     finally:
         verify_module._run_pytest = original_run_pytest
 

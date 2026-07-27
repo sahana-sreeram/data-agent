@@ -37,6 +37,7 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 from src import dataset_registry_tools as registry_tools
+from src.context_retriever import ContextRetriever
 from src.dataset_registry_tools import DATASET_REGISTRY_TOOL_NAMES, DATASET_REGISTRY_TOOL_SPECS, ToolError
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.storage import S3Storage
@@ -79,6 +80,14 @@ class LifecycleDiagnosticTools:
     etl_functions: dict = field(default_factory=dict)  # function name -> callable
     lineage: dict = field(default_factory=dict)  # full context/lineage.json content
     lineage_key: str = ""  # e.g. "curated.loan_portfolio"
+    # All three None by default -- every existing construction site is unaffected. When set
+    # (see build_diagnostic_tools_for_pipeline), get_metric_definition/get_metric_lineage
+    # route through ContextRetriever for any pipeline with generated/human context populated
+    # (today: only loan_portfolio); everything else falls back to the legacy dict lookups
+    # above, unchanged.
+    pipeline_name: str = ""
+    storage: S3Storage | None = None
+    context_retriever: ContextRetriever | None = None
 
     def _dataset_registry(self) -> dict[str, pd.DataFrame]:
         return self.raw_tables
@@ -136,17 +145,52 @@ class LifecycleDiagnosticTools:
         return self.get_business_rules()
 
     def get_metric_definition(self, metric_name: str) -> dict:
-        """The context/metrics/<pipeline>.json entry for a curated field."""
+        """The context/metrics/<pipeline>.json entry for a curated field. When this
+        pipeline has generated/human context populated (today: only loan_portfolio), also
+        includes a "_context" block -- provenance, review_status, confidence, and any
+        unresolved conflict between the human-approved and code-observed definitions."""
         metrics = self._require_known_metric(metric_name)
-        return {metric_name: metrics[metric_name]}
+        result = {metric_name: metrics[metric_name]}
+        if self.context_retriever is None or self.storage is None:
+            return result
+        fact = self.context_retriever.get_metric(self.pipeline_name, metric_name, self.storage)
+        if fact.provenance == "legacy_file":
+            return result
+        result["_context"] = {
+            "provenance": fact.provenance,
+            "review_status": fact.review_status.value if fact.review_status else None,
+            "confidence": fact.confidence,
+            "human_approved_definition": fact.value,
+            "conflicts": [c.model_dump() for c in fact.conflicts],
+        }
+        return result
 
     def get_metric_lineage(self, metric_name: str) -> dict:
-        """The lineage entry (producer, dependencies) for this pipeline's curated dataset."""
+        """The lineage entry (producer, dependencies) for this pipeline's curated dataset --
+        the richer, generated step-chain (see src.context_enrichment.lineage_builder) when
+        this pipeline has generated context populated, else the legacy context/lineage.json
+        entry."""
         self._require_known_metric(metric_name)
+        if self.context_retriever is not None and self.storage is not None:
+            fact = self.context_retriever.get_lineage(self.pipeline_name, self.storage)
+            if fact.provenance != "legacy_file":
+                return {"metric_name": metric_name, "lineage": fact.value, "provenance": fact.provenance}
         entry = self.lineage.get("datasets", {}).get(self.lineage_key)
         if entry is None:
             raise ToolError(f"lineage entry for {self.lineage_key!r} not found")
         return {"metric_name": metric_name, "lineage": entry}
+
+    def get_context_conflicts(self, metric_name: str) -> dict:
+        """Any unresolved conflict between this metric's human-approved definition and what
+        the ETL code actually computes (src.context_store.merge.merge_context) -- e.g. an
+        approved successful_payment_statuses value that the code no longer matches. Empty
+        list for a pipeline with no generated/human context populated yet, or when there's
+        simply no disagreement."""
+        self._require_known_metric(metric_name)
+        if self.context_retriever is None or self.storage is None:
+            return {"metric": metric_name, "conflicts": []}
+        fact = self.context_retriever.get_metric(self.pipeline_name, metric_name, self.storage)
+        return {"metric": metric_name, "conflicts": [c.model_dump() for c in fact.conflicts]}
 
     def get_failed_metric_context(self, metric_name: str) -> dict:
         """Bundle one metric's own definition, lineage, and whether any currently-failed
@@ -227,7 +271,11 @@ class LifecycleDiagnosticTools:
 
 
 def build_diagnostic_tools_for_pipeline(
-    pipeline_name: str, storage: S3Storage, validation_results: dict, business_rules: dict
+    pipeline_name: str,
+    storage: S3Storage,
+    validation_results: dict,
+    business_rules: dict,
+    context_retriever: ContextRetriever | None = None,
 ) -> LifecycleDiagnosticTools:
     """Load exactly the raw tables and ETL functions this pipeline needs, per
     PIPELINE_REGISTRY, and construct a LifecycleDiagnosticTools around them."""
@@ -246,6 +294,9 @@ def build_diagnostic_tools_for_pipeline(
         etl_functions=etl_functions,
         lineage=lineage,
         lineage_key=spec.lineage_key,
+        pipeline_name=pipeline_name,
+        storage=storage,
+        context_retriever=context_retriever,
     )
 
 
@@ -261,6 +312,7 @@ ALLOWLISTED_TOOL_NAMES = frozenset(
         "get_relevant_etl_source",
         "compare_metric_definition_to_etl",
         "trace_failed_check_to_code",
+        "get_context_conflicts",
         *DATASET_REGISTRY_TOOL_NAMES,
     }
 )
@@ -373,6 +425,18 @@ TOOL_SPECS: list[dict] = [
         "function": {
             "name": "compare_metric_definition_to_etl",
             "description": "Structurally compare a metric's declared business-rule dependencies against whether the ETL source actually reads each one. mismatch=true is a strong, fast signal of a business-rule-vs-code mismatch (the code silently stopped reading an approved business rule) -- check this BEFORE profiling or joining raw data. mismatch=false means look elsewhere (e.g. a join/aggregation bug) using the general-purpose dataset tools instead.",
+            "parameters": {
+                "type": "object",
+                "properties": {"metric_name": {"type": "string", "description": "A field name from this pipeline's curated output."}},
+                "required": ["metric_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_context_conflicts",
+            "description": "Return any unresolved conflict between this metric's human-approved definition and what the ETL code actually computes -- e.g. an approved successful_payment_statuses value the code no longer matches. Empty for a pipeline without generated/human context populated, or when there's no disagreement.",
             "parameters": {
                 "type": "object",
                 "properties": {"metric_name": {"type": "string", "description": "A field name from this pipeline's curated output."}},

@@ -46,14 +46,14 @@ def test_composes_diagnose_apply_verify_and_returns_combined_dict(monkeypatch):
         lambda pipeline_name, storage, factory: calls.append("diagnose") or {"diagnosis_status": "DIAGNOSED"},
     )
 
-    def _fake_apply(pipeline_name, storage, diagnosis, validation_results, factory):
+    def _fake_apply(pipeline_name, storage, diagnosis, validation_results, factory, **kwargs):
         calls.append("apply")
         assert diagnosis == {"diagnosis_status": "DIAGNOSED"}
         return {"repair_decision": "PROPOSE_REPAIR"}, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "src/etl_spark_loan_portfolio.py"}
 
     monkeypatch.setattr(self_healing_module, "run_apply_lifecycle_repair", _fake_apply)
 
-    def _fake_verify(pipeline_name, spark, storage, br, vr, validation_before, repair_result, run_id=None):
+    def _fake_verify(pipeline_name, spark, storage, br, vr, validation_before, repair_result, run_id=None, **kwargs):
         calls.append("verify")
         assert repair_result["repair_status"] == "APPLIED"
         assert run_id is not None
@@ -112,7 +112,7 @@ def test_propose_patch_mode_stops_after_apply(monkeypatch):
     calls = []
     monkeypatch.setattr(self_healing_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: _spec_with_validate(lambda *a: {"overall_status": "FAIL", "checks": []})})
     monkeypatch.setattr(self_healing_module, "run_diagnose_pipeline", lambda p, s, f: {"diagnosis_status": "DIAGNOSED"})
-    def fake_apply(p, s, d, v, f):
+    def fake_apply(p, s, d, v, f, **kwargs):
         calls.append("apply")
         return {"repair_decision": "PROPOSE_REPAIR"}, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}
 
@@ -136,7 +136,7 @@ def test_create_pr_mode_passes_mode_diagnosis_and_plan_through_to_verify(monkeyp
     monkeypatch.setattr(
         self_healing_module,
         "run_apply_lifecycle_repair",
-        lambda p, s, d, v, f: (repair_plan, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}),
+        lambda p, s, d, v, f, **k: (repair_plan, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}),
     )
 
     def fake_verify(pipeline_name, spark, storage, br, vr, vb, rr, **kwargs):
@@ -154,19 +154,24 @@ def test_create_pr_mode_passes_mode_diagnosis_and_plan_through_to_verify(monkeyp
     assert seen_kwargs["repair_plan"] == repair_plan
     assert result["repair_verification"]["verification_status"] == "VERIFIED_PENDING_PR"
 
+    from src.sandbox.backend import GitWorktreeSandbox
+
+    assert isinstance(seen_kwargs["sandbox_backend"], GitWorktreeSandbox)
+
 
 def test_auto_promote_is_the_default_and_never_passes_mode_kwargs_to_verify(monkeypatch):
     """The single most important regression guard in this file: every pre-existing call site
     (and every other test in this file) calls run_lifecycle_self_healing without `mode` at
-    all -- verify must receive exactly the same kwargs it always did (just run_id), or every
-    one of those callers breaks."""
+    all -- verify must receive exactly the same kwargs it always did (run_id, plus a
+    TempDirSandbox sandbox_backend -- byte-identical to the original behavior that
+    predates sandbox_backend existing at all), never mode/diagnosis/repair_plan."""
     seen_kwargs = {}
     monkeypatch.setattr(self_healing_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: _spec_with_validate(lambda *a: {"overall_status": "FAIL", "checks": []})})
     monkeypatch.setattr(self_healing_module, "run_diagnose_pipeline", lambda p, s, f: {"diagnosis_status": "DIAGNOSED"})
     monkeypatch.setattr(
         self_healing_module,
         "run_apply_lifecycle_repair",
-        lambda p, s, d, v, f: ({"repair_decision": "PROPOSE_REPAIR"}, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}),
+        lambda p, s, d, v, f, **k: ({"repair_decision": "PROPOSE_REPAIR"}, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}),
     )
 
     def fake_verify(pipeline_name, spark, storage, br, vr, vb, rr, **kwargs):
@@ -177,7 +182,10 @@ def test_auto_promote_is_the_default_and_never_passes_mode_kwargs_to_verify(monk
 
     self_healing_module.run_lifecycle_self_healing(PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None)
 
-    assert set(seen_kwargs) == {"run_id"}
+    assert set(seen_kwargs) == {"run_id", "sandbox_backend"}
+    from src.sandbox.backend import TempDirSandbox
+
+    assert isinstance(seen_kwargs["sandbox_backend"], TempDirSandbox)
 
 
 def test_unknown_mode_raises_value_error():
@@ -203,11 +211,11 @@ def test_each_invocation_gets_a_distinct_run_id(monkeypatch):
     monkeypatch.setattr(self_healing_module, "run_diagnose_pipeline", lambda p, s, f: {"diagnosis_status": "NO_INCIDENT"})
     monkeypatch.setattr(
         self_healing_module, "run_apply_lifecycle_repair",
-        lambda p, s, d, v, f: ({"repair_decision": "NO_SAFE_REPAIR"}, {"repair_status": "NO_REPAIR", "workspace_dir": None, "target_file": None}),
+        lambda p, s, d, v, f, **k: ({"repair_decision": "NO_SAFE_REPAIR"}, {"repair_status": "NO_REPAIR", "workspace_dir": None, "target_file": None}),
     )
     monkeypatch.setattr(
         self_healing_module, "run_verify_lifecycle_repair",
-        lambda p, spark, s, br, vr, vb, rr, run_id=None: {"verification_status": "BLOCKED", "summary": "nothing to do", "run_id_seen": run_id},
+        lambda p, spark, s, br, vr, vb, rr, run_id=None, **k: {"verification_status": "BLOCKED", "summary": "nothing to do", "run_id_seen": run_id},
     )
 
     storage = _FakeStorage()

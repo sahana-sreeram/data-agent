@@ -157,5 +157,87 @@ def test_validate_loan_portfolio_fails_on_wrong_curated_value(spark_session, see
     assert checks_by_id["total_outstanding_principal_reconciliation"]["status"] == "FAIL"
     assert checks_by_id["loan_count_reconciliation"]["status"] == "PASS"
 
-    def write_json(self, path: str, value) -> None:
-        self._storage.write_json(f"{self._prefix}{path}", value)
+
+VALIDATION_RULES_WITH_DRIFT_CHECK = {
+    "tolerance": {**VALIDATION_RULES["tolerance"], "bound_fraction": 0.30},
+    "rules": [
+        *VALIDATION_RULES["rules"],
+        {
+            "id": "total_outstanding_principal_status_vocabulary_drift",
+            "type": "bound",
+            "tolerance_type": "bound_fraction",
+            "description": "d",
+        },
+    ],
+}
+
+# Same two loans as PAYMENT_EVENTS above, but every originally-PAID installment has been
+# relabeled SETTLED -- exactly payment_service's v2 contract change (see
+# services/payment_service/contract.py) -- while the REVERSAL keeps its own REVERSED status
+# (the rename only ever touches a PAID record). BUSINESS_RULES is UNCHANGED (still only
+# recognizes "PAID"), so the ETL -- and the reconciliation check that recomputes with the
+# identical business-rule-driven filter -- both silently stop recognizing these as collected
+# and agree with each other (reconciliation structurally can't see this; see
+# src.validate_loan_portfolio's module docstring). Only the amount-field-only drift check,
+# which never looks at the payment_status string at all, is immune to the rename.
+PAYMENT_EVENTS_SETTLED_RENAME = pd.DataFrame(
+    [
+        {"event_id": "E1", "schedule_id": "S1", "loan_id": "L1", "event_type": "PAYMENT", "payment_date": "2024-02-01", "amount": 1000.0, "payment_status": "SETTLED", "payment_method": "ACH"},
+        {"event_id": "E2", "schedule_id": "S2", "loan_id": "L2", "event_type": "PAYMENT", "payment_date": "2025-08-20", "amount": 500.0, "payment_status": "SETTLED", "payment_method": "ACH"},
+        {"event_id": "E3", "schedule_id": "S2", "loan_id": "L2", "event_type": "REVERSAL", "payment_date": "2025-08-25", "amount": -500.0, "payment_status": "REVERSED", "payment_method": "ACH"},
+    ]
+)
+
+
+def test_validate_loan_portfolio_status_vocabulary_drift_check_catches_settled_rename(spark_session, seeded_storage, monkeypatch):
+    """The new, genuinely independent drift check (src.lifecycle_validation_helpers.bound_check
+    via validate_loan_portfolio's _amount_agnostic_outstanding_principal) catches a PAID ->
+    SETTLED rename that the 8 pre-existing reconciliation checks structurally cannot -- proving
+    requirement 6's "materially incorrect business metric detected by an independent
+    reconciliation validator" for real, not just via the raw 12-table enum validator."""
+    import src.etl_spark_loan_portfolio as etl_module
+
+    monkeypatch.setattr(
+        etl_module, "s3a_path", lambda *parts: f"s3a://{seeded_storage.bucket}/{TEST_PREFIX}" + "/".join(parts)
+    )
+    seeded_storage.write_parquet(f"{TEST_PREFIX}raw/payment_events.parquet", PAYMENT_EVENTS_SETTLED_RENAME)
+
+    summary_df = compute_loan_portfolio(spark_session, BUSINESS_RULES, AS_OF_DATE)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}curated/loan_portfolio.parquet", summary_df.toPandas())
+
+    result = validate_loan_portfolio(
+        PrefixedStorage(seeded_storage, TEST_PREFIX), BUSINESS_RULES, VALIDATION_RULES_WITH_DRIFT_CHECK, AS_OF_DATE
+    )
+    checks_by_id = {c["id"]: c for c in result["checks"]}
+
+    # The blind spot: ETL and the independent recomputation apply the IDENTICAL business-rule
+    # -driven filter to the IDENTICAL (renamed) data, so they agree with each other -- both
+    # wrong, reconciliation still PASSES. This is documented behavior, not a bug in this test.
+    assert checks_by_id["total_outstanding_principal_reconciliation"]["status"] == "PASS"
+    assert checks_by_id["loan_count_reconciliation"]["status"] == "PASS"
+
+    # The new check is immune to the rename (it never reads payment_status) and catches it.
+    drift_check = checks_by_id["total_outstanding_principal_status_vocabulary_drift"]
+    assert drift_check["status"] == "FAIL"
+    assert drift_check["actual"] > VALIDATION_RULES_WITH_DRIFT_CHECK["tolerance"]["bound_fraction"]
+    assert result["overall_status"] == "FAIL"
+
+
+def test_validate_loan_portfolio_status_vocabulary_drift_check_passes_on_healthy_data(spark_session, seeded_storage, monkeypatch):
+    """Healthy (v1, unrenamed) data must NOT trip the new check -- LATE-payment exclusion is
+    the only expected source of disagreement between the two readings, and PAYMENT_EVENTS
+    (the module's baseline healthy fixture) has none."""
+    import src.etl_spark_loan_portfolio as etl_module
+
+    monkeypatch.setattr(
+        etl_module, "s3a_path", lambda *parts: f"s3a://{seeded_storage.bucket}/{TEST_PREFIX}" + "/".join(parts)
+    )
+    summary_df = compute_loan_portfolio(spark_session, BUSINESS_RULES, AS_OF_DATE)
+    seeded_storage.write_parquet(f"{TEST_PREFIX}curated/loan_portfolio.parquet", summary_df.toPandas())
+
+    result = validate_loan_portfolio(
+        PrefixedStorage(seeded_storage, TEST_PREFIX), BUSINESS_RULES, VALIDATION_RULES_WITH_DRIFT_CHECK, AS_OF_DATE
+    )
+    checks_by_id = {c["id"]: c for c in result["checks"]}
+    assert checks_by_id["total_outstanding_principal_status_vocabulary_drift"]["status"] == "PASS"
+    assert result["overall_status"] == "PASS"

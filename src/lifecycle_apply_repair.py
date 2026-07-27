@@ -27,6 +27,8 @@ import os
 from pathlib import Path
 from typing import Callable
 
+from src.context_retriever import ContextRetriever
+from src.context_store.file_store import FileContextStore
 from src.legacy.apply_repair import (
     DEFAULT_REPAIR_TARGETS_FILE,
     PatchApplyError,
@@ -45,6 +47,7 @@ from src.model_client import (
     OpenAIDiagnosisModelClient,
     OpenAIResponsesModelClient,
 )
+from src.sandbox.backend import SandboxBackend, TempDirSandbox
 from src.legacy.repair_models import (
     RepairDecision,
     RepairEligibility,
@@ -85,6 +88,9 @@ def build_lifecycle_repair_tools(
         lineage_key=spec.lineage_key,
         etl_source_file=spec.etl_source_file,
         etl_functions=etl_functions,
+        pipeline_name=pipeline_name,
+        storage=storage,
+        context_retriever=ContextRetriever(store=FileContextStore()),
     )
 
 
@@ -112,9 +118,17 @@ def run_apply_lifecycle_repair(
     *,
     repair_targets_file: str = DEFAULT_REPAIR_TARGETS_FILE,
     confidence_threshold: str = DEFAULT_CONFIDENCE_THRESHOLD,
+    sandbox_backend: SandboxBackend = TempDirSandbox(),
 ) -> tuple[dict, dict]:
     """Run the full apply-repair flow for one lifecycle pipeline. Returns
-    (repair_plan_dict, repair_result_dict)."""
+    (repair_plan_dict, repair_result_dict).
+
+    sandbox_backend defaults to TempDirSandbox -- byte-identical to this function's original
+    behavior (a bare tempfile.mkdtemp() copy of just the target file). Passing a
+    GitWorktreeSandbox instead (see src.lifecycle_run_self_healing's mode="create_pr" wiring)
+    applies this same patch inside a real git worktree/branch, so the exact workspace this
+    function produces is what src.lifecycle_verify_repair reruns Spark against and what
+    eventually becomes the PR branch -- no second, redundant workspace."""
     spec = PIPELINE_REGISTRY[pipeline_name]
     diagnosis_reference = diagnosis.get("incident_summary", pipeline_name)
 
@@ -163,12 +177,16 @@ def run_apply_lifecycle_repair(
     # PROPOSE_REPAIR: apply in an isolated workspace, never the real file.
     original_hash = _sha256_of_file(Path(plan.target_file))
     try:
-        workspace_dir = _create_isolated_workspace(plan.target_file)
+        workspace_dir = sandbox_backend.create_workspace(plan.target_file)
+        # _validate_and_apply_patch (src.legacy.apply_repair) computes the target's in-workspace
+        # path via the same workspace_dir / target_file.lstrip("/") formula every SandboxBackend
+        # uses (see src.sandbox.backend) -- both TempDirSandbox and GitWorktreeSandbox already
+        # place the target file at exactly that path, so no backend-specific wiring is needed here.
         _validate_and_apply_patch(workspace_dir, plan)
     except (PatchApplyError, OSError, json.JSONDecodeError) as exc:
         return plan_dict, _outcome_result(f"policy validation / patch application failed: {exc}", repair_status="BLOCKED")
 
-    repaired_hash = _sha256_of_file(_workspace_path(workspace_dir, plan.target_file))
+    repaired_hash = _sha256_of_file(sandbox_backend.workspace_path(workspace_dir, plan.target_file))
 
     result = {
         "repair_status": "APPLIED",

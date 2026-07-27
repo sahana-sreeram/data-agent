@@ -22,6 +22,7 @@ from src.lifecycle_diagnose_pipeline import run_diagnose_pipeline
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
 from src.lifecycle_verify_repair import run_verify_lifecycle_repair
 from src.model_client import DiagnosisModelClient
+from src.sandbox.backend import GitWorktreeSandbox, TempDirSandbox
 from src.storage import S3Storage
 
 
@@ -60,6 +61,12 @@ def run_lifecycle_self_healing(
 
     spec = PIPELINE_REGISTRY[pipeline_name]
     run_id = uuid.uuid4().hex[:12]
+    # create_pr is the only mode that needs a real git identity for the candidate -- every
+    # other mode (including the default, auto_promote) keeps today's exact TempDirSandbox
+    # behavior. The SAME backend instance is threaded into apply and verify below so the
+    # workspace apply patches is the one verify reruns Spark against and the one that becomes
+    # the PR branch, not two disconnected ones.
+    sandbox_backend = GitWorktreeSandbox() if mode == "create_pr" else TempDirSandbox()
 
     business_rules = storage.read_json("context/business_rules.json")
     validation_rules = storage.read_json(spec.validation_rules_key)
@@ -72,14 +79,14 @@ def run_lifecycle_self_healing(
         return {"run_id": run_id, **artifacts}
 
     repair_plan, repair_result = run_apply_lifecycle_repair(
-        pipeline_name, storage, diagnosis, validation_before, repair_model_client_factory
+        pipeline_name, storage, diagnosis, validation_before, repair_model_client_factory, sandbox_backend=sandbox_backend
     )
     if mode == "propose_patch":
         artifacts = {"diagnosis": diagnosis, "repair_plan": repair_plan, "repair_result": repair_result, "repair_verification": None}
         _persist_run_artifacts(storage, pipeline_name, run_id, {"diagnosis": diagnosis, "repair_plan": repair_plan, "repair_result": repair_result})
         return {"run_id": run_id, **artifacts}
 
-    verify_kwargs = {"run_id": run_id}
+    verify_kwargs = {"run_id": run_id, "sandbox_backend": sandbox_backend}
     if mode == "create_pr":
         verify_kwargs.update(mode="create_pr", diagnosis=diagnosis, repair_plan=repair_plan)
     repair_verification = run_verify_lifecycle_repair(

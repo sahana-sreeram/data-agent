@@ -1,0 +1,31 @@
+# Minimal human-approved semantic context for loan_portfolio.
+
+data_product: loan_portfolio
+authoritative: true
+owner: risk-data-team
+
+metrics:
+  total_outstanding_principal:
+    canonical_definition: >
+      Total remaining principal owed across the portfolio, net of successful payments and any
+      reversals. A payment counts as successful only if its payment_status is one this team has
+      explicitly approved (currently just PAID) -- an upstream relabeling of that status (e.g.
+      to SETTLED) does not automatically extend recognition and must be reviewed.
+    business_rule:
+      successful_payment_statuses: PAID
+    approved_by: risk-finance
+    approval_status: APPROVED
+
+repair_policy:
+  auto_repair:
+    - ETL_LOGIC_JOIN
+    - BUSINESS_RULE_MISMATCH
+  human_review:
+    - SOURCE_CONTRACT_CHANGE
+    - AMBIGUOUS_BUSINESS_SEMANTICS
+
+sensitive_data_classification: none
+escalation_rules:
+  - "A SOURCE_CONTRACT_CHANGE affecting payment_events.payment_status always pages
+    risk-data-team before any auto-repair is even proposed -- whether a new label like SETTLED
+    counts toward total_outstanding_principal is a business decision, not a technical one."

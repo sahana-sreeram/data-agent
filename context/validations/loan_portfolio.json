@@ -2,11 +2,13 @@
   "tolerance": {
     "currency": 0.01,
     "count": 0,
-    "rate": 0.0001
+    "rate": 0.0001,
+    "bound_fraction": 0.30
   },
   "notes": [
     "Reconciliation-only -- schema/enum/referential integrity for the underlying raw tables are already covered by context/validations/lifecycle_raw.json.",
-    "Executed by src/validate_loan_portfolio.py, which independently recomputes every metric in pandas from raw Parquet (never importing src/etl_spark_loan_portfolio.py's Spark logic) and compares against the curated summary it wrote."
+    "Executed by src/validate_loan_portfolio.py, which independently recomputes every metric in pandas from raw Parquet (never importing src/etl_spark_loan_portfolio.py's Spark logic) and compares against the curated summary it wrote.",
+    "total_outstanding_principal_status_vocabulary_drift is a bound check (src.lifecycle_validation_helpers.bound_check), not a reconciliation -- it compares the curated value against a payment_status-label-agnostic recomputation (amount field only), which stays correct even if the payment_status vocabulary is renamed upstream. See src.validate_loan_portfolio._amount_agnostic_outstanding_principal."
   ],
   "rules": [
     {"id": "loan_count_reconciliation", "type": "reconciliation", "tolerance_type": "count", "description": "curated loan_portfolio.loan_count must match the number of raw loans records."},
@@ -16,6 +18,7 @@
     {"id": "total_funded_principal_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_funded_principal must match the sum of principal_amount across raw loans."},
     {"id": "total_outstanding_principal_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_outstanding_principal must match, per loan, principal_amount minus net successful payment_events amount (PAID net of any REVERSED), floored at 0, summed across all loans."},
     {"id": "avg_interest_rate_reconciliation", "type": "reconciliation", "tolerance_type": "rate", "description": "curated loan_portfolio.avg_interest_rate must match the mean interest_rate across raw loans."},
-    {"id": "total_accrued_interest_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_accrued_interest must match, per ACTIVE loan (business_rules.interest_accrual.accrues_on_statuses), principal_amount * interest_rate * (days since originated_at) / 365, summed."}
+    {"id": "total_accrued_interest_reconciliation", "type": "reconciliation", "tolerance_type": "currency", "description": "curated loan_portfolio.total_accrued_interest must match, per ACTIVE loan (business_rules.interest_accrual.accrues_on_statuses), principal_amount * interest_rate * (days since originated_at) / 365, summed."},
+    {"id": "total_outstanding_principal_status_vocabulary_drift", "type": "bound", "tolerance_type": "bound_fraction", "description": "The gap between curated total_outstanding_principal (business_rules.successful_payment_statuses-driven) and a payment_status-label-agnostic recomputation (amount field only) must not exceed 30% of total_funded_principal -- a wider gap means the approved successful-payment vocabulary no longer matches what the data actually contains (e.g. an upstream contract rename like PAID -> SETTLED), not just the expected LATE-payment exclusion."}
   ]
 }

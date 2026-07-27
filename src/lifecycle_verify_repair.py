@@ -23,6 +23,7 @@ import hashlib
 import importlib
 import importlib.util
 import shutil
+import subprocess
 import sys
 import uuid
 from pathlib import Path
@@ -30,9 +31,11 @@ from pathlib import Path
 import pandas as pd
 from pyspark.sql import SparkSession
 
-from src.legacy.apply_repair import _workspace_path
+from src.context_retriever import ContextRetriever
+from src.context_store.file_store import FileContextStore
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
 from src.pr_artifact import build_pr_artifact
+from src.sandbox.backend import GitWorktreeSandbox, SandboxBackend, TempDirSandbox
 from src.storage import S3Storage
 
 PIPELINE_RUN_KEY = "curated/pipeline_run.json"
@@ -49,12 +52,12 @@ def _sha256_of_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _load_patched_etl_module(workspace_dir: Path, target_file: str):
+def _load_patched_etl_module(workspace_dir: Path, target_file: str, sandbox_backend: SandboxBackend):
     """Dynamically import the patched copy of the ETL module (mirrored under workspace_dir at
-    target_file's repo-relative path) as an ISOLATED module object. Never touches the real,
-    installed module. This is how a CODE_CHANGE's patched behavior gets genuinely exercised
-    before promotion."""
-    patched_path = _workspace_path(workspace_dir, target_file)
+    target_file's repo-relative path, per sandbox_backend's own path mapping) as an ISOLATED
+    module object. Never touches the real, installed module. This is how a CODE_CHANGE's
+    patched behavior gets genuinely exercised before promotion."""
+    patched_path = sandbox_backend.workspace_path(workspace_dir, target_file)
     spec = importlib.util.spec_from_file_location("patched_lifecycle_etl_for_verification", patched_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -97,7 +100,9 @@ def _run_pytest(test_files: list) -> str:
     return "PASS" if int(exit_code) == 0 else "FAIL"
 
 
-def _run_pytest_against_patched_code(test_files: list, workspace_dir: Path, target_file: str) -> str:
+def _run_pytest_against_patched_code(
+    test_files: list, workspace_dir: Path, target_file: str, sandbox_backend: SandboxBackend
+) -> str:
     """Run test_files with the REAL target_file's on-disk content temporarily replaced by
     the patched (isolated-workspace) version, then always restore the original -- so a test
     file that pins exact expected values (e.g. "loss_rate must equal 0.4") actually reflects
@@ -125,7 +130,7 @@ def _run_pytest_against_patched_code(test_files: list, workspace_dir: Path, targ
 
     module_name = target_file.replace("/", ".").removesuffix(".py")
     cached_module = sys.modules.get(module_name)
-    patched_bytes = _workspace_path(workspace_dir, target_file).read_bytes()
+    patched_bytes = sandbox_backend.workspace_path(workspace_dir, target_file).read_bytes()
     try:
         real_target_path.write_bytes(patched_bytes)
         if cached_module is not None:
@@ -135,6 +140,31 @@ def _run_pytest_against_patched_code(test_files: list, workspace_dir: Path, targ
         real_target_path.write_bytes(original_bytes)
         if cached_module is not None:
             importlib.reload(cached_module)
+
+
+def _context_provenance_for(pipeline_name: str, diagnosis: dict, storage: S3Storage) -> dict | None:
+    """For each metric the diagnosis named as affected, the ContextRetriever facts (provenance,
+    review_status, confidence, conflicts) that backed it -- included in the create_pr PR
+    artifact for audit. Never raises: a pipeline without generated/human context populated
+    yet just contributes legacy_file/no-conflict entries, which is real information too (it
+    documents that this repair wasn't backed by a human-approved definition at all)."""
+    affected_metrics = diagnosis.get("affected_metrics") or []
+    if not affected_metrics:
+        return None
+    retriever = ContextRetriever(store=FileContextStore())
+    provenance = {}
+    for metric_name in affected_metrics:
+        try:
+            fact = retriever.get_metric(pipeline_name, metric_name, storage)
+        except Exception:  # noqa: BLE001 -- provenance is audit information, never blocks verification
+            continue
+        provenance[metric_name] = {
+            "provenance": fact.provenance,
+            "review_status": fact.review_status.value if fact.review_status else None,
+            "confidence": fact.confidence,
+            "conflicts": [c.model_dump() for c in fact.conflicts],
+        }
+    return provenance or None
 
 
 def _checks_by_id(validation_results: dict) -> dict:
@@ -154,6 +184,7 @@ def _promote_atomically(
     workspace_dir: Path,
     metrics_after_by_key: dict,
     validation_after: dict,
+    sandbox_backend: SandboxBackend,
 ) -> list:
     """Promote every changed key -- this pipeline's curated output(s), its validation
     results, pipeline_run.json, and its ETL source file -- backing each up first and
@@ -218,7 +249,7 @@ def _promote_atomically(
                 path.write_bytes(original)
 
         undo_stack.append(_undo_local_file)
-        shutil.copy2(_workspace_path(workspace_dir, target_file), real_target_path)
+        shutil.copy2(sandbox_backend.workspace_path(workspace_dir, target_file), real_target_path)
         promoted.append(str(real_target_path))
 
     except Exception as exc:  # noqa: BLE001 -- roll back every step already taken this run
@@ -238,6 +269,22 @@ def _promote_atomically(
     return promoted
 
 
+def _commit_patch_and_keep_branch(sandbox_backend: SandboxBackend, workspace_dir: Path, target_file: str, commit_message: str) -> str | None:
+    """For create_pr mode with a GitWorktreeSandbox: commit the already-applied patch inside
+    the SAME worktree run_apply_lifecycle_repair used (not a second, redundant one) and keep
+    its branch for the PR artifact. Returns None for any other backend (nothing to commit --
+    src.pr_artifact.build_pr_artifact falls back to creating its own throwaway branch in that
+    case, exactly as it did before this wiring existed) or if git itself fails."""
+    if not isinstance(sandbox_backend, GitWorktreeSandbox):
+        return None
+    try:
+        subprocess.run(["git", "add", target_file], cwd=workspace_dir, check=True, capture_output=True, timeout=30)
+        subprocess.run(["git", "commit", "-m", commit_message], cwd=workspace_dir, check=True, capture_output=True, timeout=30)
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return None
+    return sandbox_backend.keep_branch(workspace_dir)
+
+
 def run_verify_lifecycle_repair(
     pipeline_name: str,
     spark: SparkSession,
@@ -252,6 +299,7 @@ def run_verify_lifecycle_repair(
     mode: str = "auto_promote",
     diagnosis: dict | None = None,
     repair_plan: dict | None = None,
+    sandbox_backend: SandboxBackend = TempDirSandbox(),
 ) -> dict:
     """Run the full verification flow for one lifecycle pipeline's repair. Returns the
     repair_verification dict.
@@ -272,6 +320,15 @@ def run_verify_lifecycle_repair(
     leaves the real repository completely untouched, even on a full pass. diagnosis/
     repair_plan are only used for the create_pr artifact's summary fields; omit them for
     auto_promote.
+
+    sandbox_backend MUST be the same instance/kind passed to the run_apply_lifecycle_repair
+    call that produced repair_result["workspace_dir"] -- defaults to TempDirSandbox, which is
+    byte-identical to this function's original (pre-sandbox_backend) behavior. Passing a
+    GitWorktreeSandbox (used automatically for mode="create_pr" -- see
+    src.lifecycle_run_self_healing) means the Spark rerun below happens inside the real git
+    worktree that becomes the PR branch, and this function commits the patch and keeps that
+    branch on a full pass instead of leaving it to src.pr_artifact to create a second,
+    disconnected one.
     """
     spec = PIPELINE_REGISTRY[pipeline_name]
     run_id = run_id or uuid.uuid4().hex[:12]
@@ -298,7 +355,7 @@ def run_verify_lifecycle_repair(
     protected_hashes_before = _protected_file_hashes(pipeline_name, spec.validation_rules_key)
 
     try:
-        patched_module = _load_patched_etl_module(workspace_dir, repair_result["target_file"])
+        patched_module = _load_patched_etl_module(workspace_dir, repair_result["target_file"], sandbox_backend)
         if s3a_path_override is not None:
             patched_module.s3a_path = s3a_path_override
         metrics_after_by_key = spec.run_etl(patched_module, spark, business_rules, DEFAULT_AS_OF_DATE)
@@ -306,7 +363,7 @@ def run_verify_lifecycle_repair(
         validation_after = spec.run_validate(candidate_storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
         etl_status_after = "SUCCESS"
     except Exception as exc:  # noqa: BLE001 -- rerun failure is a verification outcome, not a crash
-        shutil.rmtree(workspace_dir, ignore_errors=True)
+        sandbox_backend.cleanup(workspace_dir)
         return {
             "verification_status": "NOT_VERIFIED",
             "diagnosis_status": "DIAGNOSED",
@@ -324,7 +381,7 @@ def run_verify_lifecycle_repair(
             "summary": f"ETL rerun against the patched workspace failed: {exc}",
         }
 
-    targeted_status = _run_pytest_against_patched_code([spec.test_file], workspace_dir, repair_result["target_file"])
+    targeted_status = _run_pytest_against_patched_code([spec.test_file], workspace_dir, repair_result["target_file"], sandbox_backend)
     full_suite_status = targeted_status  # a single test file governs each lifecycle pipeline
 
     protected_hashes_after = _protected_file_hashes(pipeline_name, spec.validation_rules_key)
@@ -356,13 +413,16 @@ def run_verify_lifecycle_repair(
     pr_artifact = None
 
     if all_checks_pass and mode == "create_pr":
-        target_path = _workspace_path(workspace_dir, repair_result["target_file"])
+        target_path = sandbox_backend.workspace_path(workspace_dir, repair_result["target_file"])
+        patched_content = target_path.read_text()
+        commit_message = f"Repair {pipeline_name}: {(repair_plan or {}).get('change_summary', 'automated candidate patch')}"
+        branch = _commit_patch_and_keep_branch(sandbox_backend, workspace_dir, repair_result["target_file"], commit_message)
         pr_artifact = build_pr_artifact(
             pipeline_name=pipeline_name,
             run_id=run_id,
             target_file=repair_result["target_file"],
             original_content=Path(repair_result["target_file"]).read_text(),
-            patched_content=target_path.read_text(),
+            patched_content=patched_content,
             diagnosis=diagnosis or {},
             repair_plan=repair_plan or {},
             validation_before=validation_before,
@@ -370,8 +430,11 @@ def run_verify_lifecycle_repair(
             metrics_before={},
             metrics_after=metrics_after,
             tests_status={"targeted": targeted_status, "full_relevant_suite": full_suite_status},
+            branch=branch,
+            context_provenance=_context_provenance_for(pipeline_name, diagnosis or {}, storage),
         )
-        shutil.rmtree(workspace_dir, ignore_errors=True)
+        if branch is None:
+            sandbox_backend.cleanup(workspace_dir)  # not kept as a branch -- nothing left to preserve
         changed_files = []
         verification_status = "VERIFIED_PENDING_PR"
         rollback_performed = False
@@ -379,21 +442,21 @@ def run_verify_lifecycle_repair(
     elif all_checks_pass:
         try:
             changed_files = _promote_atomically(
-                storage, run_id, pipeline_name, repair_result, workspace_dir, metrics_after_by_key, validation_after
+                storage, run_id, pipeline_name, repair_result, workspace_dir, metrics_after_by_key, validation_after, sandbox_backend
             )
-            shutil.rmtree(workspace_dir, ignore_errors=True)
+            sandbox_backend.cleanup(workspace_dir)
             verification_status = "VERIFIED"
             rollback_performed = False
             summary = "All deterministic checks passed; repair promoted to the real repository."
         except PromotionError as exc:
-            shutil.rmtree(workspace_dir, ignore_errors=True)
+            sandbox_backend.cleanup(workspace_dir)
             changed_files = []
             verification_status = "NOT_VERIFIED"
             rollback_performed = True
             summary = str(exc)
     else:
         changed_files = []
-        shutil.rmtree(workspace_dir, ignore_errors=True)
+        sandbox_backend.cleanup(workspace_dir)
         verification_status = "NOT_VERIFIED"
         rollback_performed = True
         summary = "One or more deterministic checks failed; isolated workspace discarded, repository left untouched."

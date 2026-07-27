@@ -64,16 +64,27 @@ def build_pr_artifact(
     tests_status: dict,
     repo_root: Path | str = ".",
     create_branch: bool = True,
+    branch: str | None = None,
+    context_provenance: dict | None = None,
 ) -> dict:
     """Pure with respect to the real repo except for the optional throwaway branch/commit
     (create_branch=True by default; set False in tests or when a real git repo isn't
-    available/desired)."""
+    available/desired).
+
+    branch: when given (e.g. by src.lifecycle_verify_repair, which already committed the
+    patch inside the same GitWorktreeSandbox workspace apply/verify used), that real branch
+    is used AS-IS and create_branch/_create_branch_with_commit are skipped entirely -- no
+    second, disconnected worktree is created just for this artifact. Only standalone callers
+    (no branch passed) fall back to creating their own throwaway one.
+
+    context_provenance: optional summary of the ContextRetriever facts (provenance,
+    review_status, confidence, conflicts) that backed this diagnosis, included verbatim for
+    audit. None by default -- no change for a pipeline without generated/human context."""
     root_cause_category = diagnosis.get("root_cause_category")
     failed_before = [c["id"] for c in validation_before.get("checks", []) if c.get("status") == "FAIL"]
     failed_after = [c["id"] for c in validation_after.get("checks", []) if c.get("status") == "FAIL"]
 
-    branch = None
-    if create_branch:
+    if branch is None and create_branch:
         commit_message = f"Repair {pipeline_name}: {repair_plan.get('change_summary', 'automated candidate patch')}"
         branch = _create_branch_with_commit(Path(repo_root), target_file, patched_content, commit_message)
 
@@ -92,4 +103,5 @@ def build_pr_artifact(
         "metrics_after": metrics_after,
         "risk_classification": "LOW" if root_cause_category in LOW_RISK_ROOT_CAUSE_CATEGORIES else "HIGH",
         "human_review_required": root_cause_category not in LOW_RISK_ROOT_CAUSE_CATEGORIES,
+        "context_provenance": context_provenance,
     }

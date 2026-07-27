@@ -15,10 +15,20 @@ import argparse
 
 import pandas as pd
 
+from src.lifecycle_validation_helpers import bound_check as _bound_check
 from src.lifecycle_validation_helpers import reconciliation_check as _reconciliation_check
 from src.storage import S3Storage
 
 DEFAULT_AS_OF_DATE = "2026-07-20"
+
+# Comfortably above the highest LATE-payment rate in generate_data.py's
+# PAYMENT_EVENT_OUTCOME_WEIGHTS_BY_RISK (SUBPRIME: 0.20) -- LATE payments are the only reason
+# the business-rule-driven and amount-agnostic readings deliberately disagree on healthy data
+# (see _amount_agnostic_outstanding_principal's docstring). A real payment_status vocabulary
+# drift (e.g. PAID silently renamed to SETTLED upstream) blows past this by a wide margin,
+# since it makes the business-rule-driven reading miss nearly ALL successful payments, not
+# just the ~7-20% that are genuinely LATE.
+STATUS_VOCABULARY_DRIFT_MAX_FRACTION = 0.30
 
 
 def _rules_by_id(validation_rules: dict) -> dict:
@@ -66,6 +76,28 @@ def _independent_loan_portfolio_summary(
     }
 
 
+def _amount_agnostic_outstanding_principal(loans: pd.DataFrame, payment_events: pd.DataFrame) -> float:
+    """A second, deliberately DIFFERENT recomputation of outstanding principal that reads
+    ONLY the numeric `amount` field, never `payment_status` -- so it stays correct even if the
+    payment_status vocabulary is silently renamed upstream (e.g. payment_service's PAID ->
+    SETTLED contract change). Per generate_data.py's `_build_payment_event`, PAID and LATE
+    installments both carry amount=amount_due (money genuinely moved, whatever the label
+    ends up being called), MISSED/FAILED carry amount=0.0, and a REVERSED row's amount is
+    already negative and nets its original PAID amount -- so summing every row's amount,
+    unconditionally, is a correct "how much money moved for this loan" ground truth
+    regardless of status-string spelling. It is NOT the same number the business-rule-driven
+    reading produces (LATE payments count here but are deliberately excluded there), which is
+    exactly why this is compared via a bounded gap (see STATUS_VOCABULARY_DRIFT_MAX_FRACTION),
+    not an exact reconciliation."""
+    net_paid = (
+        payment_events.groupby("loan_id")["amount"].sum() if not payment_events.empty else pd.Series(dtype=float)
+    )
+    loans = loans.merge(net_paid.rename("amount_agnostic_net_paid"), on="loan_id", how="left")
+    loans["amount_agnostic_net_paid"] = loans["amount_agnostic_net_paid"].fillna(0.0)
+    outstanding = (loans["principal_amount"] - loans["amount_agnostic_net_paid"]).clip(lower=0.0)
+    return round(float(outstanding.sum()), 2)
+
+
 def validate_loan_portfolio(
     storage: S3Storage, business_rules: dict, validation_rules: dict, as_of_date: str = DEFAULT_AS_OF_DATE
 ) -> dict:
@@ -85,6 +117,20 @@ def validate_loan_portfolio(
         _reconciliation_check(rules[f"{metric}_reconciliation"], tolerances, expected[metric], actual[metric])
         for metric in expected
     ]
+
+    drift_rule = rules.get("total_outstanding_principal_status_vocabulary_drift")
+    if drift_rule is not None:
+        amount_agnostic_outstanding = _amount_agnostic_outstanding_principal(loans, payment_events)
+        gap = actual["total_outstanding_principal"] - amount_agnostic_outstanding
+        checks.append(
+            _bound_check(
+                drift_rule["id"],
+                drift_rule["description"],
+                gap,
+                expected["total_funded_principal"],
+                tolerances.get(drift_rule["tolerance_type"], STATUS_VOCABULARY_DRIFT_MAX_FRACTION),
+            )
+        )
 
     failed = [c for c in checks if c["status"] == "FAIL"]
     return {

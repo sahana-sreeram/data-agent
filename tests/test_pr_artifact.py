@@ -76,6 +76,22 @@ def test_low_risk_categories_are_exactly_the_auto_repair_eligible_set():
     assert LOW_RISK_ROOT_CAUSE_CATEGORIES == {"ETL_LOGIC", "BUSINESS_RULE_MISMATCH", "DUPLICATION"}
 
 
+def test_a_given_branch_is_used_as_is_without_creating_a_second_one():
+    """src.lifecycle_verify_repair passes the real branch it already committed the patch to
+    (inside the same GitWorktreeSandbox apply/verify used) -- this must be used verbatim, with
+    no throwaway branch/commit created just for the artifact."""
+    artifact = _artifact(create_branch=True, branch="repair/already-committed-elsewhere")
+    assert artifact["branch"] == "repair/already-committed-elsewhere"
+
+
+def test_context_provenance_is_none_by_default_and_included_verbatim_when_given():
+    assert _artifact()["context_provenance"] is None
+
+    provenance = {"loss_rate": {"provenance": "human", "review_status": "APPROVED", "confidence": None, "conflicts": []}}
+    artifact = _artifact(context_provenance=provenance)
+    assert artifact["context_provenance"] == provenance
+
+
 def _real_git_available() -> bool:
     try:
         subprocess.run(["git", "rev-parse", "--is-inside-work-tree"], check=True, capture_output=True, timeout=5)

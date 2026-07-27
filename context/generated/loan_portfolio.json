@@ -1,0 +1,192 @@
+{
+  "asset_id": "loan_portfolio",
+  "generated_by": "code_enricher",
+  "source_commit": null,
+  "generated_at": "2026-07-27T18:25:53.581799+00:00",
+  "review_status": "UNREVIEWED",
+  "grain": null,
+  "sources": [
+    "loans",
+    "payment_events"
+  ],
+  "joins": [
+    {
+      "left": "?",
+      "right": "net_paid_by_loan",
+      "on": [
+        "loan_id"
+      ],
+      "how": "left"
+    }
+  ],
+  "filters": [
+    {
+      "expression": "F.col(\"payment_status\").isin(net_payment_statuses)",
+      "description": ""
+    }
+  ],
+  "derived_metrics": [],
+  "business_rule_references": [
+    "interest_accrual",
+    "successful_payment_statuses"
+  ],
+  "caveats": [],
+  "confidence": {},
+  "dataset_metadata": {
+    "dataset_name": "loan_portfolio",
+    "physical_location": "s3://data-agent/curated/loan_portfolio.parquet",
+    "columns": {
+      "loan_count": "int64",
+      "active_loan_count": "int64",
+      "closed_loan_count": "int64",
+      "defaulted_loan_count": "int64",
+      "total_funded_principal": "float64",
+      "total_outstanding_principal": "float64",
+      "avg_interest_rate": "float64",
+      "total_accrued_interest": "float64",
+      "as_of_date": "str"
+    },
+    "nullable_columns": [],
+    "row_count_estimate": 1,
+    "partition_columns": [],
+    "sample_value_summaries": {
+      "loan_count": {
+        "distinct_count": 1,
+        "min": 162,
+        "max": 162
+      },
+      "active_loan_count": {
+        "distinct_count": 1,
+        "min": 99,
+        "max": 99
+      },
+      "closed_loan_count": {
+        "distinct_count": 1,
+        "min": 55,
+        "max": 55
+      },
+      "defaulted_loan_count": {
+        "distinct_count": 1,
+        "min": 8,
+        "max": 8
+      },
+      "total_funded_principal": {
+        "distinct_count": 1,
+        "min": 3227229.6,
+        "max": 3227229.6
+      },
+      "total_outstanding_principal": {
+        "distinct_count": 1,
+        "min": 1869848.01,
+        "max": 1869848.01
+      },
+      "avg_interest_rate": {
+        "distinct_count": 1,
+        "min": 0.1019,
+        "max": 0.1019
+      },
+      "total_accrued_interest": {
+        "distinct_count": 1,
+        "min": 138233.42,
+        "max": 138233.42
+      },
+      "as_of_date": {
+        "distinct_count": 1,
+        "sample_values": [
+          "2026-07-20"
+        ]
+      }
+    },
+    "freshness": null,
+    "producer": null,
+    "owner": null,
+    "grain_hypothesis": null,
+    "candidate_keys": [
+      "loan_count",
+      "active_loan_count",
+      "closed_loan_count",
+      "defaulted_loan_count",
+      "total_funded_principal",
+      "total_outstanding_principal",
+      "avg_interest_rate",
+      "total_accrued_interest",
+      "as_of_date"
+    ],
+    "uniqueness_observations": {}
+  },
+  "pipeline_metadata": {
+    "pipeline_name": "loan_portfolio",
+    "etl_source_file": "src/etl_spark_loan_portfolio.py",
+    "etl_source_hash": "0e8e6ff4b67c60b49c4861de17ae8c8cf0620a7de921c1bf51d408fbfdf886fc",
+    "functions": [
+      "compute_loan_portfolio"
+    ],
+    "source_datasets": [
+      "loans",
+      "payment_events"
+    ],
+    "output_datasets": [
+      "curated/loan_portfolio.parquet"
+    ],
+    "joins": [
+      {
+        "left": "?",
+        "right": "net_paid_by_loan",
+        "on": [
+          "loan_id"
+        ],
+        "how": "left"
+      }
+    ],
+    "filters": [
+      {
+        "expression": "F.col(\"payment_status\").isin(net_payment_statuses)",
+        "description": ""
+      }
+    ],
+    "aggregations": [],
+    "calculated_fields": [],
+    "group_by_grain": [],
+    "business_rule_lookups": [
+      "interest_accrual",
+      "successful_payment_statuses"
+    ],
+    "test_files": [
+      "tests/test_etl_spark_loan_portfolio.py"
+    ],
+    "update_mode": "full_refresh",
+    "downstream_consumers": []
+  },
+  "lineage": {
+    "asset_id": "loan_portfolio.loan_count",
+    "steps": [
+      {
+        "kind": "business_metric",
+        "name": "loan_count"
+      },
+      {
+        "kind": "curated_field",
+        "name": "loan_count"
+      },
+      {
+        "kind": "curated_dataset",
+        "name": "loan_portfolio"
+      },
+      {
+        "kind": "spark_function",
+        "name": "compute_loan_portfolio"
+      },
+      {
+        "kind": "source_table",
+        "name": "loans"
+      },
+      {
+        "kind": "source_table",
+        "name": "payment_events"
+      }
+    ]
+  },
+  "service_contract_versions": {
+    "payment_service": "v1"
+  }
+}

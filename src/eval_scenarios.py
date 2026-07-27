@@ -56,7 +56,7 @@ class UpstreamContractScenario:
 UPSTREAM_CONTRACT_SCENARIOS: list[UpstreamContractScenario] = [
     UpstreamContractScenario(
         name="payment_service_v2_settled_rename",
-        pipeline_name="payment_performance",
+        pipeline_name="loan_portfolio",
         contract_version="v2",
         num_customers=300,
         seed=42,
@@ -64,8 +64,14 @@ UPSTREAM_CONTRACT_SCENARIOS: list[UpstreamContractScenario] = [
         description=(
             "payment_service v2 renames a successfully collected installment's payment_status "
             "from PAID to SETTLED -- a real upstream contract change, not a bug. "
-            "payment_performance's ETL only recognizes PAID as successful, so total_collected_amount "
-            "and collection_rate silently understate reality once payment_service runs at v2. "
+            "loan_portfolio's ETL only recognizes PAID as successful, so net_paid silently drops "
+            "to ~0 and total_outstanding_principal is overstated once payment_service runs at v2. "
+            "This produces two independent, corroborating signals: (1) the raw 12-table validator's "
+            "payment_events.payment_status enum check fails outright (SETTLED isn't an approved "
+            "value), and (2) validate_loan_portfolio.py's total_outstanding_principal_status_"
+            "vocabulary_drift check fails because a payment_status-label-agnostic recomputation "
+            "(amount field only, immune to the rename) disagrees with the business-rule-driven "
+            "curated value by far more than the tolerance LATE payments alone would ever explain. "
             "Per policy, SOURCE_CONTRACT_CHANGE is never auto-repaired regardless of diagnosis "
             "confidence -- evaluate_repair_eligibility routes it to HUMAN_REVIEW_REQUIRED."
         ),

@@ -80,6 +80,9 @@ class PipelineMetadata(BaseModel):
 
     pipeline_name: str
     etl_source_file: str
+    etl_source_hash: str | None = None  # sha256 of etl_source_file at generation time -- see
+    # src.context_retriever.ContextRetriever.ensure_fresh, which recomputes this and
+    # regenerates context when it no longer matches the file on disk.
     functions: list[str] = Field(default_factory=list)
     source_datasets: list[str] = Field(default_factory=list)
     output_datasets: list[str] = Field(default_factory=list)
@@ -123,6 +126,11 @@ class GeneratedContext(BaseModel):
     dataset_metadata: DatasetMetadata | None = None
     pipeline_metadata: PipelineMetadata | None = None
     lineage: LineageChain | None = None
+    # {service_name: contract_version} as observed in raw data at generation time -- e.g.
+    # {"payment_service": "v1"}. Empty until a detector (see
+    # src.context_enrichment.contract_detector) populates it. Used by ContextRetriever's
+    # selective invalidation to notice an upstream contract change without a code diff.
+    service_contract_versions: dict[str, str] = Field(default_factory=dict)
 
 
 class MetricAnnotation(BaseModel):
@@ -174,4 +182,24 @@ class ResolvedContext(BaseModel):
     generated: GeneratedContext | None = None
     human: HumanAnnotation | None = None
     runtime: RuntimeHealth | None = None
+    conflicts: list[ContextConflict] = Field(default_factory=list)
+
+
+class ContextFact(BaseModel):
+    """One fact returned by src.context_retriever.ContextRetriever -- a metric definition,
+    a lineage chain, a schema, etc. -- with full provenance attached, so a caller (or a
+    diagnosis/repair model) never has to re-derive where a value came from or how much to
+    trust it. `provenance="legacy_file"` marks a pipeline that has no generated/human context
+    yet: the value is read straight from today's context/*.json files, and review_status/
+    confidence/source_commit are all None -- see ContextRetriever's module docstring."""
+
+    asset_id: str
+    field: str
+    value: Any
+    provenance: str  # "human" | "generated" | "merged" | "runtime" | "legacy_file"
+    source_commit: str | None = None
+    review_status: ReviewStatus | None = None
+    confidence: float | None = None
+    schema_fingerprint: str | None = None
+    service_contract_version: dict[str, str] = Field(default_factory=dict)
     conflicts: list[ContextConflict] = Field(default_factory=list)

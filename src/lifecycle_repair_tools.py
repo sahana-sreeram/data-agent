@@ -17,6 +17,9 @@ import inspect
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from src.context_retriever import ContextRetriever
+from src.storage import S3Storage
+
 
 class ToolError(Exception):
     """Raised for invalid tool arguments. Caught by dispatch_tool; never crashes the agent loop."""
@@ -34,6 +37,14 @@ class LifecycleRepairTools:
     lineage_key: str = ""  # e.g. "curated.loan_portfolio"
     etl_source_file: str = ""
     etl_functions: dict = field(default_factory=dict)  # function name -> callable
+    # All three None by default -- every existing construction site is unaffected. When set
+    # (see build_lifecycle_repair_tools), get_lineage/get_context_conflicts route through
+    # ContextRetriever for a pipeline with generated/human context populated (today: only
+    # loan_portfolio), so the repair model sees the same merged/conflict-aware facts
+    # diagnosis saw.
+    pipeline_name: str = ""
+    storage: S3Storage | None = None
+    context_retriever: ContextRetriever | None = None
 
     def get_diagnosis(self) -> dict:
         """The full diagnosis this repair is addressing."""
@@ -50,11 +61,27 @@ class LifecycleRepairTools:
         return {"alias": alias, "content": self.business_rules}
 
     def get_lineage(self, metric: str) -> dict:
-        """The lineage entry (producer, dependencies) for this pipeline's curated dataset."""
+        """The lineage entry (producer, dependencies) for this pipeline's curated dataset --
+        the richer, generated step-chain when this pipeline has generated context populated,
+        else the legacy context/lineage.json entry."""
+        if self.context_retriever is not None and self.storage is not None:
+            fact = self.context_retriever.get_lineage(self.pipeline_name, self.storage)
+            if fact.provenance != "legacy_file":
+                return {"metric": metric, "lineage": fact.value, "provenance": fact.provenance}
         entry = self.lineage.get("datasets", {}).get(self.lineage_key)
         if entry is None:
             raise ToolError(f"lineage entry for {self.lineage_key!r} not found")
         return {"metric": metric, "lineage": entry}
+
+    def get_context_conflicts(self, metric: str) -> dict:
+        """Any unresolved conflict between this metric's human-approved definition and what
+        the ETL code actually computes -- the same evidence diagnosis saw. Empty for a
+        pipeline without generated/human context populated yet, or when there's no
+        disagreement."""
+        if self.context_retriever is None or self.storage is None:
+            return {"metric": metric, "conflicts": []}
+        fact = self.context_retriever.get_metric(self.pipeline_name, metric, self.storage)
+        return {"metric": metric, "conflicts": [c.model_dump() for c in fact.conflicts]}
 
     def get_pipeline_configuration(self) -> dict:
         """No configuration file exists for any lifecycle pipeline -- the ETL source is the
@@ -98,6 +125,7 @@ ALLOWLISTED_TOOL_NAMES = frozenset(
         "get_allowed_repair_targets",
         "get_test_inventory",
         "get_file_hash",
+        "get_context_conflicts",
     }
 )
 
@@ -197,6 +225,18 @@ TOOL_SPECS: list = [
                 "type": "object",
                 "properties": {"target_alias": {"type": "string", "description": "A known file alias (only 'ETL_SOURCE' exists)."}},
                 "required": ["target_alias"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_context_conflicts",
+            "description": "Return any unresolved conflict between this metric's human-approved definition and what the ETL code actually computes -- the same evidence diagnosis already used. Empty if this pipeline has no human-approved context yet, or there's no disagreement.",
+            "parameters": {
+                "type": "object",
+                "properties": {"metric": {"type": "string", "description": "A curated metric name from this pipeline."}},
+                "required": ["metric"],
             },
         },
     },
