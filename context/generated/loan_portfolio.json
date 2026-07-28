@@ -2,7 +2,7 @@
   "asset_id": "loan_portfolio",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-28T13:51:40.428577+00:00",
+  "generated_at": "2026-07-28T13:58:58.967263+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -77,8 +77,8 @@
       },
       "total_outstanding_principal": {
         "distinct_count": 1,
-        "min": 3255291.81,
-        "max": 3255291.81
+        "min": 1869848.01,
+        "max": 1869848.01
       },
       "avg_interest_rate": {
         "distinct_count": 1,
@@ -195,6 +195,6 @@
     ]
   },
   "service_contract_versions": {
-    "payment_service": "v2"
+    "payment_service": "v1"
   }
 }

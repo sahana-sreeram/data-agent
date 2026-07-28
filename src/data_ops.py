@@ -29,9 +29,13 @@ from src.ask_lifecycle import (
 )
 from src.context_retriever import ContextRetriever
 from src.context_store.file_store import FileContextStore
+from src.lifecycle_answer_models import AnswerValidationError
+from src.lifecycle_business_agent import LifecycleBusinessAgentError
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
 from src.storage import S3Storage, StorageError
+
+_CANDIDATE_ANSWER_ERRORS = (AskLifecycleError, ModelClientError, LifecycleBusinessAgentError, AnswerValidationError)
 
 _BAR = "=" * 72
 
@@ -210,9 +214,12 @@ def run_incident_response(
                 _print_heal(name, heal, mode)
                 verification = heal.get("repair_verification") or {}
                 if mode == "create_pr" and verification.get("verification_status") == "VERIFIED_PENDING_PR":
-                    candidate_answer = answer_from_candidate(
-                        question, storage, diagnosis_model_client_factory, name, verification.get("metrics_after", {})
-                    )
+                    try:
+                        candidate_answer = answer_from_candidate(
+                            question, storage, diagnosis_model_client_factory, name, verification.get("metrics_after", {})
+                        )
+                    except _CANDIDATE_ANSWER_ERRORS as exc:
+                        print(f"\n  (could not narrate a candidate answer via Q&A: {exc})")
         else:
             _section("TRUST CHECK")
             print("  PASS -- no incident. Answering from trusted curated data.")
@@ -273,11 +280,19 @@ def run_incident_response(
     verification = heal.get("repair_verification") or {}
     if mode == "create_pr" and verification.get("verification_status") == "VERIFIED_PENDING_PR":
         question = f"What is the current state of {pipeline_name}?"
-        candidate_answer = answer_from_candidate(
-            question, storage, diagnosis_model_client_factory, pipeline_name, verification.get("metrics_after", {})
-        )
-        _section("CORRECTED CANDIDATE RESULT (from the unpromoted repair candidate)")
-        print(f"  {candidate_answer['answer_summary']}")
+        try:
+            candidate_answer = answer_from_candidate(
+                question, storage, diagnosis_model_client_factory, pipeline_name, verification.get("metrics_after", {})
+            )
+        except _CANDIDATE_ANSWER_ERRORS as exc:
+            # The candidate-answer Q&A pass uses a different tool loop than diagnosis/repair --
+            # a model client scripted for one (e.g. a demo's no-API-cost stand-in) can't serve
+            # the other. The PR artifact/verification result above is already real and
+            # complete; a failure narrating it as a natural-language answer is not fatal.
+            print(f"\n  (could not narrate a candidate answer via Q&A: {exc})")
+        if candidate_answer:
+            _section("CORRECTED CANDIDATE RESULT (from the unpromoted repair candidate)")
+            print(f"  {candidate_answer['answer_summary']}")
 
     return {"pipeline_name": pipeline_name, "self_heal": heal, "candidate_answer": candidate_answer}
 

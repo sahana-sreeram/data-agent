@@ -21,6 +21,15 @@ OpenAIDiagnosisModelClient/OpenAIResponsesModelClient this codebase already uses
 else, and additionally narrates Stage 3 as a natural-language business question rather than a
 direct pipeline check.
 
+Known scripted-mode limitation: once the human-approved repair reaches VERIFIED_PENDING_PR,
+src.data_ops additionally tries to narrate the corrected CANDIDATE answer via a natural-
+language Q&A pass (a genuinely different tool-calling loop than diagnosis/repair). The
+scripted diagnosis client can't serve that loop, so this one final narration step reports "-
+could not narrate a candidate answer via Q&A" instead of a sentence -- the PR artifact itself
+(diff, branch, risk classification, before/after checks) is unaffected; it's real either way.
+--live-model does not have this limitation, since a real model can serve any tool loop it's
+asked to.
+
 Idempotent: --inject-contract-change is a no-op (with a message, not an error) if the
 incident is already injected; --reset restores the real raw tables + pipeline_run status from
 a fixed backup prefix and is itself a no-op if there's nothing to restore. Every stage writes
