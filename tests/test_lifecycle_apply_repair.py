@@ -160,6 +160,62 @@ def test_human_approved_categories_unlocks_a_normally_refused_category(tmp_path)
     assert result["repair_status"] == "APPLIED"
 
 
+def test_configuration_change_target_applies_in_isolation(tmp_path):
+    """loan_portfolio's registered CONFIGURATION_CHANGE target (context/pipeline_rules/
+    loan_portfolio.json, see context/repair_targets.json) lets a SOURCE_CONTRACT_CHANGE
+    incident -- once human-approved -- repoint which already-approved business-rules file it
+    reads, WITHOUT ever touching the ETL source or the shared business_rules.json. Uses the
+    REAL repair_targets.json (default repair_targets_file) since this target is real,
+    checked-in registry data, not a test fixture."""
+    target_file = "context/pipeline_rules/loan_portfolio.json"
+    diagnosis = _diagnosis(
+        root_cause_category="SOURCE_CONTRACT_CHANGE",
+        recommended_fix={"target_file": target_file, "change_summary": "point at the adopted ruleset", "scope": "MINIMAL"},
+    )
+    submission = {
+        "repair_decision": "PROPOSE_REPAIR",
+        "repair_type": "CONFIGURATION_CHANGE",
+        "incident_id": PIPELINE_NAME,
+        "diagnosis_reference": "x",
+        "root_cause_addressed": "x",
+        "target_file": target_file,
+        "target_symbol_or_setting": "business_rules_file",
+        "current_behavior": "reads context/business_rules.json",
+        "proposed_behavior": "reads context/business_rules_settled_adopted.json",
+        "change_description": "point business_rules_file at the adopted ruleset",
+        "patch": {
+            "format": "STRUCTURED_CONFIG_EDIT",
+            "content": {"operations": [{"field": "business_rules_file", "value": "context/business_rules_settled_adopted.json"}]},
+        },
+        "files_expected_to_change": [target_file],
+        "files_expected_not_to_change": ["context/business_rules.json"],
+        "verification_steps": ["rerun loan_portfolio ETL", "rerun validate_loan_portfolio"],
+        "rollback_description": "revert the pointer",
+        "risk_level": "LOW",
+        "assumptions": [],
+        "evidence_references": ["get_relevant_etl_source"],
+    }
+    responses = [ModelResponse(tool_calls=[ToolCall(id="1", name=SUBMIT_REPAIR_PLAN_TOOL_NAME, arguments=submission)])]
+    original_content = Path(target_file).read_text()
+
+    plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
+        _FakeStorage(),
+        diagnosis,
+        VALIDATION_RESULTS,
+        lambda: ScriptedDiagnosisModelClient(responses),
+        human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
+    )
+
+    assert result["repair_status"] == "APPLIED"
+    assert result["target_file"] == target_file
+    assert Path(target_file).read_text() == original_content  # the real file is untouched
+
+    workspace_dir = Path(result["workspace_dir"])
+    patched = json.loads((workspace_dir / target_file).read_text())
+    assert patched["business_rules_file"] == "context/business_rules_settled_adopted.json"
+
+
 def test_eligible_incident_applies_code_change_in_isolation(tmp_path):
     diagnosis = _diagnosis()
     responses = [ModelResponse(tool_calls=[ToolCall(id="1", name=SUBMIT_REPAIR_PLAN_TOOL_NAME, arguments=_code_submission())])]

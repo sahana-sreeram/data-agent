@@ -641,3 +641,58 @@ def test_run_pytest_against_patched_code_restores_even_when_pytest_raises(tmp_pa
         verify_module._run_pytest = original_run_pytest
 
     assert real_target.read_text() == "VALUE = 'original'\n"
+
+
+# --- _resolve_rerun_inputs: CONFIGURATION_CHANGE vs CODE_CHANGE rerun -----------------------
+#
+# Pure file-IO logic, no Spark/S3 needed.
+
+
+def _fake_spec(pipeline_configuration_file):
+    return type(
+        "Spec",
+        (),
+        {"pipeline_configuration_file": pipeline_configuration_file, "etl_source_file": "src/etl_spark_loan_portfolio.py"},
+    )()
+
+
+def test_resolve_rerun_inputs_for_a_code_change_target_is_unaffected(tmp_path):
+    """The default (CODE_CHANGE) case must be byte-identical to before this branch existed:
+    the patched module comes from the workspace, business_rules passes through unchanged."""
+    spec = _fake_spec(pipeline_configuration_file="context/pipeline_rules/loan_portfolio.json")
+    workspace_dir = tmp_path / "workspace"
+    patched_path = workspace_dir / "src" / "etl_spark_loan_portfolio.py"
+    patched_path.parent.mkdir(parents=True, exist_ok=True)
+    patched_path.write_text("MARKER = 'patched-etl'\n")
+    business_rules = {"successful_payment_statuses": ["PAID"]}
+
+    module, effective_business_rules = verify_module._resolve_rerun_inputs(
+        spec, "src/etl_spark_loan_portfolio.py", workspace_dir, TempDirSandbox(), business_rules
+    )
+
+    assert module.MARKER == "patched-etl"
+    assert effective_business_rules is business_rules
+
+
+def test_resolve_rerun_inputs_for_a_configuration_change_target_reads_the_candidate_pointer(tmp_path):
+    """For loan_portfolio's registered pointer file: resolve business_rules from the
+    CANDIDATE'S patched pointer in the workspace (never real S3, which still has the stale,
+    not-yet-promoted value), and rerun the real, UNTOUCHED etl_spark_loan_portfolio module
+    (there is no patched Python for a config-only change)."""
+    import json
+
+    target_file = "context/pipeline_rules/loan_portfolio.json"
+    spec = _fake_spec(pipeline_configuration_file=target_file)
+    workspace_dir = tmp_path / "workspace"
+    patched_path = workspace_dir / target_file
+    patched_path.parent.mkdir(parents=True, exist_ok=True)
+    patched_path.write_text(json.dumps({"business_rules_file": "context/business_rules_settled_adopted.json"}))
+    stale_business_rules = {"successful_payment_statuses": ["PAID"]}
+
+    module, effective_business_rules = verify_module._resolve_rerun_inputs(
+        spec, target_file, workspace_dir, TempDirSandbox(), stale_business_rules
+    )
+
+    assert module.__name__ == "src.etl_spark_loan_portfolio"
+    assert effective_business_rules["successful_payment_statuses"] == ["PAID", "SETTLED"]
+    assert effective_business_rules is not stale_business_rules
