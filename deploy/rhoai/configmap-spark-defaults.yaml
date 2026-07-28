@@ -1,0 +1,23 @@
+# The exact same spark.hadoop.fs.s3a.* keys src/spark_session.py already sets for local Spark
+# (see get_spark_session), plus spark.eventLog.enabled/spark.eventLog.dir -- confirmed via
+# repo-wide grep that event logging is not configured anywhere today, so this is what makes
+# Spark History Server able to show anything at all for RHOAI runs. Referenced by
+# sparkapplication-loan-portfolio.yaml's sparkConf (spelled out inline there too, since the
+# Spark Operator reads sparkConf from the SparkApplication spec itself, not from a mounted
+# ConfigMap) -- this ConfigMap exists so the History Server deployment and any ad hoc `spark-
+# submit` can share the same values instead of a second hardcoded copy drifting from the CR.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-defaults
+  namespace: data-agent
+data:
+  spark.hadoop.fs.s3a.path.style.access: "true"
+  spark.hadoop.fs.s3a.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+  spark.hadoop.fs.s3a.connection.ssl.enabled: "false"
+  spark.hadoop.fs.s3a.aws.credentials.provider: "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
+  spark.eventLog.enabled: "true"
+  spark.eventLog.dir: "s3a://data-agent/spark-events/"
+  # spark.hadoop.fs.s3a.endpoint / .access.key / .secret.key are environment/secret-sourced
+  # (see secret.example.yaml + sparkapplication-loan-portfolio.yaml's envFrom), never placed
+  # in a ConfigMap -- the access key/secret key are credentials even though the endpoint isn't.

@@ -1,0 +1,29 @@
+# Optional -- the "high-level morning data-operations loop" Codex/MCP entry point
+# (src.agents.codex_mcp_loop.main), run on a schedule instead of manually. Disabled by default
+# (suspend: true) until a real OPENAI_API_KEY-backed run has been verified manually once (see
+# RUNBOOK.md) -- this calls a real, billed model on every trigger, unlike the free/local
+# --scripted-model path used for testing.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-agent-morning-loop
+  namespace: data-agent
+spec:
+  schedule: "0 7 * * 1-5"  # 7am weekdays -- placeholder, adjust to your team's actual morning
+  suspend: true
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: data-agent-app
+          restartPolicy: Never
+          containers:
+            - name: morning-loop
+              image: "CHANGE_ME_IMAGE_REF"
+              imagePullPolicy: IfNotPresent
+              command: ["python3", "-m", "src.agents.codex_mcp_loop"]
+              envFrom:
+                - configMapRef:
+                    name: data-agent-app-config
+                - secretRef:
+                    name: data-agent-secrets

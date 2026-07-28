@@ -1,0 +1,20 @@
+# Exposes the console (Overview / Q&A / Run Details -- see static/) outside the cluster.
+# host is left unset so OpenShift assigns the default `<name>-<namespace>.<router-canonical-
+# domain>` -- confirmed live (2026-07-28) that no routes currently exist in this namespace, and
+# the router's canonical domain wasn't inspected (no `oc get ingresses.config/cluster` access
+# checked yet); set `spec.host` explicitly here once that's confirmed, or leave it to the
+# default if that's acceptable for the demo.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: data-agent-console
+  namespace: data-agent
+spec:
+  to:
+    kind: Service
+    name: data-agent-console
+  port:
+    targetPort: 8000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

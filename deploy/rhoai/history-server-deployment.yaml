@@ -1,0 +1,60 @@
+# The real Apache Spark History Server (bitnami's spark image ships spark-class' history-server
+# entrypoint) reading event logs from the same S3 path Spark itself writes to (spark.eventLog.dir
+# above) -- src.platform_backends.runtime_inspector.SparkHistoryRuntimeInspector's
+# HistoryServerClient talks to this over its REST API (<url>/api/v1/applications/...).
+#
+# Uses the official bitnami/spark image (has a compatible Spark distribution + S3A jars) rather
+# than this repo's own image -- the History Server is a stock Spark component, not app code.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-history-server
+  namespace: data-agent
+  labels:
+    app: spark-history-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-history-server
+  template:
+    metadata:
+      labels:
+        app: spark-history-server
+    spec:
+      serviceAccountName: data-agent-app
+      containers:
+        - name: spark-history-server
+          image: "docker.io/bitnami/spark:3.5"
+          command: ["/opt/bitnami/spark/sbin/start-history-server.sh"]
+          ports:
+            - containerPort: 18080
+          envFrom:
+            - configMapRef:
+                name: data-agent-app-config
+            - secretRef:
+                name: data-agent-secrets
+          env:
+            - name: SPARK_HADOOP_FS_S3A_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: data-agent-app-config
+                  key: S3_ENDPOINT_URL
+            - name: SPARK_HISTORY_OPTS
+              value: >-
+                -Dspark.history.fs.logDirectory=s3a://data-agent/spark-events/
+                -Dspark.hadoop.fs.s3a.path.style.access=true
+                -Dspark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
+                -Dspark.hadoop.fs.s3a.connection.ssl.enabled=false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-history-server
+  namespace: data-agent
+spec:
+  selector:
+    app: spark-history-server
+  ports:
+    - port: 18080
+      targetPort: 18080

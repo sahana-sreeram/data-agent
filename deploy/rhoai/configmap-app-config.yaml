@@ -1,0 +1,25 @@
+# The 4 backend-selection flags src/config.py reads, plus the S3 bucket/endpoint non-secret
+# values src/storage.py reads (S3_ACCESS_KEY_ID/S3_SECRET_ACCESS_KEY stay in secret.example.yaml,
+# never here). Every value here is either a real, confirmed-safe default (matching this repo's
+# local defaults) or a demo-scoped placeholder -- nothing here is a secret.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-agent-app-config
+  namespace: data-agent
+data:
+  EXECUTION_BACKEND: "rhoai"
+  RUNTIME_BACKEND: "spark_history"
+  AGENT_HARNESS: "codex_mcp"
+  STATE_BACKEND: "file"
+  RHOAI_NAMESPACE: "data-agent"
+  SPARK_HISTORY_SERVER_URL: "http://spark-history-server:18080"
+  MCP_DATA_OPS_URL: "http://mcp-data-ops:8000/mcp"
+  MCP_SPARK_RUNTIME_URL: "http://mcp-spark-runtime:8000/mcp"
+  S3_BUCKET: "data-agent"
+  # In-cluster NooBaa RGW object storage is available as an alternative to an external MinIO
+  # (confirmed live: openshift-storage.noobaa.io storage class exists) -- set S3_ENDPOINT_URL
+  # to that endpoint instead if you provision a bucket via an ObjectBucketClaim rather than
+  # pointing at the same external MinIO used for local dev. Left as the local-dev-compatible
+  # placeholder here; update after choosing a storage path in RUNBOOK.md's post-auth steps.
+  S3_ENDPOINT_URL: "CHANGE_ME_S3_ENDPOINT"

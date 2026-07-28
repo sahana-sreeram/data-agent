@@ -1,0 +1,64 @@
+# Confirmed live (2026-07-28) against the real cluster: `sparkapplications.sparkoperator.k8s.io`
+# (group sparkoperator.k8s.io, version v1beta2) is a real, installed CRD in this cluster --
+# this manifest's apiVersion/kind match exactly what src.platform_backends.pipeline_runner.
+# RHOAISparkRunner already builds programmatically (see its _manifest() method); this file is
+# the same shape as a standalone, `oc apply`-able artifact, useful for a one-off manual
+# submission independent of the MCP/Codex loop.
+#
+# mainApplicationFile references src/etl_spark_loan_portfolio.py -- the exact, unmodified ETL
+# entry point src.lifecycle_pipeline_registry.PIPELINE_REGISTRY["loan_portfolio"] already names
+# (etl_source_file). image is a placeholder -- set after building/pushing per RUNBOOK.md.
+#
+# Validate with `oc apply --dry-run=server -f sparkapplication-loan-portfolio.yaml` first (see
+# RUNBOOK.md) -- this has not been applied to the live cluster yet.
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: loan-portfolio-manual
+  namespace: data-agent
+  labels:
+    pipeline: loan_portfolio
+spec:
+  type: Python
+  mode: cluster
+  image: "CHANGE_ME_IMAGE_REF"  # e.g. quay.io/<org>/data-agent:latest -- see RUNBOOK.md
+  imagePullPolicy: IfNotPresent
+  mainApplicationFile: "local:///opt/spark-app/src/etl_spark_loan_portfolio.py"
+  sparkVersion: "3.5.0"
+  restartPolicy:
+    type: Never
+  sparkConf:
+    spark.hadoop.fs.s3a.path.style.access: "true"
+    spark.hadoop.fs.s3a.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    spark.hadoop.fs.s3a.connection.ssl.enabled: "false"
+    spark.hadoop.fs.s3a.aws.credentials.provider: "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
+    spark.eventLog.enabled: "true"
+    spark.eventLog.dir: "s3a://data-agent/spark-events/"
+  driver:
+    serviceAccount: data-agent-app
+    cores: 1
+    memory: "1g"
+    labels:
+      pipeline: loan_portfolio
+    envFrom:
+      - configMapRef:
+          name: data-agent-app-config
+      - secretRef:
+          name: data-agent-secrets
+    env:
+      - name: S3_ENDPOINT_URL
+        valueFrom:
+          configMapKeyRef:
+            name: data-agent-app-config
+            key: S3_ENDPOINT_URL
+  executor:
+    instances: 1
+    cores: 1
+    memory: "1g"
+    labels:
+      pipeline: loan_portfolio
+    envFrom:
+      - configMapRef:
+          name: data-agent-app-config
+      - secretRef:
+          name: data-agent-secrets

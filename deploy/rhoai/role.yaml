@@ -1,0 +1,32 @@
+# Minimal, namespace-scoped RBAC for data-agent-app -- no cluster-admin, no wildcard verbs/
+# resources. Confirmed live (2026-07-28) against the real cluster that `sparkapplications.
+# sparkoperator.k8s.io` / `scheduledsparkapplications.sparkoperator.k8s.io` are real, installed
+# CRDs (group sparkoperator.k8s.io, version v1beta2) and that the authenticated user can
+# already create sparkapplications/deployments/rolebindings in this namespace -- this Role is
+# what that access should be narrowed down to for the app's own service account, rather than
+# the broader ad hoc permissions an interactive user session happens to have.
+#
+# Validate with `oc apply --dry-run=server -f role.yaml` before real use (see RUNBOOK.md).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-agent-app
+  namespace: data-agent
+rules:
+  # Submit and inspect Spark pipeline runs (src.platform_backends.pipeline_runner.RHOAISparkRunner,
+  # the spark-runtime MCP server's submit_spark_pipeline/get_spark_application_status).
+  - apiGroups: ["sparkoperator.k8s.io"]
+    resources: ["sparkapplications", "scheduledsparkapplications"]
+    verbs: ["get", "list", "watch", "create", "delete", "update"]
+  # The Spark driver (running as this service account) manages its own executor pods and the
+  # headless service/configmap it creates for executor discovery -- standard requirements for
+  # Spark-on-Kubernetes cluster mode, not something specific to this app.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "delete"]

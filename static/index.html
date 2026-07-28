@@ -18,8 +18,7 @@
   <nav id="tab-nav">
     <button class="tab-button active" data-tab="overview">Overview</button>
     <button class="tab-button" data-tab="qa">Q&amp;A</button>
-    <button class="tab-button" data-tab="data-products">Data Products</button>
-    <button class="tab-button" data-tab="repairs">Repairs</button>
+    <button class="tab-button" data-tab="run-details">Run Details</button>
   </nav>
 </header>
 
@@ -66,19 +65,20 @@
     <div id="qa-history"></div>
   </section>
 
-  <!-- Data Products -->
-  <section id="tab-data-products" class="tab-panel hidden">
+  <!-- Run Details: one operational timeline + review view, consolidating what used to be
+       separate Data Products and Repairs tabs. -->
+  <section id="tab-run-details" class="tab-panel hidden">
     <section class="card">
       <h2>Data product estate</h2>
-      <div id="data-products-table">Loading...</div>
+      <div id="run-details-estate">Loading...</div>
     </section>
-  </section>
-
-  <!-- Repairs -->
-  <section id="tab-repairs" class="tab-panel hidden">
+    <section class="card" id="run-details-workflow-card">
+      <h2>Workflow (Codex/MCP)</h2>
+      <div id="run-details-workflow">Loading...</div>
+    </section>
     <section class="card">
       <h2>Review package</h2>
-      <div id="repairs-content">
+      <div id="run-details-repairs">
         <p class="muted">No repairs pending review.</p>
       </div>
     </section>

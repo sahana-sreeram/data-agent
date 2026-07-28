@@ -1,0 +1,50 @@
+# Runs src.mcp_servers.data_ops_server as a standalone streamable-HTTP service (see that
+# module's main()) -- the exact same tool registration/handler code tested locally in
+# tests/test_mcp_servers.py and tests/test_mcp_servers_integration.py, just reached over the
+# network instead of in-process.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-data-ops
+  namespace: data-agent
+  labels:
+    app: mcp-data-ops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-data-ops
+  template:
+    metadata:
+      labels:
+        app: mcp-data-ops
+    spec:
+      serviceAccountName: data-agent-app
+      containers:
+        - name: mcp-data-ops
+          image: "CHANGE_ME_IMAGE_REF"
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "-m", "src.mcp_servers.data_ops_server"]
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: data-agent-app-config
+            - secretRef:
+                name: data-agent-secrets
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-data-ops
+  namespace: data-agent
+spec:
+  selector:
+    app: mcp-data-ops
+  ports:
+    - port: 8000
+      targetPort: 8000

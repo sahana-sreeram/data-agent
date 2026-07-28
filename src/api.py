@@ -266,6 +266,33 @@ def repairs_pending() -> dict:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
+@app.get("/api/run-details/{run_id}")
+def run_details(run_id: str) -> dict:
+    """Everything the Run Details tab shows in one call: the data-product estate (what the
+    old Data Products tab showed), every pending repair awaiting accept/reject (what the old
+    Repairs tab showed), and -- when a src.agents.codex_mcp_loop run exists -- that run's own
+    MCP tool-call timeline and final report. `run_id="latest"` reads
+    curated/demo_run_latest.json (the most recent run of either harness); any other value
+    reads curated/demo_runs/<run_id>.json, the same per-run audit record
+    src.demo.enterprise_incident and src.agents.codex_mcp_loop both already persist.
+
+    codex_run is null when AGENT_HARNESS=current (the default) has never produced one -- the
+    tab still works identically in that case, just without a tool-call timeline to show."""
+    try:
+        storage = S3Storage()
+        key = "curated/demo_run_latest.json" if run_id == "latest" else f"curated/demo_runs/{run_id}.json"
+        codex_run = storage.read_json(key) if storage.exists(key) else None
+        if run_id != "latest" and codex_run is None:
+            raise HTTPException(status_code=404, detail=f"no run found for run_id {run_id!r}")
+        return {
+            "data_products": data_product_estate(storage),
+            "pending_repairs": list_pending_repairs(storage),
+            "codex_run": codex_run,
+        }
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
 @app.post("/api/repairs/accept")
 def repairs_accept(request: RepairDecisionRequest) -> dict:
     """A human explicitly accepting a VERIFIED_PENDING_PR candidate -- a real, local `git

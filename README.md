@@ -59,8 +59,7 @@ OpenAI API key.
 ```
 cp .env.example .env   # fill in OPENAI_API_KEY and JAVA_HOME
 ./scripts/bootstrap.sh # starts MinIO, installs deps, generates + migrates + runs ETL
-python3 -m src.api     # http://127.0.0.1:8000 -- the console (Overview/Data Products/
-                        # Context/Incidents/Repairs/Evaluations tabs)
+python3 -m src.api     # http://127.0.0.1:8000 -- the console (Overview/Q&A/Run Details tabs)
 ```
 
 `bootstrap.sh` is idempotent — safe to rerun any time (e.g. after regenerating data). For the
@@ -122,6 +121,55 @@ payment subset regardless of current scale, so running it against a 20K-customer
 produces mismatched loan_ids and silently defeats the reconciliation check. The live
 environment in this repo is kept at the original small scale so the demo stays correct; the
 20K proof above is a one-time, documented verification, not the permanent environment state.
+
+## RHOAI platform mode (optional)
+
+Everything above runs entirely locally (`local[*]` Spark, MinIO, direct Python calls) and is
+the default -- nothing below changes that path. `src/platform_backends/` additionally makes the
+same lifecycle runnable as a real platform capability on Red Hat OpenShift AI: Spark submitted
+via the Spark Operator, runtime evidence pulled from Spark History Server/OpenShift, and Codex
+driving the whole loop through MCP tool calls instead of direct Python calls.
+
+Four env vars (all default to the local behavior above; see `.env.example`):
+
+| Var | Values | Selects |
+|---|---|---|
+| `EXECUTION_BACKEND` | `local` (default) \| `rhoai` | `LocalSparkRunner` vs `RHOAISparkRunner` (submits a `SparkApplication` CR) |
+| `RUNTIME_BACKEND` | `local` (default) \| `spark_history` | `LocalRuntimeInspector` (PySpark `statusTracker()`) vs `SparkHistoryRuntimeInspector` (real History Server REST API) |
+| `AGENT_HARNESS` | `current` (default) \| `codex_mcp` | `src.data_ops`'s direct Python calls vs `src.agents.codex_mcp_loop` (Codex driving everything through MCP) |
+| `STATE_BACKEND` | `file` (default) \| `redis` | `FileStateStore` (S3-backed) vs `RedisStateStore` |
+
+Install the extra dependencies these RHOAI-backed implementations need (never required for the
+local path): `pip install -e ".[rhoai]"`.
+
+Two MCP servers expose this system's existing capabilities as tools instead of Python calls:
+
+- **`src/mcp_servers/spark_runtime_server.py`** ("Spark Runtime MCP"): `submit_spark_pipeline`,
+  `get_spark_application_status`, `get_spark_run_summary`, `get_failed_stages`,
+  `get_driver_log_excerpt` (bounded -- never sends a full raw log), `get_pod_status`.
+- **`src/mcp_servers/data_ops_server.py`** ("Data Operations MCP"): `get_data_product_context`,
+  `get_metric_context`, `get_lineage`, `get_runtime_health`, `get_relevant_pipeline_code`,
+  `run_data_product_validation`, `create_candidate_repair`, `verify_candidate_repair`,
+  `get_pr_ready_artifact`.
+
+`src/agents/codex_mcp_loop.py` is the `AGENT_HARNESS=codex_mcp` "morning data-operations loop":
+Codex connects to both servers as a real MCP client (not a direct Python call, even locally --
+see the module docstring for how) and drives a bounded tool-calling loop across every pipeline
+it's given, exactly mirroring `src.data_ops.auto_scan_and_repair`'s outcome (`VERIFIED_PENDING_PR`,
+never an automatic promotion) but reached through genuine MCP round trips.
+
+```
+python3 -m src.agents.codex_mcp_loop --pipeline loan_portfolio   # real OpenAI call
+```
+
+The console's Run Details tab (`GET /api/run-details/{run_id|latest}`) shows a `codex_mcp` run's
+own tool-call timeline and final report alongside the same data-product estate and pending-repair
+review package it always showed -- it works identically whether or not a Codex/MCP run has ever
+happened.
+
+`deploy/rhoai/` has the Kubernetes/OpenShift manifests (Spark Operator `SparkApplication`,
+Spark History Server, both MCP servers, minimal namespace-scoped RBAC, ConfigMaps/Secret
+templates -- no real secrets committed) and `deploy/rhoai/RUNBOOK.md` for deploying them.
 
 ## Evaluations
 
