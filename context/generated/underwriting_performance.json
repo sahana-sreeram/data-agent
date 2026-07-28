@@ -2,7 +2,7 @@
   "asset_id": "underwriting_performance",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T21:36:43.177911+00:00",
+  "generated_at": "2026-07-28T14:27:05.815389+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -67,38 +67,38 @@
       },
       "decision_count": {
         "distinct_count": 5,
-        "min": 67,
-        "max": 200
+        "min": 41389,
+        "max": 204873
       },
       "approved_count": {
         "distinct_count": 5,
-        "min": 32,
-        "max": 136
+        "min": 24649,
+        "max": 137053
       },
       "rejected_count": {
         "distinct_count": 5,
-        "min": 6,
-        "max": 49
+        "min": 6906,
+        "max": 46717
       },
       "manual_review_count": {
         "distinct_count": 5,
-        "min": 2,
-        "max": 15
+        "min": 4307,
+        "max": 21103
       },
       "approval_rate": {
         "distinct_count": 5,
-        "min": 0.4211,
-        "max": 0.9149
+        "min": 0.3992,
+        "max": 0.8504
       },
       "avg_approved_amount": {
         "distinct_count": 5,
-        "min": 17829.02,
-        "max": 23238.7
+        "min": 18906.13,
+        "max": 18944.87
       },
       "avg_approved_apr": {
         "distinct_count": 5,
-        "min": 0.0647,
-        "max": 0.1925
+        "min": 0.065,
+        "max": 0.1952
       }
     },
     "freshness": null,

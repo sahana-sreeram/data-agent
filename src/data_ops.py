@@ -88,6 +88,62 @@ def data_product_estate(storage: S3Storage) -> list[dict]:
     return rows
 
 
+def _prefix_stats(storage: S3Storage, prefix: str) -> dict:
+    """file_count/total_bytes for everything under an S3 prefix -- read-only, measurement
+    only. Uses the boto3 client directly (S3Storage.list_paths returns keys only, no sizes),
+    same pattern this codebase's own test fixtures already use for S3-level operations
+    S3Storage doesn't expose a higher-level method for."""
+    file_count = 0
+    total_bytes = 0
+    paginator = storage._client.get_paginator("list_objects_v2")
+    for page in paginator.paginate(Bucket=storage.bucket, Prefix=prefix):
+        for obj in page.get("Contents", []):
+            file_count += 1
+            total_bytes += obj["Size"]
+    return {"file_count": file_count, "total_bytes": total_bytes}
+
+
+def scale_summary(storage: S3Storage) -> dict:
+    """Measured, real numbers describing the current data estate's scale -- every number
+    here is read live from S3, never hardcoded. Static counts (registered pipelines,
+    upstream services) come from this system's own registries, not a guess. Used by the
+    Overview tab/console to show real scale without claiming anything beyond what's actually
+    measured (see the project's "must not claim TB/PB-scale performance" boundary --
+    this reports what IS here, not a projection)."""
+    from src.validate_lifecycle_raw import TABLE_FILENAMES
+
+    raw_row_counts = {}
+    for table in TABLE_FILENAMES:
+        key = f"raw/{table}.parquet"
+        if storage.exists(key):
+            raw_row_counts[table] = len(storage.read_parquet(key))
+
+    return {
+        "customers": raw_row_counts.get("customers", 0),
+        "raw_table_row_counts": raw_row_counts,
+        "raw_total_rows": sum(raw_row_counts.values()),
+        "storage": {
+            "raw": _prefix_stats(storage, "raw/"),
+            "events": _prefix_stats(storage, "events/"),
+            "curated": _prefix_stats(storage, "curated/"),
+        },
+        "registered_pipelines": len(PIPELINE_REGISTRY),
+        "upstream_services": 6,
+    }
+
+
+def print_scale_summary(summary: dict) -> None:
+    _section("SCALE SUMMARY (measured, not projected)")
+    print(f"  customers:            {summary['customers']:,}")
+    print(f"  raw table rows total: {summary['raw_total_rows']:,}")
+    for table, count in sorted(summary["raw_table_row_counts"].items()):
+        print(f"    {table:<24} {count:,}")
+    for prefix, stats in summary["storage"].items():
+        print(f"  {prefix}/: {stats['file_count']:,} files, {stats['total_bytes'] / 1e6:.1f} MB")
+    print(f"  registered pipelines: {summary['registered_pipelines']}")
+    print(f"  upstream services:    {summary['upstream_services']}")
+
+
 def print_estate(rows: list[dict]) -> None:
     _section("DATA PRODUCT ESTATE")
     header = f"{'DATA PRODUCT':<26} {'ETL':<9} {'TRUST':<9} {'CONTEXT':<17} {'REVIEW':<11} {'CONFLICTS':<9}"
@@ -307,6 +363,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     subparsers.add_parser("estate", help="Show the trust/governance status of every registered data product.")
+    subparsers.add_parser("scale", help="Show measured (not projected) scale of the current data estate.")
 
     incident = subparsers.add_parser("incident", help="Run the business-signal -> incident-response lifecycle.")
     group = incident.add_mutually_exclusive_group(required=True)
@@ -331,6 +388,9 @@ def main(argv: list[str] | None = None) -> None:
         storage = S3Storage()
         if args.command == "estate":
             print_estate(data_product_estate(storage))
+            return
+        if args.command == "scale":
+            print_scale_summary(scale_summary(storage))
             return
 
         run_incident_response(

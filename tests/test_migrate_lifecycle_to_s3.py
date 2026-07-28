@@ -1,6 +1,11 @@
 """Tests for src/migrate_lifecycle_to_s3.py against the REAL local data/lifecycle/raw/
-dataset and a REAL local S3-compatible endpoint (MinIO). Skips cleanly if either isn't
-available in this environment.
+dataset and a REAL local S3-compatible endpoint (MinIO), through a TEST_PREFIX-scoped
+storage wrapper (tests.conftest.PrefixedStorage) -- migrate_lifecycle_tables/migrate_context
+write to fixed "raw/..."/"context/..." keys, so writing through the real, unprefixed storage
+here would silently clobber whatever real data (e.g. an at-scale-generated dataset) is
+currently migrated, exactly the kind of test-isolation gap every other test file in this
+project already avoids via PrefixedStorage. Skips cleanly if either isn't available in this
+environment.
 """
 
 from __future__ import annotations
@@ -12,8 +17,10 @@ import pytest
 from src.migrate_lifecycle_to_s3 import CONTEXT_FILES, migrate_context, migrate_lifecycle_tables
 from src.storage import S3Storage
 from src.validate_lifecycle_raw import TABLE_FILENAMES, load_lifecycle_tables
+from tests.conftest import PrefixedStorage
 
 RAW_DIR = Path("data/lifecycle/raw")
+TEST_PREFIX = "_test_migrate_lifecycle_to_s3/"
 
 
 def _skip_unless_local_dataset_present():
@@ -27,10 +34,14 @@ def storage():
     try:
         s = S3Storage()
         s.create_bucket_if_missing()
-        s._client.list_buckets()
+        for key in s.list_paths(TEST_PREFIX):
+            s._client.delete_object(Bucket=s.bucket, Key=key)
     except Exception as exc:  # noqa: BLE001
         pytest.skip(f"S3-compatible storage not reachable: {exc}")
-    return s
+    prefixed = PrefixedStorage(s, TEST_PREFIX)
+    yield prefixed
+    for key in s.list_paths(TEST_PREFIX):
+        s._client.delete_object(Bucket=s.bucket, Key=key)
 
 
 def test_migrated_row_counts_match_local_json_exactly(storage):

@@ -2,7 +2,7 @@
   "asset_id": "coupon_performance",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T21:36:43.229873+00:00",
+  "generated_at": "2026-07-28T14:27:06.105843+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -61,12 +61,13 @@
       "as_of_date": "str"
     },
     "nullable_columns": [],
-    "row_count_estimate": 4,
+    "row_count_estimate": 6,
     "partition_columns": [],
     "sample_value_summaries": {
       "coupon_code": {
-        "distinct_count": 4,
+        "distinct_count": 6,
         "sample_values": [
+          "WELCOME10",
           "REFER20",
           "FLASH25",
           "LOYALTY15",
@@ -74,9 +75,9 @@
         ]
       },
       "coupon_rule_count": {
-        "distinct_count": 1,
-        "min": 2,
-        "max": 2
+        "distinct_count": 6,
+        "min": 117,
+        "max": 147
       },
       "currently_valid_rule_count": {
         "distinct_count": 1,
@@ -84,24 +85,24 @@
         "max": 0
       },
       "offers_created": {
-        "distinct_count": 4,
-        "min": 10,
-        "max": 29
+        "distinct_count": 6,
+        "min": 14881,
+        "max": 18745
       },
       "applications_submitted": {
-        "distinct_count": 4,
-        "min": 6,
-        "max": 23
+        "distinct_count": 6,
+        "min": 10475,
+        "max": 13117
       },
       "loans_funded": {
-        "distinct_count": 4,
-        "min": 3,
-        "max": 14
+        "distinct_count": 6,
+        "min": 5650,
+        "max": 7126
       },
       "redemption_rate": {
-        "distinct_count": 4,
-        "min": 0.3,
-        "max": 0.5185
+        "distinct_count": 6,
+        "min": 0.3743,
+        "max": 0.3804
       },
       "as_of_date": {
         "distinct_count": 1,
@@ -116,6 +117,7 @@
     "grain_hypothesis": null,
     "candidate_keys": [
       "coupon_code",
+      "coupon_rule_count",
       "offers_created",
       "applications_submitted",
       "loans_funded",

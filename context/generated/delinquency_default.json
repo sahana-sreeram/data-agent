@@ -2,7 +2,7 @@
   "asset_id": "delinquency_default",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T21:36:43.215522+00:00",
+  "generated_at": "2026-07-28T14:27:05.889265+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -35,9 +35,7 @@
       "recovery_rate": "float64",
       "loss_rate": "float64"
     },
-    "nullable_columns": [
-      "recovery_rate"
-    ],
+    "nullable_columns": [],
     "row_count_estimate": 4,
     "partition_columns": [],
     "sample_value_summaries": {
@@ -52,53 +50,53 @@
       },
       "loan_count": {
         "distinct_count": 4,
-        "min": 29,
-        "max": 162
+        "min": 22189,
+        "max": 148182
       },
       "total_funded_principal": {
         "distinct_count": 4,
-        "min": 625706.02,
-        "max": 3227229.6
+        "min": 419242030.8,
+        "max": 2803231939.43
       },
       "delinquent_loan_count": {
-        "distinct_count": 3,
-        "min": 14,
-        "max": 50
+        "distinct_count": 4,
+        "min": 12182,
+        "max": 43762
       },
       "delinquency_rate": {
         "distinct_count": 4,
-        "min": 0.2222,
-        "max": 0.4828
+        "min": 0.19,
+        "max": 0.549
       },
       "default_count": {
         "distinct_count": 4,
-        "min": 0,
-        "max": 8
+        "min": 3137,
+        "max": 11539
       },
       "default_rate": {
         "distinct_count": 4,
-        "min": 0.0,
-        "max": 0.1724
+        "min": 0.0417,
+        "max": 0.1792
       },
       "total_balance_at_default": {
         "distinct_count": 4,
-        "min": 0.0,
-        "max": 145699.37
+        "min": 48159181.48,
+        "max": 182161013.85
       },
       "total_recovery_amount": {
-        "distinct_count": 2,
-        "min": 0.0,
-        "max": 3145.3
+        "distinct_count": 4,
+        "min": 1600841.49,
+        "max": 6549474.98
       },
       "recovery_rate": {
-        "distinct_count": 3,
-        "min": 0.0,
-        "max": 0.0388
+        "distinct_count": 4,
+        "min": 0.0332,
+        "max": 0.0375
       },
       "loss_rate": {
         "distinct_count": 4,
-        "min": 0.0,
-        "max": 0.1244
+        "min": 0.0327,
+        "max": 0.15
       }
     },
     "freshness": null,
@@ -109,10 +107,13 @@
       "breakdown_value",
       "loan_count",
       "total_funded_principal",
+      "delinquent_loan_count",
       "delinquency_rate",
       "default_count",
       "default_rate",
       "total_balance_at_default",
+      "total_recovery_amount",
+      "recovery_rate",
       "loss_rate"
     ],
     "uniqueness_observations": {}
