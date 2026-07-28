@@ -108,6 +108,45 @@ def test_run_incident_response_narrates_a_grounded_healthy_question(s3_storage, 
     assert "Metric definition:" in out
 
 
+def test_run_incident_response_question_path_persists_a_pending_repair(s3_storage, monkeypatch):
+    """A business question that triggers a self-heal reaching VERIFIED_PENDING_PR must show
+    up in the Repairs tab the same way a direct pipeline_name check does -- not just get
+    narrated and forgotten."""
+    key = "curated/pending_repairs/loan_portfolio.json"
+    if s3_storage.exists(key):
+        s3_storage.delete(key)
+
+    fake_result = {
+        "question": "What is our total outstanding principal?",
+        "relevant_pipelines": ["loan_portfolio"],
+        "validation_failures": {"loan_portfolio": ["total_outstanding_principal_status_vocabulary_drift"]},
+        "answer": {"answer_status": "UNRELIABLE_DATA", "question": "x", "answer_summary": "x", "as_of_date": None, "cited_metrics": [], "caveats": []},
+        "self_heal": {
+            "loan_portfolio": {
+                "diagnosis": {"diagnosis_status": "DIAGNOSED", "root_cause_category": "SOURCE_CONTRACT_CHANGE", "confidence": "HIGH", "root_cause": "x", "evidence": []},
+                "repair_result": {"repair_status": "APPLIED", "target_file": "context/pipeline_rules/loan_portfolio.json"},
+                "repair_verification": {"verification_status": "VERIFIED_PENDING_PR", "summary": "ok", "pr_artifact": {"branch": "repair/xyz"}, "metrics_after": {}},
+            }
+        },
+        "corrected_answer": None,
+    }
+    monkeypatch.setattr(data_ops_module, "answer_lifecycle_question", lambda question, storage, factory, mode="create_pr": fake_result)
+    monkeypatch.setattr(
+        data_ops_module,
+        "answer_from_candidate",
+        lambda question, storage, factory, pipeline_name, metrics_after: {"answer_status": "ANSWERED", "answer_summary": "candidate answer"},
+    )
+
+    try:
+        result = run_incident_response(s3_storage, lambda: None, question="What is our total outstanding principal?", mode="create_pr")
+        assert result["candidate_answer"]["answer_summary"] == "candidate answer"
+        assert s3_storage.exists(key)
+        assert s3_storage.read_json(key)["pr_artifact"]["branch"] == "repair/xyz"
+    finally:
+        if s3_storage.exists(key):
+            s3_storage.delete(key)
+
+
 # --- Automatic detection (auto_scan_and_repair) + pending-repair tracking ------------------
 
 

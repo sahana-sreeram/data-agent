@@ -17,6 +17,7 @@
   </label>
   <nav id="tab-nav">
     <button class="tab-button active" data-tab="overview">Overview</button>
+    <button class="tab-button" data-tab="qa">Q&amp;A</button>
     <button class="tab-button" data-tab="data-products">Data Products</button>
     <button class="tab-button" data-tab="repairs">Repairs</button>
   </nav>
@@ -40,8 +41,29 @@
       services, 6 governed Spark pipelines, and a full incident lifecycle from an
       automatically detected trust failure to a verified, reviewable repair. A health monitor
       watches every data product, diagnoses a break, and proposes a bounded fix for you to
-      accept or reject -- nothing is ever promoted without that explicit decision.</p>
+      accept or reject -- nothing is ever promoted without that explicit decision. The Q&amp;A
+      tab is one entry point into this same system, not a separate chatbot.</p>
     </section>
+  </section>
+
+  <!-- Q&A -->
+  <section id="tab-qa" class="tab-panel hidden">
+    <section class="card">
+      <h2>Ask a business question</h2>
+      <form id="qa-form" class="inline-form">
+        <input id="qa-question-input" type="text" placeholder="e.g. What is our total outstanding principal?" autocomplete="off" />
+        <button type="submit">Ask</button>
+      </form>
+      <p class="muted">Real OpenAI call, grounded against real curated data -- a cited number
+      is always exactly what a tool returned, never fabricated. If the data behind the
+      answer can't be trusted, this refuses to answer from it and may trigger the same
+      incident-response flow as the health monitor (see the Repairs tab).</p>
+    </section>
+
+    <div id="qa-spinner" class="spinner hidden">Working -- this can take up to a couple of minutes if the data behind the answer needs to be diagnosed and repaired...</div>
+    <div id="qa-error" class="error hidden"></div>
+
+    <div id="qa-history"></div>
   </section>
 
   <!-- Data Products -->

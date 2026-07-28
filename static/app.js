@@ -75,6 +75,134 @@ async function loadHealth() {
   }
 }
 
+// --- Q&A tab: one entry point into the same system, not a separate chatbot ----------------
+
+function renderAnswer(container, answer) {
+  clear(container);
+  const badge = el("span", { className: `status-badge ${answer.answer_status}`, text: answer.answer_status });
+  container.appendChild(badge);
+  container.appendChild(el("p", { text: answer.answer_summary }));
+
+  if (answer.cited_metrics && answer.cited_metrics.length) {
+    const table = el("table");
+    const thead = el("tr", {
+      children: [el("th", { text: "Metric" }), el("th", { text: "Value" }), el("th", { text: "Source" })],
+    });
+    table.appendChild(el("thead", { children: [thead] }));
+    const tbody = el("tbody");
+    for (const m of answer.cited_metrics) {
+      tbody.appendChild(
+        el("tr", {
+          children: [
+            el("td", { text: m.metric_name }),
+            el("td", { text: String(m.value) }),
+            el("td", { text: m.source_reference }),
+          ],
+        })
+      );
+    }
+    table.appendChild(tbody);
+    container.appendChild(table);
+  }
+
+  if (answer.caveats && answer.caveats.length) {
+    const ul = el("ul", { className: "caveats" });
+    for (const c of answer.caveats) ul.appendChild(el("li", { text: c }));
+    container.appendChild(ul);
+  }
+}
+
+function addQaHistoryEntry(question, result) {
+  const history = document.getElementById("qa-history");
+  const entry = el("div", { className: "card qa-entry" });
+  entry.appendChild(el("div", { className: "qa-question", text: question }));
+
+  const answerBox = el("div");
+  entry.appendChild(answerBox);
+  if (result.answer) {
+    renderAnswer(answerBox, result.answer);
+  } else {
+    // pipeline_name-shaped result should never come back from a question, but render
+    // gracefully instead of crashing if it ever does.
+    answerBox.appendChild(el("p", { className: "muted", text: "(no answer returned)" }));
+  }
+
+  if (result.relevant_pipelines && result.relevant_pipelines.length) {
+    const chips = el("div");
+    for (const p of result.relevant_pipelines) chips.appendChild(el("span", { className: "chip", text: p }));
+    entry.appendChild(chips);
+  }
+
+  if (result.self_heal) {
+    const pipelines = Object.keys(result.self_heal);
+    const anyPendingPr = Object.values(result.self_heal).some(
+      (heal) => heal.repair_verification && heal.repair_verification.verification_status === "VERIFIED_PENDING_PR"
+    );
+    entry.appendChild(
+      el("p", {
+        className: "muted",
+        text: anyPendingPr
+          ? `This question found ${pipelines.join(", ")} untrusted and generated a candidate repair -- see the Repairs tab.`
+          : `This question found ${pipelines.join(", ")} untrusted; the data behind it could not be automatically repaired.`,
+      })
+    );
+  }
+
+  if (result.candidate_answer) {
+    const candidateBox = el("div", { className: "card corrected" });
+    candidateBox.appendChild(el("h2", { text: "Corrected candidate result (unpromoted)" }));
+    const inner = el("div");
+    candidateBox.appendChild(inner);
+    renderAnswer(inner, result.candidate_answer);
+    entry.appendChild(candidateBox);
+  }
+
+  history.insertBefore(entry, history.firstChild);
+}
+
+async function askQuestion(question) {
+  const spinner = document.getElementById("qa-spinner");
+  const errorBox = document.getElementById("qa-error");
+  const button = document.querySelector("#qa-form button");
+
+  spinner.classList.remove("hidden");
+  errorBox.classList.add("hidden");
+  button.disabled = true;
+
+  try {
+    const res = await fetch("/api/incident", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, mode: "create_pr" }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errorBox.textContent = data.detail || `Request failed (${res.status})`;
+      errorBox.classList.remove("hidden");
+      return;
+    }
+    addQaHistoryEntry(question, data);
+    loadHealth();
+    estateCache = null;
+    if (data.self_heal) loadRepairsTab();
+  } catch (err) {
+    errorBox.textContent = "Could not reach the API.";
+    errorBox.classList.remove("hidden");
+  } finally {
+    spinner.classList.add("hidden");
+    button.disabled = false;
+  }
+}
+
+document.getElementById("qa-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = document.getElementById("qa-question-input");
+  const question = input.value.trim();
+  if (!question) return;
+  askQuestion(question);
+  input.value = "";
+});
+
 // --- Repairs tab: pending candidates awaiting a human accept/reject decision --------------
 
 async function decideRepair(pipelineName, branch, decision, statusBox) {

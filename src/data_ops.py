@@ -272,6 +272,13 @@ def run_incident_response(
                 _print_heal(name, heal, mode)
                 verification = heal.get("repair_verification") or {}
                 if mode == "create_pr" and verification.get("verification_status") == "VERIFIED_PENDING_PR":
+                    # Persisted the same way the direct pipeline_name path does (below) --
+                    # so a repair candidate surfaced via a business question shows up in the
+                    # Repairs tab too, not just one triggered by a direct pipeline check.
+                    storage.write_json(
+                        _pending_repair_key(name),
+                        {"pipeline_name": name, "status": "pending_review", "pr_artifact": verification.get("pr_artifact"), "diagnosis": heal.get("diagnosis")},
+                    )
                     try:
                         candidate_answer = answer_from_candidate(
                             question, storage, diagnosis_model_client_factory, name, verification.get("metrics_after", {})
