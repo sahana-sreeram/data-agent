@@ -2,7 +2,7 @@
   "asset_id": "delinquency_default",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T20:41:49.065730+00:00",
+  "generated_at": "2026-07-27T21:36:43.215522+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -176,16 +176,32 @@
         "name": "loans"
       },
       {
+        "kind": "upstream_service",
+        "name": "loan_service"
+      },
+      {
         "kind": "source_table",
         "name": "customers"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "marketing_service"
       },
       {
         "kind": "source_table",
         "name": "delinquency_events"
       },
       {
+        "kind": "upstream_service",
+        "name": "risk_service"
+      },
+      {
         "kind": "source_table",
         "name": "defaults"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "risk_service"
       }
     ]
   },

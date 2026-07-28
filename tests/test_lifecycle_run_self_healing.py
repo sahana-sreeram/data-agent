@@ -195,6 +195,36 @@ def test_unknown_mode_raises_value_error():
         self_healing_module.run_lifecycle_self_healing(PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None, mode="not_a_real_mode")
 
 
+def test_human_approved_categories_requires_create_pr_mode():
+    import pytest
+
+    with pytest.raises(ValueError):
+        self_healing_module.run_lifecycle_self_healing(
+            PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None,
+            mode="auto_promote", human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
+        )
+
+
+def test_human_approved_categories_is_threaded_through_to_apply_repair(monkeypatch):
+    seen_kwargs = {}
+    monkeypatch.setattr(self_healing_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: _spec_with_validate(lambda *a: {"overall_status": "FAIL", "checks": []})})
+    monkeypatch.setattr(self_healing_module, "run_diagnose_pipeline", lambda p, s, f: {"diagnosis_status": "DIAGNOSED", "root_cause_category": "SOURCE_CONTRACT_CHANGE"})
+
+    def fake_apply(p, s, d, v, f, **kwargs):
+        seen_kwargs.update(kwargs)
+        return {"repair_decision": "PROPOSE_REPAIR"}, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}
+
+    monkeypatch.setattr(self_healing_module, "run_apply_lifecycle_repair", fake_apply)
+    monkeypatch.setattr(self_healing_module, "run_verify_lifecycle_repair", lambda *a, **k: {"verification_status": "VERIFIED_PENDING_PR"})
+
+    self_healing_module.run_lifecycle_self_healing(
+        PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None,
+        mode="create_pr", human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
+    )
+
+    assert seen_kwargs["human_approved_categories"] == frozenset({"SOURCE_CONTRACT_CHANGE"})
+
+
 def test_each_invocation_gets_a_distinct_run_id(monkeypatch):
     monkeypatch.setattr(
         self_healing_module,

@@ -182,7 +182,7 @@ def test_relevant_pipeline_failure_heals_and_reanswers_when_verified():
 
     heal_calls = []
 
-    def _fake_heal(pipeline_name, storage, model_client_factory):
+    def _fake_heal(pipeline_name, storage, model_client_factory, **kwargs):
         heal_calls.append(pipeline_name)
         storage.write_json(
             "curated/pipeline_run.json",
@@ -216,6 +216,41 @@ def test_relevant_pipeline_failure_heals_and_reanswers_when_verified():
     assert result["corrected_answer"]["answer_status"] == "ANSWERED"
 
 
+def test_mode_defaults_to_auto_promote_and_is_threaded_through_to_self_heal():
+    """Regression guard: every existing call site omits `mode` -- it must keep meaning
+    auto_promote exactly as before, and an explicit mode must reach _attempt_self_heal
+    unchanged (this is what lets src.data_ops's create_pr entry point reuse this same
+    function instead of re-implementing the question -> relevant-pipeline -> self-heal flow)."""
+    storage = _StubStorage(
+        {"overall_status": "FAILURE", "pipelines": {"loan_portfolio": {"etl_status": "SUCCESS", "validation_status": "FAIL"}}}
+    )
+    factory = lambda: ScriptedDiagnosisModelClient(_loan_portfolio_responses())
+
+    import src.ask_lifecycle as ask_lifecycle_module
+
+    seen_modes = []
+
+    def _fake_heal(pipeline_name, storage, model_client_factory, **kwargs):
+        seen_modes.append(kwargs.get("mode"))
+        return {
+            "run_id": "run1",
+            "diagnosis": {"root_cause_category": "ETL_LOGIC", "root_cause": "x"},
+            "repair_plan": {},
+            "repair_result": {"repair_status": "APPLIED"},
+            "repair_verification": {"verification_status": "VERIFIED_PENDING_PR", "summary": "PR artifact created.", "failed_checks_before": []},
+        }
+
+    original = ask_lifecycle_module._attempt_self_heal
+    ask_lifecycle_module._attempt_self_heal = _fake_heal
+    try:
+        answer_lifecycle_question("What is the total outstanding principal?", storage, factory)
+        answer_lifecycle_question("What is the total outstanding principal?", storage, factory, mode="create_pr")
+    finally:
+        ask_lifecycle_module._attempt_self_heal = original
+
+    assert seen_modes == ["auto_promote", "create_pr"]
+
+
 def test_relevant_pipeline_failure_not_verified_refuses_with_summary():
     storage = _StubStorage(
         {"overall_status": "FAILURE", "pipelines": {"loan_portfolio": {"etl_status": "SUCCESS", "validation_status": "FAIL"}}}
@@ -224,7 +259,7 @@ def test_relevant_pipeline_failure_not_verified_refuses_with_summary():
 
     import src.ask_lifecycle as ask_lifecycle_module
 
-    def _fake_heal(pipeline_name, storage, model_client_factory):
+    def _fake_heal(pipeline_name, storage, model_client_factory, **kwargs):
         return {
             "run_id": "run1",
             "diagnosis": {"root_cause_category": "ETL_LOGIC", "root_cause": "x"},
@@ -268,7 +303,7 @@ def test_two_simultaneous_failures_only_the_relevant_one_heals():
 
     heal_calls = []
 
-    def _fake_heal(pipeline_name, storage, model_client_factory):
+    def _fake_heal(pipeline_name, storage, model_client_factory, **kwargs):
         heal_calls.append(pipeline_name)
         storage.write_json(
             "curated/pipeline_run.json",
@@ -318,7 +353,7 @@ def test_two_simultaneous_failures_both_relevant_one_verifies_one_does_not():
 
     heal_calls = []
 
-    def _fake_heal(pipeline_name, storage, model_client_factory):
+    def _fake_heal(pipeline_name, storage, model_client_factory, **kwargs):
         heal_calls.append(pipeline_name)
         if pipeline_name == "loan_portfolio":
             pr = storage.read_json("curated/pipeline_run.json")

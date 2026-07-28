@@ -1,0 +1,7 @@
+{
+  "business_rules_file": "context/business_rules.json",
+  "notes": [
+    "Points loan_portfolio's ETL/validation execution at which already-approved business-rules file to read for payment-status compatibility -- see context/repair_targets.json's entry for this file, and context/business_rules_settled_adopted.json for the org-approved alternative.",
+    "Default (this checked-in value): context/business_rules.json, the shared, cross-pipeline ruleset (successful_payment_statuses=[PAID] only). Every other lifecycle pipeline reads that file directly and has no pointer file of its own."
+  ]
+}

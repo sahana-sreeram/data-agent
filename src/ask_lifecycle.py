@@ -152,13 +152,35 @@ def _repair_model_client_factory() -> DiagnosisModelClient:
     return OpenAIResponsesModelClient(model=model_name) if model_name else OpenAIResponsesModelClient()
 
 
-def _attempt_self_heal(pipeline_name: str, storage: S3Storage, diagnosis_model_client_factory) -> dict:
+def _attempt_self_heal(
+    pipeline_name: str,
+    storage: S3Storage,
+    diagnosis_model_client_factory,
+    *,
+    mode: str = "auto_promote",
+    human_approved_categories: frozenset[str] = frozenset(),
+    repair_model_client_factory=None,
+) -> dict:
     """Diagnose, repair, and verify one lifecycle pipeline. Returns the full
     {run_id, diagnosis, repair_plan, repair_result, repair_verification} dict (or a synthetic
     one with only repair_verification populated if the flow raised an application-level
     error, e.g. a model/API failure) -- never raises, so the caller can always fall back to an
     UNRELIABLE_DATA answer citing what happened, and a UI can always render the same shape
     regardless of how far the flow got.
+
+    mode is passed straight through to run_lifecycle_self_healing (auto_promote/create_pr/
+    diagnose_only/propose_patch -- see src/lifecycle_run_self_healing.py); defaulting to
+    "auto_promote" preserves this function's original behavior exactly for every existing
+    caller. human_approved_categories is likewise passed straight through, empty by default
+    (see run_lifecycle_self_healing's docstring for what it's for -- a human explicitly
+    approving a candidate repair for a normally-refused category, e.g. SOURCE_CONTRACT_CHANGE,
+    only ever as a create_pr candidate).
+
+    repair_model_client_factory defaults to None, which preserves this function's original
+    behavior exactly (the module-level _repair_model_client_factory, a real OpenAI Responses
+    client) for every existing caller. Passing one overrides which client repair planning
+    uses -- e.g. src.demo.enterprise_incident's scripted, no-API-cost repair client -- without
+    touching what model diagnosis uses.
     """
     from src.lifecycle_run_self_healing import run_lifecycle_self_healing
     from src.spark_session import get_spark_session
@@ -167,7 +189,13 @@ def _attempt_self_heal(pipeline_name: str, storage: S3Storage, diagnosis_model_c
     spark.sparkContext.setLogLevel("WARN")
     try:
         return run_lifecycle_self_healing(
-            pipeline_name, spark, storage, diagnosis_model_client_factory, _repair_model_client_factory
+            pipeline_name,
+            spark,
+            storage,
+            diagnosis_model_client_factory,
+            repair_model_client_factory or _repair_model_client_factory,
+            mode=mode,
+            human_approved_categories=human_approved_categories,
         )
     except Exception as exc:  # noqa: BLE001 -- any self-heal failure just means "could not auto-correct"
         return {
@@ -237,15 +265,21 @@ def _validation_failures_from(self_heal: dict) -> dict:
     }
 
 
-def answer_lifecycle_question(question: str, storage: S3Storage, model_client_factory) -> dict:
+def answer_lifecycle_question(question: str, storage: S3Storage, model_client_factory, *, mode: str = "auto_promote") -> dict:
     """Answer a business question from the curated lifecycle data. Returns the result dict
     (also written to s3://<bucket>/curated/lifecycle_answer.json):
 
     {"question", "relevant_pipelines", "validation_failures", "answer", "self_heal",
     "corrected_answer"} -- self_heal (when not None) maps each broken, relevant pipeline to
     its full {run_id, diagnosis, repair_plan, repair_result, repair_verification} self-healing
-    attempt; corrected_answer is set only when every one of them fully verified and the
-    question was successfully re-answered from the now-corrected data.
+    attempt; corrected_answer is set only when every one of them fully verified AND was
+    actually promoted (never true for mode="create_pr", which by design never promotes --
+    see src.data_ops.run_incident_response for how a create_pr run's CANDIDATE answer is
+    shown instead, via answer_from_candidate, without conflating it with a real, promoted
+    correction).
+
+    mode is passed straight through to each self-heal attempt (default "auto_promote"
+    preserves this function's original behavior exactly for every existing caller).
     """
     if not storage.exists("curated/pipeline_run.json"):
         raise AskLifecycleError(
@@ -288,7 +322,7 @@ def answer_lifecycle_question(question: str, storage: S3Storage, model_client_fa
     # discard it (never return an answer built on known-bad data) and try to fix each one.
     self_heal: dict = {}
     for pipeline_name in sorted(broken_relevant):
-        self_heal[pipeline_name] = _attempt_self_heal(pipeline_name, storage, model_client_factory)
+        self_heal[pipeline_name] = _attempt_self_heal(pipeline_name, storage, model_client_factory, mode=mode)
     validation_failures = _validation_failures_from(self_heal)
 
     still_broken = broken_relevant & _failed_pipelines(storage.read_json("curated/pipeline_run.json"))

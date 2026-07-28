@@ -30,3 +30,10 @@ class PipelineSpec:
     test_file: str
     run_etl: RunEtl
     run_validate: RunValidate
+    # None for every pipeline except loan_portfolio: the repo-relative path to a small,
+    # pipeline-owned pointer file (e.g. context/pipeline_rules/loan_portfolio.json) naming
+    # which already-approved business-rules file this ONE pipeline reads. A registered
+    # CONFIGURATION_CHANGE repair target may repoint it -- see context/repair_targets.json --
+    # without ever writing to the shared, cross-pipeline context/business_rules.json. Purely
+    # additive: every pipeline without one behaves exactly as before this field existed.
+    pipeline_configuration_file: str | None = None

@@ -2,7 +2,7 @@
   "asset_id": "underwriting_performance",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T19:59:12.067320+00:00",
+  "generated_at": "2026-07-27T21:36:43.177911+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -67,38 +67,38 @@
       },
       "decision_count": {
         "distinct_count": 5,
-        "min": 4,
-        "max": 38
+        "min": 67,
+        "max": 200
       },
       "approved_count": {
         "distinct_count": 5,
-        "min": 3,
-        "max": 25
+        "min": 32,
+        "max": 136
       },
       "rejected_count": {
         "distinct_count": 5,
-        "min": 0,
-        "max": 8
+        "min": 6,
+        "max": 49
       },
       "manual_review_count": {
-        "distinct_count": 4,
-        "min": 0,
-        "max": 5
+        "distinct_count": 5,
+        "min": 2,
+        "max": 15
       },
       "approval_rate": {
         "distinct_count": 5,
-        "min": 0.2727,
-        "max": 1.0
+        "min": 0.4211,
+        "max": 0.9149
       },
       "avg_approved_amount": {
         "distinct_count": 5,
-        "min": 13851.01,
-        "max": 24406.71
+        "min": 17829.02,
+        "max": 23238.7
       },
       "avg_approved_apr": {
         "distinct_count": 5,
-        "min": 0.0588,
-        "max": 0.1949
+        "min": 0.0647,
+        "max": 0.1925
       }
     },
     "freshness": null,
@@ -110,6 +110,7 @@
       "decision_count",
       "approved_count",
       "rejected_count",
+      "manual_review_count",
       "approval_rate",
       "avg_approved_amount",
       "avg_approved_apr"
@@ -197,12 +198,24 @@
         "name": "underwriting_decisions"
       },
       {
+        "kind": "upstream_service",
+        "name": "underwriting_service"
+      },
+      {
         "kind": "source_table",
         "name": "applications"
       },
       {
+        "kind": "upstream_service",
+        "name": "application_service"
+      },
+      {
         "kind": "source_table",
         "name": "customers"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "marketing_service"
       }
     ]
   },

@@ -46,13 +46,17 @@ def known_file_paths_for(pipeline_name: str) -> set[str]:
     """Fixed allowlist of real repository/context files the model may cite as evidence
     sources or a recommended_fix.target_file, derived from the pipeline's registry entry."""
     spec = PIPELINE_REGISTRY[pipeline_name]
-    return {
+    paths = {
         spec.etl_source_file,
         f"src/validate_{pipeline_name}.py",
         spec.metrics_key,
         spec.validation_rules_key,
         "context/business_rules.json",
     }
+    pipeline_configuration_file = getattr(spec, "pipeline_configuration_file", None)
+    if pipeline_configuration_file:
+        paths.add(pipeline_configuration_file)
+    return paths
 
 
 def _raw_validation_status(storage: S3Storage, business_rules: dict) -> dict | None:

@@ -86,6 +86,7 @@ _HARDCODED_PIPELINE_REGISTRY: dict = {
         test_file="tests/test_etl_spark_loan_portfolio.py",
         run_etl=_run_etl_loan_portfolio,
         run_validate=_run_validate_loan_portfolio,
+        pipeline_configuration_file="context/pipeline_rules/loan_portfolio.json",
     ),
     "campaign_funnel": PipelineSpec(
         name="campaign_funnel",

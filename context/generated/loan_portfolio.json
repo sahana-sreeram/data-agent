@@ -2,7 +2,7 @@
   "asset_id": "loan_portfolio",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T19:59:12.033451+00:00",
+  "generated_at": "2026-07-28T13:51:40.428577+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -52,43 +52,43 @@
     "sample_value_summaries": {
       "loan_count": {
         "distinct_count": 1,
-        "min": 28,
-        "max": 28
+        "min": 162,
+        "max": 162
       },
       "active_loan_count": {
         "distinct_count": 1,
-        "min": 19,
-        "max": 19
+        "min": 99,
+        "max": 99
       },
       "closed_loan_count": {
         "distinct_count": 1,
-        "min": 7,
-        "max": 7
+        "min": 55,
+        "max": 55
       },
       "defaulted_loan_count": {
         "distinct_count": 1,
-        "min": 2,
-        "max": 2
+        "min": 8,
+        "max": 8
       },
       "total_funded_principal": {
         "distinct_count": 1,
-        "min": 447891.46,
-        "max": 447891.46
+        "min": 3227229.6,
+        "max": 3227229.6
       },
       "total_outstanding_principal": {
         "distinct_count": 1,
-        "min": 293390.37,
-        "max": 293390.37
+        "min": 3255291.81,
+        "max": 3255291.81
       },
       "avg_interest_rate": {
         "distinct_count": 1,
-        "min": 0.0963,
-        "max": 0.0963
+        "min": 0.1019,
+        "max": 0.1019
       },
       "total_accrued_interest": {
         "distinct_count": 1,
-        "min": 28817.02,
-        "max": 28817.02
+        "min": 138233.42,
+        "max": 138233.42
       },
       "as_of_date": {
         "distinct_count": 1,
@@ -181,12 +181,20 @@
         "name": "loans"
       },
       {
+        "kind": "upstream_service",
+        "name": "loan_service"
+      },
+      {
         "kind": "source_table",
         "name": "payment_events"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "payment_service"
       }
     ]
   },
   "service_contract_versions": {
-    "payment_service": "v1"
+    "payment_service": "v2"
   }
 }

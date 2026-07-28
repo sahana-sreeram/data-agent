@@ -93,8 +93,23 @@ def test_build_lineage_chain_shape():
     assert kinds[:3] == ["business_metric", "curated_field", "curated_dataset"]
     assert "spark_function" in kinds
     assert "source_table" in kinds
-    # no upstream-service step yet -- RAW_TABLE_TO_SERVICE is empty until Phase 4
-    assert "upstream_service" not in kinds
+
+
+def test_build_lineage_traces_to_the_owning_upstream_service():
+    # loan_portfolio reads loans (owned by loan_service) and payment_events (owned by
+    # payment_service) -- RAW_TABLE_TO_SERVICE is derived from
+    # src.events_to_lifecycle_tables's own event-type mappings, not hand-duplicated, so this
+    # is what makes "trace the incident to the upstream service" a real, working lineage step
+    # rather than the empty placeholder it used to be.
+    chain = build_lineage("loan_portfolio", "total_outstanding_principal")
+    services = [step.name for step in chain.steps if step.kind == "upstream_service"]
+    assert services == ["loan_service", "payment_service"]
+
+    # Every source_table step is immediately followed by its owning upstream_service step,
+    # in raw_tables order -- not just present somewhere in the chain.
+    steps = [(step.kind, step.name) for step in chain.steps]
+    source_index = steps.index(("source_table", "loans"))
+    assert steps[source_index + 1] == ("upstream_service", "loan_service")
 
 
 def test_enrich_pipeline_with_codex_uses_scripted_client_not_live():

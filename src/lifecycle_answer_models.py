@@ -87,6 +87,13 @@ def _result_contains_metric(result, metric_name: str, value, row_identifier: dic
                 return False
             rows = [row for row in rows if isinstance(row, dict) and _row_matches_identifier(row, row_identifier)]
         return any(isinstance(row, dict) and row.get(metric_name) == value for row in rows)
+    if metric_name in result and isinstance(result[metric_name], dict):
+        # A structured/definitional field (e.g. get_metric_definition's {metric_name:
+        # {business_definition, formula, ...}}) -- citing that this metric's definition came
+        # from this tool result is grounded regardless of exactly how the model
+        # paraphrased/summarized it into "value". Strict scalar equality below is for a real
+        # NUMBER a tool returned; a definition isn't a number, so it doesn't apply here.
+        return True
     return metric_name in result and result[metric_name] == value
 
 

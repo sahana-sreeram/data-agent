@@ -18,6 +18,11 @@ MULTI_ROW_RESULTS = {
     ]
 }
 
+# get_metric_definition's result shape: {metric_name: {business_definition, formula, ...}}.
+METRIC_DEFINITION_RESULTS = {
+    "get_metric_definition": [{"loss_rate": {"business_definition": "Net loss over funded principal.", "formula": "x / y"}}]
+}
+
 
 def _submission(metric_name, value, source_reference, status="ANSWERED", row_identifier=None):
     return {
@@ -144,6 +149,32 @@ def test_rejects_a_value_that_exists_but_for_a_different_metric_name():
             called_tool_names={"get_campaign_funnel"},
             known_metric_names=KNOWN_METRICS,
             tool_results_by_name=MULTI_ROW_RESULTS,
+        )
+
+
+def test_grounds_a_definitional_citation_against_get_metric_definitions_nested_shape():
+    # Confirmed live: a purely definitional question ("how is loss_rate defined") has no
+    # single ground-truth NUMBER to match exactly -- citing the metric's own name against a
+    # get_metric_definition result must ground regardless of how "value" paraphrases the
+    # nested definition object, unlike a real numeric metric citation.
+    result = parse_lifecycle_business_answer(
+        _submission("loss_rate", "Net loss over funded principal.", "get_metric_definition"),
+        called_tool_names={"get_metric_definition"},
+        known_metric_names=KNOWN_METRICS | {"loss_rate"},
+        tool_results_by_name=METRIC_DEFINITION_RESULTS,
+    )
+    assert result.cited_metrics[0].metric_name == "loss_rate"
+
+
+def test_still_rejects_a_nested_field_name_cited_as_if_it_were_the_metric():
+    # The model must cite the metric's OWN name ("loss_rate"), not a field nested inside its
+    # definition ("business_definition") -- that's not a real curated metric name at all.
+    with pytest.raises(AnswerValidationError, match="unknown metric name"):
+        parse_lifecycle_business_answer(
+            _submission("business_definition", "Net loss over funded principal.", "get_metric_definition"),
+            called_tool_names={"get_metric_definition"},
+            known_metric_names=KNOWN_METRICS | {"loss_rate"},
+            tool_results_by_name=METRIC_DEFINITION_RESULTS,
         )
 
 

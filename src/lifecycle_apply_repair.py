@@ -2,8 +2,11 @@
 -> repair agent planning -> policy validation -> isolated-workspace patch application.
 Parallel to src/apply_repair.py (left completely unmodified) for the S3-backed lifecycle
 model. Generalized (via src/lifecycle_pipeline_registry.py) rather than hardcoded to
-loan_portfolio -- each pipeline still has exactly one repairable target file (its ETL
-source), so no manifest-file abstraction is needed.
+loan_portfolio -- every pipeline's ETL source file is always an eligible target, and a
+pipeline may additionally register a small owned config pointer file (PipelineSpec.
+pipeline_configuration_file -- today: only loan_portfolio's context/pipeline_rules/
+loan_portfolio.json) as a second, CONFIGURATION_CHANGE-only target, for repairs that should
+never touch the ETL source or the shared, cross-pipeline context/business_rules.json.
 
 Reuses the fully generic pieces of apply_repair.py directly (pure functions, zero
 modification): _create_isolated_workspace, _validate_and_apply_patch, _workspace_path,
@@ -49,6 +52,7 @@ from src.model_client import (
 )
 from src.sandbox.backend import SandboxBackend, TempDirSandbox
 from src.legacy.repair_models import (
+    DEFAULT_ELIGIBLE_ROOT_CAUSE_CATEGORIES,
     RepairDecision,
     RepairEligibility,
     RepairPlanValidationError,
@@ -77,6 +81,9 @@ def build_lifecycle_repair_tools(
     module_name = spec.etl_source_file.replace("/", ".").removesuffix(".py")
     etl_module = importlib.import_module(module_name)
     etl_functions = {name: getattr(etl_module, name) for name in spec.etl_function_names}
+    pipeline_configuration = None
+    if spec.pipeline_configuration_file and storage.exists(spec.pipeline_configuration_file):
+        pipeline_configuration = storage.read_json(spec.pipeline_configuration_file)
     return LifecycleRepairTools(
         diagnosis=diagnosis,
         validation_results=validation_results,
@@ -91,6 +98,7 @@ def build_lifecycle_repair_tools(
         pipeline_name=pipeline_name,
         storage=storage,
         context_retriever=ContextRetriever(store=FileContextStore()),
+        pipeline_configuration=pipeline_configuration,
     )
 
 
@@ -119,6 +127,7 @@ def run_apply_lifecycle_repair(
     repair_targets_file: str = DEFAULT_REPAIR_TARGETS_FILE,
     confidence_threshold: str = DEFAULT_CONFIDENCE_THRESHOLD,
     sandbox_backend: SandboxBackend = TempDirSandbox(),
+    human_approved_categories: frozenset[str] = frozenset(),
 ) -> tuple[dict, dict]:
     """Run the full apply-repair flow for one lifecycle pipeline. Returns
     (repair_plan_dict, repair_result_dict).
@@ -128,14 +137,30 @@ def run_apply_lifecycle_repair(
     GitWorktreeSandbox instead (see src.lifecycle_run_self_healing's mode="create_pr" wiring)
     applies this same patch inside a real git worktree/branch, so the exact workspace this
     function produces is what src.lifecycle_verify_repair reruns Spark against and what
-    eventually becomes the PR branch -- no second, redundant workspace."""
+    eventually becomes the PR branch -- no second, redundant workspace.
+
+    human_approved_categories is empty by default, preserving this function's original
+    eligibility policy exactly (a category like SOURCE_CONTRACT_CHANGE always stays
+    HUMAN_REVIEW_REQUIRED). It exists for an explicit, human-initiated "generate and verify a
+    candidate for review anyway" action on a SPECIFIC incident (see src.data_ops's
+    incident/repair flow) -- passing e.g. {"SOURCE_CONTRACT_CHANGE"} widens eligibility for
+    THIS call only, never changes the default policy for any other caller, and still only
+    ever produces a create_pr candidate: nothing this parameter unlocks can auto-promote,
+    since mode="create_pr" (never "auto_promote") is what src.lifecycle_run_self_healing
+    passes alongside it."""
     spec = PIPELINE_REGISTRY[pipeline_name]
     diagnosis_reference = diagnosis.get("incident_summary", pipeline_name)
 
+    allowed_target_files = {spec.etl_source_file}
+    pipeline_configuration_file = getattr(spec, "pipeline_configuration_file", None)
+    if pipeline_configuration_file:
+        allowed_target_files.add(pipeline_configuration_file)
+
     eligibility = evaluate_repair_eligibility(
         diagnosis,
-        allowed_target_files={spec.etl_source_file},
+        allowed_target_files=allowed_target_files,
         confidence_threshold=confidence_threshold,
+        eligible_root_cause_categories=DEFAULT_ELIGIBLE_ROOT_CAUSE_CATEGORIES | human_approved_categories,
     )
 
     if eligibility.decision == RepairEligibility.NO_REPAIR_NEEDED:

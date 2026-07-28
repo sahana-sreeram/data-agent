@@ -22,6 +22,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import importlib.util
+import json
 import shutil
 import subprocess
 import sys
@@ -140,6 +141,30 @@ def _run_pytest_against_patched_code(
         real_target_path.write_bytes(original_bytes)
         if cached_module is not None:
             importlib.reload(cached_module)
+
+
+def _resolve_rerun_inputs(spec, target_file: str, workspace_dir: Path, sandbox_backend: SandboxBackend, business_rules: dict):
+    """What to rerun the candidate ETL/validation against: the ETL module and the
+    business_rules dict.
+
+    For the ordinary case (target_file is this pipeline's ETL source -- a CODE_CHANGE), this
+    is exactly today's behavior: dynamically import the PATCHED module from the workspace,
+    unchanged business_rules.
+
+    For a CONFIGURATION_CHANGE target (target_file is spec.pipeline_configuration_file, e.g.
+    loan_portfolio's context/pipeline_rules/loan_portfolio.json): there is no patched Python
+    to import -- the ETL source itself is untouched. Instead, read the CANDIDATE'S patched
+    pointer from the workspace (never from real S3, which still has the stale, not-yet-
+    promoted pointer) and resolve business_rules from whichever already-approved file it now
+    names, read from the real repository (that file is static and already checked in -- the
+    repair only ever changes which one is pointed at, never a file's content)."""
+    if target_file == getattr(spec, "pipeline_configuration_file", None):
+        patched_pointer = json.loads(sandbox_backend.workspace_path(workspace_dir, target_file).read_text())
+        business_rules_file = patched_pointer.get("business_rules_file", "context/business_rules.json")
+        effective_business_rules = json.loads(Path(business_rules_file).read_text())
+        etl_module = importlib.import_module(spec.etl_source_file.replace("/", ".").removesuffix(".py"))
+        return etl_module, effective_business_rules
+    return _load_patched_etl_module(workspace_dir, target_file, sandbox_backend), business_rules
 
 
 def _context_provenance_for(pipeline_name: str, diagnosis: dict, storage: S3Storage) -> dict | None:
@@ -355,12 +380,14 @@ def run_verify_lifecycle_repair(
     protected_hashes_before = _protected_file_hashes(pipeline_name, spec.validation_rules_key)
 
     try:
-        patched_module = _load_patched_etl_module(workspace_dir, repair_result["target_file"], sandbox_backend)
+        patched_module, effective_business_rules = _resolve_rerun_inputs(
+            spec, repair_result["target_file"], workspace_dir, sandbox_backend, business_rules
+        )
         if s3a_path_override is not None:
             patched_module.s3a_path = s3a_path_override
-        metrics_after_by_key = spec.run_etl(patched_module, spark, business_rules, DEFAULT_AS_OF_DATE)
+        metrics_after_by_key = spec.run_etl(patched_module, spark, effective_business_rules, DEFAULT_AS_OF_DATE)
         candidate_storage = _CandidateCuratedStorage(storage, metrics_after_by_key)
-        validation_after = spec.run_validate(candidate_storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
+        validation_after = spec.run_validate(candidate_storage, effective_business_rules, validation_rules, DEFAULT_AS_OF_DATE)
         etl_status_after = "SUCCESS"
     except Exception as exc:  # noqa: BLE001 -- rerun failure is a verification outcome, not a crash
         sandbox_backend.cleanup(workspace_dir)

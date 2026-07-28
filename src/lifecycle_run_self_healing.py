@@ -40,6 +40,7 @@ def run_lifecycle_self_healing(
     repair_model_client_factory: Callable[[], DiagnosisModelClient],
     *,
     mode: str = "auto_promote",
+    human_approved_categories: frozenset[str] = frozenset(),
 ) -> dict:
     """Diagnose, plan a repair, apply it in isolation, and verify it against real raw data.
 
@@ -50,6 +51,13 @@ def run_lifecycle_self_healing(
     "auto_promote" (the default, and every existing call site's behavior) runs the full flow
     and promotes directly on a full pass -- unchanged from before mode existed.
 
+    human_approved_categories is empty by default (every existing caller's behavior is
+    unchanged). It exists for one specific, explicit action: a human looking at an incident
+    that policy defaults to refusing (e.g. SOURCE_CONTRACT_CHANGE) chooses to generate a
+    reviewable candidate anyway (see src.lifecycle_apply_repair.run_apply_lifecycle_repair's
+    docstring). ONLY usable with mode="create_pr" -- passing it with any other mode raises,
+    since nothing this unlocks may ever auto-promote.
+
     Returns {"run_id":..., "diagnosis":..., "repair_plan":..., "repair_result":...,
     "repair_verification":...}. Raises whatever the underlying stages raise
     (DiagnosePipelineError, ApplyLifecycleRepairError) on a genuine application-level
@@ -58,6 +66,8 @@ def run_lifecycle_self_healing(
     """
     if mode not in ("diagnose_only", "propose_patch", "create_pr", "auto_promote"):
         raise ValueError(f"unknown mode {mode!r}")
+    if human_approved_categories and mode != "create_pr":
+        raise ValueError("human_approved_categories may only be used with mode='create_pr'")
 
     spec = PIPELINE_REGISTRY[pipeline_name]
     run_id = uuid.uuid4().hex[:12]
@@ -79,7 +89,13 @@ def run_lifecycle_self_healing(
         return {"run_id": run_id, **artifacts}
 
     repair_plan, repair_result = run_apply_lifecycle_repair(
-        pipeline_name, storage, diagnosis, validation_before, repair_model_client_factory, sandbox_backend=sandbox_backend
+        pipeline_name,
+        storage,
+        diagnosis,
+        validation_before,
+        repair_model_client_factory,
+        sandbox_backend=sandbox_backend,
+        human_approved_categories=human_approved_categories,
     )
     if mode == "propose_patch":
         artifacts = {"diagnosis": diagnosis, "repair_plan": repair_plan, "repair_result": repair_result, "repair_verification": None}

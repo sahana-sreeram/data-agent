@@ -2,7 +2,7 @@
   "asset_id": "campaign_funnel",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-27T19:59:12.049486+00:00",
+  "generated_at": "2026-07-27T21:36:43.099416+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -113,19 +113,20 @@
       "open_rate",
       "click_through_rate",
       "click_to_offer_rate",
+      "application_to_approval_rate",
       "approval_to_funded_rate"
     ],
-    "row_count_estimate": 9,
+    "row_count_estimate": 25,
     "partition_columns": [],
     "sample_value_summaries": {
       "name": {
-        "distinct_count": 7,
+        "distinct_count": 17,
         "sample_values": [
+          "New Year Fresh Start 2024",
           "Back to School 2024",
-          "Referral Boost 2025",
-          "Partner Rewards 2023",
-          "Summer Cashback 2025",
-          "Spring Save 2025"
+          "Loyalty Bonus 2023",
+          "New Year Fresh Start 2025",
+          "Referral Boost 2024"
         ]
       },
       "channel": {
@@ -137,78 +138,78 @@
         ]
       },
       "emails_sent": {
-        "distinct_count": 9,
+        "distinct_count": 23,
         "min": 0,
-        "max": 51
+        "max": 172
       },
       "emails_opened": {
-        "distinct_count": 9,
+        "distinct_count": 23,
         "min": 0,
-        "max": 29
+        "max": 110
       },
       "emails_clicked": {
-        "distinct_count": 7,
+        "distinct_count": 21,
         "min": 0,
-        "max": 13
+        "max": 54
       },
       "offers_created": {
-        "distinct_count": 7,
+        "distinct_count": 19,
         "min": 1,
-        "max": 10
+        "max": 40
       },
       "applications_submitted": {
-        "distinct_count": 6,
-        "min": 1,
-        "max": 8
+        "distinct_count": 17,
+        "min": 0,
+        "max": 30
       },
       "applications_approved": {
-        "distinct_count": 6,
+        "distinct_count": 14,
         "min": 0,
-        "max": 6
+        "max": 23
       },
       "loans_funded": {
-        "distinct_count": 6,
+        "distinct_count": 13,
         "min": 0,
-        "max": 6
+        "max": 23
       },
       "campaign_id": {
-        "distinct_count": 8,
+        "distinct_count": 24,
         "sample_values": [
-          "CMP0001",
+          "CMP0024",
+          "CMP0022",
+          "CMP0010",
           "CMP0002",
-          "CMP0003",
-          "CMP0004",
-          "CMP0005"
+          "CMP0009"
         ]
       },
       "open_rate": {
-        "distinct_count": 7,
-        "min": 0.5,
-        "max": 0.6786
+        "distinct_count": 24,
+        "min": 0.3077,
+        "max": 0.7857
       },
       "click_through_rate": {
-        "distinct_count": 8,
+        "distinct_count": 24,
         "min": 0.25,
-        "max": 0.6316
+        "max": 0.6
       },
       "click_to_offer_rate": {
-        "distinct_count": 6,
-        "min": 0.6,
+        "distinct_count": 19,
+        "min": 0.5,
         "max": 1.0
       },
       "offer_to_application_rate": {
-        "distinct_count": 9,
-        "min": 0.5,
-        "max": 1.6
+        "distinct_count": 23,
+        "min": 0.0,
+        "max": 2.6
       },
       "application_to_approval_rate": {
-        "distinct_count": 9,
+        "distinct_count": 17,
         "min": 0.0,
         "max": 1.0
       },
       "approval_to_funded_rate": {
-        "distinct_count": 2,
-        "min": 0.8,
+        "distinct_count": 10,
+        "min": 0.6667,
         "max": 1.0
       }
     },
@@ -216,12 +217,7 @@
     "producer": null,
     "owner": null,
     "grain_hypothesis": null,
-    "candidate_keys": [
-      "emails_sent",
-      "emails_opened",
-      "offer_to_application_rate",
-      "application_to_approval_rate"
-    ],
+    "candidate_keys": [],
     "uniqueness_observations": {}
   },
   "pipeline_metadata": {
@@ -349,24 +345,48 @@
         "name": "campaigns"
       },
       {
+        "kind": "upstream_service",
+        "name": "marketing_service"
+      },
+      {
         "kind": "source_table",
         "name": "email_events"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "marketing_service"
       },
       {
         "kind": "source_table",
         "name": "prequal_offers"
       },
       {
+        "kind": "upstream_service",
+        "name": "marketing_service"
+      },
+      {
         "kind": "source_table",
         "name": "applications"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "application_service"
       },
       {
         "kind": "source_table",
         "name": "underwriting_decisions"
       },
       {
+        "kind": "upstream_service",
+        "name": "underwriting_service"
+      },
+      {
         "kind": "source_table",
         "name": "loans"
+      },
+      {
+        "kind": "upstream_service",
+        "name": "loan_service"
       }
     ]
   },

@@ -48,7 +48,7 @@ REAL_DIFF = "\n".join(
 
 
 class _FakeStorage:
-    """Stands in for S3Storage in these tests -- only read_json is ever called by
+    """Stands in for S3Storage in these tests -- only read_json/exists are ever called by
     build_lifecycle_repair_tools, so that's all this needs to implement."""
 
     def read_json(self, path: str) -> dict:
@@ -57,6 +57,11 @@ class _FakeStorage:
             "context/lineage.json": {"datasets": {"curated.loan_portfolio": {"path": "x", "depends_on": []}}},
             "context/metrics/loan_portfolio.json": {"metrics": {"loan_count": {"formula": "count(loans)"}}},
         }[path]
+
+    def exists(self, path: str) -> bool:
+        # No pipeline_configuration_file backing in this fake -- get_pipeline_configuration
+        # reports unavailable, exactly like any pipeline without one registered.
+        return False
 
 
 def _diagnosis(**overrides) -> dict:
@@ -132,6 +137,27 @@ def test_ineligible_root_cause_is_blocked_without_calling_model(tmp_path):
     )
     assert result["repair_status"] == "BLOCKED"
     assert plan_dict["repair_decision"] == "HUMAN_REVIEW_REQUIRED"
+
+
+def test_human_approved_categories_unlocks_a_normally_refused_category(tmp_path):
+    """Empty by default (the test above proves that): SOURCE_CONTRACT_CHANGE stays BLOCKED.
+    Explicitly approving it for this one call lets it reach the repair model instead --
+    proving the override is real, not just documented, while every other call site (which
+    never passes it) is completely unaffected."""
+    diagnosis = _diagnosis(root_cause_category="SOURCE_CONTRACT_CHANGE")
+    responses = [ModelResponse(tool_calls=[ToolCall(id="1", name=SUBMIT_REPAIR_PLAN_TOOL_NAME, arguments=_code_submission())])]
+
+    plan_dict, result = run_apply_lifecycle_repair(
+        PIPELINE_NAME,
+        _FakeStorage(),
+        diagnosis,
+        VALIDATION_RESULTS,
+        lambda: ScriptedDiagnosisModelClient(responses),
+        repair_targets_file=str(_repair_targets_file(tmp_path)),
+        human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
+    )
+    assert plan_dict["repair_decision"] == "PROPOSE_REPAIR"
+    assert result["repair_status"] == "APPLIED"
 
 
 def test_eligible_incident_applies_code_change_in_isolation(tmp_path):

@@ -1,9 +1,11 @@
 """Read-only, allowlisted planning tools for repairing any of the 5 lifecycle pipelines.
 Parallel to src/repair_tools.py (left completely unmodified) for the S3-backed lifecycle
-model, which has no pipeline_configuration concept -- so get_pipeline_configuration always
-reports unavailable. Which lineage key / ETL source file / function(s) apply to a given
-pipeline are instance fields (from src/lifecycle_pipeline_registry.py), not hardcoded, so
-the same class serves all 5 pipelines.
+model. Most pipelines have no pipeline_configuration concept, so get_pipeline_configuration
+reports unavailable for them -- today, only loan_portfolio registers one (see
+PipelineSpec.pipeline_configuration_file), and get_pipeline_configuration reports its real,
+current content. Which lineage key / ETL source file / function(s) apply to a given pipeline
+are instance fields (from src/lifecycle_pipeline_registry.py), not hardcoded, so the same
+class serves all 5 pipelines.
 
 The repair agent never receives a write-capable tool; applying a plan is done entirely by
 deterministic code in src/lifecycle_apply_repair.py, after the plan passes policy
@@ -45,6 +47,10 @@ class LifecycleRepairTools:
     pipeline_name: str = ""
     storage: S3Storage | None = None
     context_retriever: ContextRetriever | None = None
+    # None for every pipeline without a registered PipelineSpec.pipeline_configuration_file
+    # (today: every pipeline except loan_portfolio) -- get_pipeline_configuration reports
+    # unavailable in that case, exactly as before this field existed.
+    pipeline_configuration: dict | None = None
 
     def get_diagnosis(self) -> dict:
         """The full diagnosis this repair is addressing."""
@@ -84,9 +90,14 @@ class LifecycleRepairTools:
         return {"metric": metric, "conflicts": [c.model_dump() for c in fact.conflicts]}
 
     def get_pipeline_configuration(self) -> dict:
-        """No configuration file exists for any lifecycle pipeline -- the ETL source is the
-        only place metric formulas live."""
-        return {"available": False}
+        """This pipeline's own configuration pointer file (see PipelineSpec.
+        pipeline_configuration_file), if one is registered -- e.g. loan_portfolio's
+        context/pipeline_rules/loan_portfolio.json, naming which already-approved
+        business-rules file it reads. {"available": False} for a pipeline with none
+        registered (today: every lifecycle pipeline except loan_portfolio)."""
+        if self.pipeline_configuration is None:
+            return {"available": False}
+        return {"available": True, "content": self.pipeline_configuration}
 
     def get_relevant_etl_source(self) -> dict:
         """The source of every ETL function that computes this pipeline's curated output(s)."""
