@@ -3,55 +3,154 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Lifecycle Data Agent</title>
+<title>Data Operations Console</title>
 <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 <header>
-  <h1>Lifecycle Data Agent</h1>
+  <h1>Data Operations Console</h1>
   <div id="health-banner" class="banner">Checking pipeline health...</div>
+  <nav id="tab-nav">
+    <button class="tab-button active" data-tab="overview">Overview</button>
+    <button class="tab-button" data-tab="data-products">Data Products</button>
+    <button class="tab-button" data-tab="context">Context</button>
+    <button class="tab-button" data-tab="incidents">Incidents</button>
+    <button class="tab-button" data-tab="repairs">Repairs</button>
+    <button class="tab-button" data-tab="evaluations">Evaluations</button>
+  </nav>
 </header>
 
 <main>
-  <form id="ask-form">
-    <input id="question-input" type="text" placeholder="e.g. Which risk segment has the highest approval rate?" autocomplete="off" />
-    <button id="ask-button" type="submit">Ask</button>
-  </form>
 
-  <div id="spinner" class="spinner hidden">Working -- this can take a few minutes if a pipeline needs to be repaired...</div>
-  <div id="error" class="error hidden"></div>
-
-  <section id="results" class="hidden">
+  <!-- Overview -->
+  <section id="tab-overview" class="tab-panel">
     <section class="card">
-      <h2>Question</h2>
-      <p id="question-echo"></p>
+      <h2>Data estate</h2>
+      <div id="overview-summary">Loading...</div>
     </section>
-
     <section class="card">
-      <h2>Answer</h2>
-      <div id="answer-block"></div>
+      <h2>Scale (measured)</h2>
+      <div id="overview-scale">Loading...</div>
     </section>
-
     <section class="card">
-      <h2>Relevant pipelines</h2>
-      <div id="relevant-pipelines"></div>
-    </section>
-
-    <section id="validation-failures-card" class="card hidden">
-      <h2>Validation failures</h2>
-      <div id="validation-failures"></div>
-    </section>
-
-    <section id="self-heal-card" class="card hidden">
-      <h2>Self-healing</h2>
-      <div id="self-heal"></div>
-    </section>
-
-    <section id="corrected-answer-card" class="card corrected hidden">
-      <h2>Corrected answer</h2>
-      <div id="corrected-answer-block"></div>
+      <h2>What this is</h2>
+      <p>An agentic data-operations control layer over a lending data estate: 6 upstream
+      services, 6 governed Spark pipelines, mostly-automatic context enrichment with a
+      human-approved semantic layer, and a full incident lifecycle from business signal to
+      verified, reviewable repair. Natural-language Q&amp;A (Incidents tab) is one entry
+      point into this system, not the whole of it.</p>
     </section>
   </section>
+
+  <!-- Data Products -->
+  <section id="tab-data-products" class="tab-panel hidden">
+    <section class="card">
+      <h2>Data product estate</h2>
+      <div id="data-products-table">Loading...</div>
+    </section>
+  </section>
+
+  <!-- Context -->
+  <section id="tab-context" class="tab-panel hidden">
+    <section class="card">
+      <h2>Data product</h2>
+      <select id="context-pipeline-select"></select>
+    </section>
+    <div id="context-error" class="error hidden"></div>
+    <section class="card">
+      <h2>Metric definitions</h2>
+      <div id="context-metrics"></div>
+    </section>
+    <section class="card">
+      <h2>Lineage</h2>
+      <div id="context-lineage"></div>
+    </section>
+    <section class="card">
+      <h2>Pipeline implementation</h2>
+      <div id="context-pipeline-metadata"></div>
+    </section>
+    <section class="card">
+      <h2>Current health</h2>
+      <div id="context-health"></div>
+    </section>
+  </section>
+
+  <!-- Incidents -->
+  <section id="tab-incidents" class="tab-panel hidden">
+    <section class="card">
+      <h2>Business signal</h2>
+      <form id="incident-question-form" class="inline-form">
+        <input id="incident-question-input" type="text" placeholder="e.g. What is our total outstanding principal?" autocomplete="off" />
+        <button type="submit">Investigate</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Or check one data product directly</h2>
+      <form id="incident-pipeline-form" class="inline-form">
+        <select id="incident-pipeline-select"></select>
+        <select id="incident-mode-select">
+          <option value="create_pr">create_pr (never promotes)</option>
+          <option value="auto_promote">auto_promote</option>
+        </select>
+        <label class="checkbox-label">
+          <input type="checkbox" id="approve-source-contract-change" />
+          Approve SOURCE_CONTRACT_CHANGE override
+        </label>
+        <button type="submit">Trigger analysis</button>
+      </form>
+    </section>
+
+    <div id="incident-spinner" class="spinner hidden">Working -- this can take a few minutes if a repair needs to be diagnosed, applied, and verified...</div>
+    <div id="incident-error" class="error hidden"></div>
+
+    <section id="incident-results" class="hidden">
+      <section class="card">
+        <h2>Result</h2>
+        <div id="incident-answer-block"></div>
+      </section>
+
+      <section id="incident-relevant-card" class="card hidden">
+        <h2>Data product(s) in scope</h2>
+        <div id="incident-relevant-pipelines"></div>
+      </section>
+
+      <section id="incident-validation-failures-card" class="card hidden">
+        <h2>Validation failures</h2>
+        <div id="incident-validation-failures"></div>
+      </section>
+
+      <section id="incident-self-heal-card" class="card hidden">
+        <h2>Incident response</h2>
+        <div id="incident-self-heal"></div>
+      </section>
+
+      <section id="incident-candidate-card" class="card corrected hidden">
+        <h2>Corrected candidate result (unpromoted)</h2>
+        <div id="incident-candidate-block"></div>
+      </section>
+    </section>
+  </section>
+
+  <!-- Repairs -->
+  <section id="tab-repairs" class="tab-panel hidden">
+    <section class="card">
+      <h2>Review package</h2>
+      <div id="repairs-content">
+        <p class="muted">Run an incident investigation (Incidents tab) that reaches a
+        governed repair -- its PR-ready review package, if any, will appear here.</p>
+      </div>
+    </section>
+  </section>
+
+  <!-- Evaluations -->
+  <section id="tab-evaluations" class="tab-panel hidden">
+    <section class="card">
+      <h2>Evaluations</h2>
+      <div id="evaluations-content">Loading...</div>
+    </section>
+  </section>
+
 </main>
 
 <script src="/app.js"></script>

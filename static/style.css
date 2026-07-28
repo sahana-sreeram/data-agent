@@ -142,3 +142,87 @@ pre.diff {
 
 .evidence-item { margin-bottom: 0.4rem; font-size: 0.85rem; }
 .evidence-item .source { color: var(--muted); }
+
+/* --- Console tab navigation ------------------------------------------------------------ */
+
+#tab-nav { display: flex; gap: 0.4rem; margin-top: 1rem; flex-wrap: wrap; }
+.tab-button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px 6px 0 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.tab-button:hover { color: var(--text); }
+.tab-button.active { color: var(--text); background: var(--card-bg); border-bottom-color: var(--card-bg); }
+
+.tab-panel.hidden { display: none; }
+
+.muted { color: var(--muted); }
+
+.inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.25rem; }
+.inline-form input[type="text"] {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.6rem 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 1rem;
+}
+.inline-form select {
+  padding: 0.5rem 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+.inline-form button {
+  padding: 0.6rem 1.2rem;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.inline-form button:disabled { opacity: 0.5; cursor: default; }
+.checkbox-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+
+/* --- Data product estate table ------------------------------------------------------- */
+
+.estate-row-untrusted td { color: var(--bad); }
+
+/* --- PR / review-package artifact ------------------------------------------------------ */
+
+.pr-header { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; }
+.risk-badge { padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.risk-badge.LOW { background: rgba(53, 195, 122, 0.15); color: var(--good); }
+.risk-badge.HIGH { background: rgba(229, 83, 75, 0.15); color: var(--bad); }
+.chip.warn { background: rgba(224, 168, 0, 0.15); color: var(--warn); }
+.production-unchanged-note {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px dashed var(--good);
+  border-radius: 6px;
+  color: var(--good);
+  font-size: 0.85rem;
+}
+
+/* --- Context tab ------------------------------------------------------------------------ */
+
+.provenance-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-left: 0.4rem;
+  background: rgba(79, 140, 255, 0.15);
+  color: var(--accent);
+}
+.metric-row { border-bottom: 1px solid var(--border); padding: 0.5rem 0; }
+.metric-row:last-child { border-bottom: none; }
+.conflict-note { color: var(--warn); font-size: 0.85rem; margin-top: 0.2rem; }
