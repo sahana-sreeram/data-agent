@@ -2,7 +2,7 @@
   "asset_id": "loan_portfolio",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-28T14:27:05.780243+00:00",
+  "generated_at": "2026-07-28T14:47:33.498229+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -52,43 +52,43 @@
     "sample_value_summaries": {
       "loan_count": {
         "distinct_count": 1,
-        "min": 148182,
-        "max": 148182
+        "min": 162,
+        "max": 162
       },
       "active_loan_count": {
         "distinct_count": 1,
-        "min": 89753,
-        "max": 89753
+        "min": 99,
+        "max": 99
       },
       "closed_loan_count": {
         "distinct_count": 1,
-        "min": 46890,
-        "max": 46890
+        "min": 55,
+        "max": 55
       },
       "defaulted_loan_count": {
         "distinct_count": 1,
-        "min": 11539,
-        "max": 11539
+        "min": 8,
+        "max": 8
       },
       "total_funded_principal": {
         "distinct_count": 1,
-        "min": 2803231939.43,
-        "max": 2803231939.43
+        "min": 3227229.6,
+        "max": 3227229.6
       },
       "total_outstanding_principal": {
         "distinct_count": 1,
-        "min": 1675693451.45,
-        "max": 1675693451.45
+        "min": 1869848.01,
+        "max": 1869848.01
       },
       "avg_interest_rate": {
         "distinct_count": 1,
-        "min": 0.1017,
-        "max": 0.1017
+        "min": 0.1019,
+        "max": 0.1019
       },
       "total_accrued_interest": {
         "distinct_count": 1,
-        "min": 140768981.96,
-        "max": 140768981.96
+        "min": 138233.42,
+        "max": 138233.42
       },
       "as_of_date": {
         "distinct_count": 1,

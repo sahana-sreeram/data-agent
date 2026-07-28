@@ -2,7 +2,7 @@
   "asset_id": "payment_performance",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-28T14:27:05.873710+00:00",
+  "generated_at": "2026-07-28T14:47:33.552014+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -69,53 +69,53 @@
     "sample_value_summaries": {
       "expected_payment_count": {
         "distinct_count": 1,
-        "min": 1585605,
-        "max": 1585605
+        "min": 1655,
+        "max": 1655
       },
       "expected_amount_due": {
         "distinct_count": 1,
-        "min": 1871176136.73,
-        "max": 1871176136.73
+        "min": 2010434.8,
+        "max": 2010434.8
       },
       "successful_payment_count": {
         "distinct_count": 1,
-        "min": 848430,
-        "max": 848430
+        "min": 969,
+        "max": 969
       },
       "total_collected_amount": {
         "distinct_count": 1,
-        "min": 1127538487.98,
-        "max": 1127538487.98
+        "min": 1357381.59,
+        "max": 1357381.59
       },
       "missed_payment_count": {
         "distinct_count": 1,
-        "min": 18757,
-        "max": 18757
+        "min": 27,
+        "max": 27
       },
       "missed_amount": {
         "distinct_count": 1,
-        "min": 22501044.32,
-        "max": 22501044.32
+        "min": 36176.87,
+        "max": 36176.87
       },
       "late_payment_count": {
         "distinct_count": 1,
-        "min": 38205,
-        "max": 38205
+        "min": 37,
+        "max": 37
       },
       "failed_payment_count": {
         "distinct_count": 1,
-        "min": 7006,
-        "max": 7006
+        "min": 13,
+        "max": 13
       },
       "collection_rate": {
         "distinct_count": 1,
-        "min": 0.6026,
-        "max": 0.6026
+        "min": 0.6752,
+        "max": 0.6752
       },
       "prepayment_rate": {
         "distinct_count": 1,
-        "min": 0.5005,
-        "max": 0.5005
+        "min": 0.5026,
+        "max": 0.5026
       },
       "as_of_date": {
         "distinct_count": 1,

@@ -2,7 +2,7 @@
   "asset_id": "campaign_funnel",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-28T14:27:05.796518+00:00",
+  "generated_at": "2026-07-28T14:47:33.514293+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -112,102 +112,104 @@
       "campaign_id",
       "open_rate",
       "click_through_rate",
-      "click_to_offer_rate"
+      "click_to_offer_rate",
+      "application_to_approval_rate",
+      "approval_to_funded_rate"
     ],
-    "row_count_estimate": 1601,
+    "row_count_estimate": 25,
     "partition_columns": [],
     "sample_value_summaries": {
       "name": {
-        "distinct_count": 32,
+        "distinct_count": 17,
         "sample_values": [
-          "Partner Rewards 2024",
-          "Referral Boost 2024",
-          "Spring Save 2024",
-          "Back to School 2025",
-          "Loyalty Bonus 2023"
+          "New Year Fresh Start 2024",
+          "Back to School 2024",
+          "Loyalty Bonus 2023",
+          "New Year Fresh Start 2025",
+          "Referral Boost 2024"
         ]
       },
       "channel": {
         "distinct_count": 3,
         "sample_values": [
           "EMAIL",
-          "PARTNER",
-          "SOCIAL"
+          "SOCIAL",
+          "PARTNER"
         ]
       },
       "emails_sent": {
-        "distinct_count": 1147,
+        "distinct_count": 23,
         "min": 0,
-        "max": 2509
+        "max": 172
       },
       "emails_opened": {
-        "distinct_count": 931,
+        "distinct_count": 23,
         "min": 0,
-        "max": 1392
+        "max": 110
       },
       "emails_clicked": {
-        "distinct_count": 562,
+        "distinct_count": 21,
         "min": 0,
-        "max": 638
+        "max": 54
       },
       "offers_created": {
-        "distinct_count": 442,
-        "min": 14,
-        "max": 482
+        "distinct_count": 19,
+        "min": 1,
+        "max": 40
       },
       "applications_submitted": {
-        "distinct_count": 327,
-        "min": 7,
-        "max": 362
+        "distinct_count": 17,
+        "min": 0,
+        "max": 30
       },
       "applications_approved": {
-        "distinct_count": 205,
-        "min": 2,
-        "max": 224
+        "distinct_count": 14,
+        "min": 0,
+        "max": 23
       },
       "loans_funded": {
-        "distinct_count": 189,
-        "min": 2,
-        "max": 202
+        "distinct_count": 13,
+        "min": 0,
+        "max": 23
       },
       "campaign_id": {
-        "distinct_count": 1600,
+        "distinct_count": 24,
         "sample_values": [
-          "B00000-CMP0071",
-          "B00000-CMP0146",
-          "B00002-CMP0124",
-          "B00004-CMP0149",
-          "B00002-CMP0284"
+          "CMP0024",
+          "CMP0022",
+          "CMP0010",
+          "CMP0002",
+          "CMP0009"
         ]
       },
       "open_rate": {
-        "distinct_count": 596,
-        "min": 0.4506,
-        "max": 0.6545
+        "distinct_count": 24,
+        "min": 0.3077,
+        "max": 0.7857
       },
       "click_through_rate": {
-        "distinct_count": 736,
-        "min": 0.3301,
-        "max": 0.5694
+        "distinct_count": 24,
+        "min": 0.25,
+        "max": 0.6
       },
       "click_to_offer_rate": {
-        "distinct_count": 783,
-        "min": 0.625,
-        "max": 0.9107
+        "distinct_count": 19,
+        "min": 0.5,
+        "max": 1.0
       },
       "offer_to_application_rate": {
-        "distinct_count": 851,
-        "min": 0.4333,
-        "max": 1.6173
+        "distinct_count": 23,
+        "min": 0.0,
+        "max": 2.6
       },
       "application_to_approval_rate": {
-        "distinct_count": 886,
-        "min": 0.2857,
-        "max": 0.8605
+        "distinct_count": 17,
+        "min": 0.0,
+        "max": 1.0
       },
       "approval_to_funded_rate": {
-        "distinct_count": 618,
-        "min": 0.6471,
+        "distinct_count": 10,
+        "min": 0.6667,
         "max": 1.0
       }
     },
