@@ -2,7 +2,7 @@
   "asset_id": "loan_portfolio",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-28T15:51:55.622032+00:00",
+  "generated_at": "2026-07-28T16:04:05.444802+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -52,43 +52,43 @@
     "sample_value_summaries": {
       "loan_count": {
         "distinct_count": 1,
-        "min": 162,
-        "max": 162
+        "min": 2,
+        "max": 2
       },
       "active_loan_count": {
         "distinct_count": 1,
-        "min": 99,
-        "max": 99
+        "min": 1,
+        "max": 1
       },
       "closed_loan_count": {
         "distinct_count": 1,
-        "min": 55,
-        "max": 55
+        "min": 1,
+        "max": 1
       },
       "defaulted_loan_count": {
         "distinct_count": 1,
-        "min": 8,
-        "max": 8
+        "min": 0,
+        "max": 0
       },
       "total_funded_principal": {
         "distinct_count": 1,
-        "min": 3227229.6,
-        "max": 3227229.6
+        "min": 3000.0,
+        "max": 3000.0
       },
       "total_outstanding_principal": {
         "distinct_count": 1,
-        "min": 1869848.01,
-        "max": 1869848.01
+        "min": 2000.0,
+        "max": 2000.0
       },
       "avg_interest_rate": {
         "distinct_count": 1,
-        "min": 0.1019,
-        "max": 0.1019
+        "min": 0.075,
+        "max": 0.075
       },
       "total_accrued_interest": {
         "distinct_count": 1,
-        "min": 138233.42,
-        "max": 138233.42
+        "min": 200.0,
+        "max": 200.0
       },
       "as_of_date": {
         "distinct_count": 1,
@@ -157,43 +157,7 @@
     "update_mode": "full_refresh",
     "downstream_consumers": []
   },
-  "lineage": {
-    "asset_id": "loan_portfolio.loan_count",
-    "steps": [
-      {
-        "kind": "business_metric",
-        "name": "loan_count"
-      },
-      {
-        "kind": "curated_field",
-        "name": "loan_count"
-      },
-      {
-        "kind": "curated_dataset",
-        "name": "loan_portfolio"
-      },
-      {
-        "kind": "spark_function",
-        "name": "compute_loan_portfolio"
-      },
-      {
-        "kind": "source_table",
-        "name": "loans"
-      },
-      {
-        "kind": "upstream_service",
-        "name": "loan_service"
-      },
-      {
-        "kind": "source_table",
-        "name": "payment_events"
-      },
-      {
-        "kind": "upstream_service",
-        "name": "payment_service"
-      }
-    ]
-  },
+  "lineage": null,
   "service_contract_versions": {
     "payment_service": "v1"
   }

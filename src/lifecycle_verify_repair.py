@@ -108,6 +108,8 @@ def _run_pytest(test_files: list) -> str:
     reading a test-prefixed S3 path that only ever existed in a test fixture. A subprocess can
     never leak state back into this process, regardless of target type."""
     result = subprocess.run([sys.executable, "-m", "pytest", "-q", *test_files], capture_output=True, text=True, timeout=180)
+    if result.returncode != 0:
+        print(f"[_run_pytest] {test_files} FAILED (exit {result.returncode}):\n{result.stdout}\n{result.stderr}")
     return "PASS" if result.returncode == 0 else "FAIL"
 
 

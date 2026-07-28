@@ -47,7 +47,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data_ops import _default_model_client_factory, _section, run_incident_response
+from src.data_ops import _default_model_client_factory, _pending_repair_key, _section, run_incident_response
 from src.eval_harness import _ensure_spark_session, _reload_etl_module
 from src.eval_scenarios import UPSTREAM_CONTRACT_SCENARIOS
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
@@ -109,14 +109,30 @@ def _prune_stale_repair_branches() -> list[str]:
     return pruned
 
 
+def _clear_stale_pending_repair(storage: S3Storage) -> bool:
+    """A pending-repair record (see src.data_ops.auto_scan_and_repair/run_incident_response)
+    references a candidate branch -- once --reset prunes that branch (or restores the
+    pipeline to healthy), the record is a ghost: it would make a later scan report
+    'already_pending' for a repair that no longer exists anywhere. Cleared unconditionally
+    on every reset; a no-op if there was never one."""
+    key = _pending_repair_key(DEMO_PIPELINE)
+    if storage.exists(key):
+        storage.delete(key)
+        return True
+    return False
+
+
 def reset(storage: S3Storage, spark) -> dict:
     _demo_banner("RESET")
+    cleared_pending = _clear_stale_pending_repair(storage)
     if not _is_injected(storage):
         print("  nothing to reset -- demo environment is already clean.")
         pruned = _prune_stale_repair_branches()
         if pruned:
             print(f"  pruned {len(pruned)} leftover demo repair branch(es): {pruned}")
-        return {"reset_performed": False, "pruned_branches": pruned}
+        if cleared_pending:
+            print(f"  cleared a stale pending-repair record for {DEMO_PIPELINE}")
+        return {"reset_performed": False, "pruned_branches": pruned, "cleared_pending": cleared_pending}
 
     spark = _ensure_spark_session(spark)
     spec = PIPELINE_REGISTRY[DEMO_PIPELINE]
@@ -138,7 +154,14 @@ def reset(storage: S3Storage, spark) -> dict:
     print(f"  {DEMO_PIPELINE} reran clean: validation_status={validation['overall_status']}")
     if pruned:
         print(f"  pruned {len(pruned)} leftover demo repair branch(es): {pruned}")
-    return {"reset_performed": True, "validation_status": validation["overall_status"], "pruned_branches": pruned}
+    if cleared_pending:
+        print(f"  cleared a stale pending-repair record for {DEMO_PIPELINE}")
+    return {
+        "reset_performed": True,
+        "validation_status": validation["overall_status"],
+        "pruned_branches": pruned,
+        "cleared_pending": cleared_pending,
+    }
 
 
 def inject_contract_change(storage: S3Storage, spark) -> dict:
