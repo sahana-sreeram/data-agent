@@ -122,9 +122,39 @@ def _clear_stale_pending_repair(storage: S3Storage) -> bool:
     return False
 
 
+DEFAULT_BUSINESS_RULES_FILE = "context/business_rules.json"
+
+
+def _restore_pointer_file_default(storage: S3Storage) -> bool:
+    """A real Accept (src.data_ops.accept_repair) performs a genuine git merge that can
+    permanently repoint loan_portfolio's context/pipeline_rules/loan_portfolio.json --
+    restored here (locally and in S3) the same way --reset already restores the raw tables
+    it manages, so the flagship contract-change scenario stays replayable. Never rewrites
+    git history -- the merge commit itself stays in the log; only the file's current content
+    is reset, and only if it currently differs from the default. Inert with respect to any
+    currently-healthy pipeline: production ETL/validation never reads this pointer at all
+    (only accept_repair's own resolution step does), so resetting its content can't affect
+    what's already running."""
+    spec = PIPELINE_REGISTRY[DEMO_PIPELINE]
+    pointer_file = getattr(spec, "pipeline_configuration_file", None)
+    if not pointer_file:
+        return False
+    local_path = Path(pointer_file)
+    if not local_path.exists():
+        return False
+    current = json.loads(local_path.read_text())
+    if current.get("business_rules_file") == DEFAULT_BUSINESS_RULES_FILE:
+        return False
+    current["business_rules_file"] = DEFAULT_BUSINESS_RULES_FILE
+    local_path.write_text(json.dumps(current, indent=2) + "\n")
+    storage.write_json(pointer_file, current)
+    return True
+
+
 def reset(storage: S3Storage, spark) -> dict:
     _demo_banner("RESET")
     cleared_pending = _clear_stale_pending_repair(storage)
+    restored_pointer = _restore_pointer_file_default(storage)
     if not _is_injected(storage):
         print("  nothing to reset -- demo environment is already clean.")
         pruned = _prune_stale_repair_branches()
@@ -132,7 +162,14 @@ def reset(storage: S3Storage, spark) -> dict:
             print(f"  pruned {len(pruned)} leftover demo repair branch(es): {pruned}")
         if cleared_pending:
             print(f"  cleared a stale pending-repair record for {DEMO_PIPELINE}")
-        return {"reset_performed": False, "pruned_branches": pruned, "cleared_pending": cleared_pending}
+        if restored_pointer:
+            print(f"  restored {DEMO_PIPELINE}'s config pointer to its default (a prior Accept had repointed it)")
+        return {
+            "reset_performed": False,
+            "pruned_branches": pruned,
+            "cleared_pending": cleared_pending,
+            "restored_pointer": restored_pointer,
+        }
 
     spark = _ensure_spark_session(spark)
     spec = PIPELINE_REGISTRY[DEMO_PIPELINE]
@@ -156,11 +193,14 @@ def reset(storage: S3Storage, spark) -> dict:
         print(f"  pruned {len(pruned)} leftover demo repair branch(es): {pruned}")
     if cleared_pending:
         print(f"  cleared a stale pending-repair record for {DEMO_PIPELINE}")
+    if restored_pointer:
+        print(f"  restored {DEMO_PIPELINE}'s config pointer to its default (a prior Accept had repointed it)")
     return {
         "reset_performed": True,
         "validation_status": validation["overall_status"],
         "pruned_branches": pruned,
         "cleared_pending": cleared_pending,
+        "restored_pointer": restored_pointer,
     }
 
 
