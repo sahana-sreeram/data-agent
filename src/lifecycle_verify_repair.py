@@ -95,10 +95,20 @@ class _CandidateCuratedStorage:
 
 
 def _run_pytest(test_files: list) -> str:
-    import pytest
-
-    exit_code = pytest.main(["-q", *test_files])
-    return "PASS" if int(exit_code) == 0 else "FAIL"
+    """Runs pytest in a SEPARATE PROCESS -- never in-process via pytest.main(). A pipeline's
+    own test file can monkeypatch shared module state for its own isolated S3 reads (e.g.
+    tests/test_etl_spark_loan_portfolio.py patches etl_spark_loan_portfolio.s3a_path). That's
+    fine for a one-shot CLI script (the process exits right after), but this function is also
+    called from a long-running server process (src/api.py) across many verify cycles over its
+    lifetime -- an in-process pytest.main() run risks that monkeypatch leaking into THIS
+    process's shared module cache for every verify AFTER it, since _run_pytest_against_patched_
+    code's own reload-based cleanup only covers a CODE_CHANGE target (an importable .py file);
+    a CONFIGURATION_CHANGE target (e.g. a JSON pointer file) has no corresponding module to
+    reload, so nothing undoes the leak. Observed live: a later verify's real ETL rerun failed
+    reading a test-prefixed S3 path that only ever existed in a test fixture. A subprocess can
+    never leak state back into this process, regardless of target type."""
+    result = subprocess.run([sys.executable, "-m", "pytest", "-q", *test_files], capture_output=True, text=True, timeout=180)
+    return "PASS" if result.returncode == 0 else "FAIL"
 
 
 def _run_pytest_against_patched_code(

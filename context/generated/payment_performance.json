@@ -2,7 +2,7 @@
   "asset_id": "payment_performance",
   "generated_by": "code_enricher",
   "source_commit": null,
-  "generated_at": "2026-07-28T15:41:26.308051+00:00",
+  "generated_at": "2026-07-28T15:51:55.653610+00:00",
   "review_status": "UNREVIEWED",
   "grain": null,
   "sources": [
@@ -63,7 +63,9 @@
       "prepayment_rate": "float64",
       "as_of_date": "str"
     },
-    "nullable_columns": [],
+    "nullable_columns": [
+      "prepayment_rate"
+    ],
     "row_count_estimate": 1,
     "partition_columns": [],
     "sample_value_summaries": {
@@ -79,13 +81,13 @@
       },
       "successful_payment_count": {
         "distinct_count": 1,
-        "min": 969,
-        "max": 969
+        "min": 0,
+        "max": 0
       },
       "total_collected_amount": {
         "distinct_count": 1,
-        "min": 1357381.59,
-        "max": 1357381.59
+        "min": -28062.21,
+        "max": -28062.21
       },
       "missed_payment_count": {
         "distinct_count": 1,
@@ -109,13 +111,12 @@
       },
       "collection_rate": {
         "distinct_count": 1,
-        "min": 0.6752,
-        "max": 0.6752
+        "min": -0.014,
+        "max": -0.014
       },
       "prepayment_rate": {
-        "distinct_count": 1,
-        "min": 0.5026,
-        "max": 0.5026
+        "distinct_count": 0,
+        "sample_values": []
       },
       "as_of_date": {
         "distinct_count": 1,
@@ -138,7 +139,6 @@
       "late_payment_count",
       "failed_payment_count",
       "collection_rate",
-      "prepayment_rate",
       "as_of_date"
     ],
     "uniqueness_observations": {}
