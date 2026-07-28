@@ -30,6 +30,7 @@ const TAB_LOADERS = {
   overview: loadOverview,
   "data-products": loadDataProducts,
   context: loadContextTab,
+  repairs: loadRepairsTab,
   evaluations: loadEvaluations,
 };
 
@@ -186,7 +187,35 @@ function renderVerificationStage(verification) {
   return stage;
 }
 
-function renderPrArtifact(container, prArtifact) {
+async function decideRepair(pipelineName, branch, decision, statusBox) {
+  if (decision === "accept") {
+    const confirmed = window.confirm(
+      `Accept this repair for ${pipelineName}?\n\nThis performs a REAL local "git merge" of ${branch} into your current branch (never pushed to GitHub), then reruns ${pipelineName} for real so the change actually takes effect.`
+    );
+    if (!confirmed) return;
+  }
+  statusBox.textContent = decision === "accept" ? "Merging and rerunning..." : "Discarding candidate...";
+  try {
+    const res = await fetch(`/api/repairs/${decision}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pipeline_name: pipelineName, branch }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusBox.textContent = `Failed: ${data.detail || res.statusText}`;
+      return;
+    }
+    estateCache = null;
+    statusBox.textContent = decision === "accept" ? `Accepted -- ${pipelineName} rerun, validation_status=${data.validation_status}.` : "Rejected -- candidate discarded.";
+    loadHealth();
+    loadRepairsTab();
+  } catch (err) {
+    statusBox.textContent = "Could not reach the API.";
+  }
+}
+
+function renderPrArtifact(container, prArtifact, opts = {}) {
   clear(container);
   if (!prArtifact) {
     container.appendChild(
@@ -219,23 +248,49 @@ function renderPrArtifact(container, prArtifact) {
   container.appendChild(
     el("div", {
       className: "production-unchanged-note",
-      text: "Production repository and trusted curated data are unchanged. This is a local, reviewable candidate only -- nothing here has been pushed or promoted.",
+      text: "Production repository and trusted curated data are unchanged until explicitly accepted below.",
     })
   );
+
+  if (opts.pipelineName && prArtifact.branch) {
+    const statusBox = el("p", { className: "muted" });
+    const actions = el("div", { className: "inline-form" });
+    actions.appendChild(el("button", { text: "Accept (merge for real)", attrs: { type: "button" } }));
+    actions.appendChild(el("button", { text: "Reject (discard)", attrs: { type: "button" } }));
+    actions.children[0].addEventListener("click", () => decideRepair(opts.pipelineName, prArtifact.branch, "accept", statusBox));
+    actions.children[1].addEventListener("click", () => decideRepair(opts.pipelineName, prArtifact.branch, "reject", statusBox));
+    container.appendChild(actions);
+    container.appendChild(statusBox);
+  }
 }
 
-function findPrArtifact(incidentResult) {
-  if (!incidentResult) return null;
-  const selfHeal = incidentResult.self_heal;
-  if (!selfHeal) return null;
-  // pipeline_name path: self_heal is a single heal dict. question path: self_heal maps
-  // pipeline_name -> heal dict.
-  const heals = selfHeal.repair_verification !== undefined ? [selfHeal] : Object.values(selfHeal);
-  for (const heal of heals) {
-    const artifact = heal && heal.repair_verification && heal.repair_verification.pr_artifact;
-    if (artifact) return artifact;
+// --- Repairs tab: pending candidates awaiting a human accept/reject decision --------------
+
+async function loadRepairsTab() {
+  const box = document.getElementById("repairs-content");
+  try {
+    const res = await fetch("/api/repairs/pending");
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || `request failed (${res.status})`);
+    clear(box);
+    const pending = data.pending || [];
+    if (!pending.length) {
+      box.appendChild(
+        el("p", { className: "muted", text: "No repairs pending review. The health monitor (Incidents tab) checks automatically, or trigger a check directly." })
+      );
+      return;
+    }
+    for (const record of pending) {
+      const block = el("div", { className: "pipeline-block" });
+      block.appendChild(el("h3", { text: record.pipeline_name }));
+      const artifactBox = el("div");
+      block.appendChild(artifactBox);
+      renderPrArtifact(artifactBox, record.pr_artifact, { pipelineName: record.pipeline_name });
+      box.appendChild(block);
+    }
+  } catch (err) {
+    box.textContent = `Could not load pending repairs: ${err.message}`;
   }
-  return null;
 }
 
 // --- Overview tab -------------------------------------------------------------------------
@@ -495,8 +550,9 @@ function renderIncidentResult(result) {
 
   document.getElementById("incident-results").classList.remove("hidden");
 
-  // Keep the Repairs tab in sync with whatever this incident produced.
-  renderPrArtifact(document.getElementById("repairs-content"), findPrArtifact(result));
+  // Keep the Repairs tab in sync with whatever this incident produced -- it's persisted as a
+  // pending repair the same way an auto-detected one is, so this just re-reads that list.
+  loadRepairsTab();
 }
 
 async function runIncident(body) {
@@ -550,6 +606,7 @@ document.getElementById("incident-pipeline-form").addEventListener("submit", (ev
     pipeline_name: pipelineName,
     mode,
     approve_categories: approveOverride ? ["SOURCE_CONTRACT_CHANGE"] : [],
+    use_scripted_model: document.getElementById("use-scripted-model").checked && pipelineName === "loan_portfolio",
   });
 });
 
@@ -596,8 +653,72 @@ async function loadEvaluations() {
   }
 }
 
+// --- Automatic health-monitor scan ---------------------------------------------------------
+//
+// Upstream contract change -> health monitor detects an untrusted data product -> incident
+// created automatically -> diagnosed -> a bounded repair is generated automatically (for
+// SOURCE_CONTRACT_CHANGE only -- see src.data_ops.AUTO_APPROVED_CATEGORIES) -> Spark reruns
+// against isolated candidate data -> validators/tests run -> VERIFIED_PENDING_PR -> a human
+// accepts or rejects (Repairs tab). Polling is safe to leave running: a pipeline with an
+// already-pending candidate is reported, not re-diagnosed, so repeated polling only spends a
+// real model call once per newly-detected incident, not once per poll tick.
+
+const AUTO_SCAN_INTERVAL_MS = 25000;
+
+function _visibleTabName() {
+  const visible = document.querySelector(".tab-panel:not(.hidden)");
+  return visible ? visible.id.replace("tab-", "") : null;
+}
+
+let _autoScanInFlight = false;
+
+async function runAutoScan() {
+  if (_autoScanInFlight) return; // a scan (e.g. diagnosing a real incident) can take minutes --
+  _autoScanInFlight = true; // never let a 25s poll tick overlap a still-running one.
+  const banner = document.getElementById("auto-scan-banner");
+  try {
+    const useScriptedModel = document.getElementById("use-scripted-model").checked;
+    const res = await fetch("/api/incidents/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ use_scripted_model: useScriptedModel }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      banner.textContent = `Health monitor check failed: ${data.detail || res.statusText}`;
+      banner.className = "banner bad";
+      return;
+    }
+    const results = data.results || [];
+    const newlyPending = results.filter((r) => r.status === "pending_review");
+
+    estateCache = null;
+    loadHealth();
+    const visibleTab = _visibleTabName();
+    if (visibleTab && TAB_LOADERS[visibleTab]) TAB_LOADERS[visibleTab]();
+
+    if (newlyPending.length) {
+      banner.textContent = `Health monitor: ${newlyPending.length} new candidate repair(s) generated -- review in the Repairs tab.`;
+      banner.className = "banner bad";
+    } else if (results.length) {
+      banner.textContent = `Health monitor: ${results.length} data product(s) need attention.`;
+      banner.className = "banner bad";
+    } else {
+      banner.textContent = "Health monitor: all data products trusted.";
+      banner.className = "banner ok";
+    }
+  } catch (err) {
+    banner.textContent = "Health monitor: could not reach the API.";
+    banner.className = "banner bad";
+  } finally {
+    _autoScanInFlight = false;
+  }
+}
+
 // --- Init -------------------------------------------------------------------------------
 
 loadHealth();
 loadOverview();
 populatePipelineSelects();
+runAutoScan();
+setInterval(runAutoScan, AUTO_SCAN_INTERVAL_MS);

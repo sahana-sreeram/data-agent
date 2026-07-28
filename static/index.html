@@ -10,6 +10,12 @@
 <header>
   <h1>Data Operations Console</h1>
   <div id="health-banner" class="banner">Checking pipeline health...</div>
+  <div id="auto-scan-banner" class="banner">Health monitor starting...</div>
+  <label class="checkbox-label" id="use-scripted-model-label">
+    <input type="checkbox" id="use-scripted-model" checked />
+    Scripted model (instant, no API cost -- governs the health monitor and the "check one data
+    product directly" form; loan_portfolio contract-change scenario only)
+  </label>
   <nav id="tab-nav">
     <button class="tab-button active" data-tab="overview">Overview</button>
     <button class="tab-button" data-tab="data-products">Data Products</button>

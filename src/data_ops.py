@@ -18,7 +18,9 @@ lifecycle, narrated, from either a business question or a direct data-product na
 from __future__ import annotations
 
 import argparse
+import importlib
 import os
+import subprocess
 
 from src.ask_lifecycle import (
     ANSWER_MODEL_ENV_VAR,
@@ -31,7 +33,7 @@ from src.context_retriever import ContextRetriever
 from src.context_store.file_store import FileContextStore
 from src.lifecycle_answer_models import AnswerValidationError
 from src.lifecycle_business_agent import LifecycleBusinessAgentError
-from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
+from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
 from src.storage import S3Storage, StorageError
 
@@ -335,6 +337,13 @@ def run_incident_response(
     candidate_answer = None
     verification = heal.get("repair_verification") or {}
     if mode == "create_pr" and verification.get("verification_status") == "VERIFIED_PENDING_PR":
+        # Persisted the same way an auto-detected candidate is (see auto_scan_and_repair
+        # below) -- so accept/reject works uniformly regardless of whether a human manually
+        # triggered this check or a health-monitor scan found it first.
+        storage.write_json(
+            _pending_repair_key(pipeline_name),
+            {"pipeline_name": pipeline_name, "status": "pending_review", "pr_artifact": verification.get("pr_artifact"), "diagnosis": heal.get("diagnosis")},
+        )
         question = f"What is the current state of {pipeline_name}?"
         try:
             candidate_answer = answer_from_candidate(
@@ -351,6 +360,176 @@ def run_incident_response(
             print(f"  {candidate_answer['answer_summary']}")
 
     return {"pipeline_name": pipeline_name, "self_heal": heal, "candidate_answer": candidate_answer}
+
+
+# --- Automatic detection + human accept/reject -----------------------------------------------
+#
+# Everything above requires an operator to explicitly trigger an incident check. This section
+# is the automatic version: a health-monitor-style scan that finds an untrusted data product,
+# runs diagnosis, and -- for the one root-cause category this system has a real, narrow,
+# pre-approved remediation path for (SOURCE_CONTRACT_CHANGE -> a pipeline-owned config
+# pointer, never the shared business_rules.json or an ETL source file) -- generates a
+# candidate repair automatically, without a human approving that step. The human checkpoint
+# moves to the END instead: nothing is promoted until a human explicitly accepts the
+# resulting VERIFIED_PENDING_PR candidate (a real, local `git merge`, never pushed) or
+# rejects it (discards the candidate branch). Generating a candidate is safe to automate
+# because it never leaves the sandbox; merging into main is not, so that step stays manual.
+#
+# This auto-approval is deliberately narrow: it does NOT extend to any other normally-refused
+# category (LOW confidence, INSUFFICIENT_EVIDENCE, or any root_cause_category besides
+# SOURCE_CONTRACT_CHANGE) -- there is no equivalent safe, pre-approved fix registered for
+# those, so they still stop at HUMAN_REVIEW_REQUIRED with no candidate generated at all.
+
+AUTO_APPROVED_CATEGORIES = frozenset({"SOURCE_CONTRACT_CHANGE"})
+PIPELINE_RUN_KEY = "curated/pipeline_run.json"
+
+
+def _pending_repair_key(pipeline_name: str) -> str:
+    return f"curated/pending_repairs/{pipeline_name}.json"
+
+
+def list_pending_repairs(storage: S3Storage) -> list[dict]:
+    """Every data product with a candidate repair currently awaiting a human accept/reject
+    decision -- persisted so the console doesn't need to rescan to show what's pending."""
+    pending = []
+    for pipeline_name in sorted(PIPELINE_REGISTRY):
+        key = _pending_repair_key(pipeline_name)
+        if storage.exists(key):
+            pending.append(storage.read_json(key))
+    return pending
+
+
+def auto_scan_and_repair(
+    storage: S3Storage, diagnosis_model_client_factory, repair_model_client_factory=None, pipeline_names: frozenset[str] | None = None
+) -> list[dict]:
+    """The health-monitor scan: for every untrusted data product without an existing pending
+    candidate, run the incident-response lifecycle with SOURCE_CONTRACT_CHANGE pre-approved
+    (see module note above). Idempotent per pipeline -- a pipeline with an already-pending
+    candidate is reported as such, never re-diagnosed/re-repaired on every scan (that would
+    both waste real model calls and spawn a fresh git branch each time). A pipeline that's
+    healthy but has a stale pending record (e.g. fixed by some other means) has that record
+    cleared. Returns one result dict per pipeline this scan actually looked at (skips
+    pipelines that are healthy with no stale record -- nothing to report).
+
+    pipeline_names, when given, restricts the scan to just those pipelines -- e.g. a scripted
+    (no-API-cost) model client is only valid for the one scenario it's built for (see
+    src.api._require_scripted_model_eligible); every existing caller passes None (scan
+    everything), unaffected."""
+    results = []
+    for row in data_product_estate(storage):
+        pipeline_name = row["pipeline_name"]
+        if pipeline_names is not None and pipeline_name not in pipeline_names:
+            continue
+        pending_key = _pending_repair_key(pipeline_name)
+        is_trustworthy = row["etl_status"] == "SUCCESS" and row["validation_status"] == "PASS"
+
+        if is_trustworthy:
+            if storage.exists(pending_key):
+                storage.delete(pending_key)
+                results.append({"pipeline_name": pipeline_name, "status": "resolved_externally"})
+            continue
+
+        if storage.exists(pending_key):
+            results.append({"pipeline_name": pipeline_name, "status": "already_pending", "pending": storage.read_json(pending_key)})
+            continue
+
+        _section(f"AUTO-DETECTED INCIDENT: {pipeline_name}")
+        heal = _attempt_self_heal(
+            pipeline_name,
+            storage,
+            diagnosis_model_client_factory,
+            mode="create_pr",
+            human_approved_categories=AUTO_APPROVED_CATEGORIES,
+            repair_model_client_factory=repair_model_client_factory,
+        )
+        _print_heal(pipeline_name, heal, "create_pr")
+        verification = heal.get("repair_verification") or {}
+
+        if verification.get("verification_status") == "VERIFIED_PENDING_PR":
+            pending_record = {
+                "pipeline_name": pipeline_name,
+                "status": "pending_review",
+                "pr_artifact": verification.get("pr_artifact"),
+                "diagnosis": heal.get("diagnosis"),
+            }
+            storage.write_json(pending_key, pending_record)
+            results.append(pending_record)
+        else:
+            results.append(
+                {
+                    "pipeline_name": pipeline_name,
+                    "status": verification.get("verification_status", "NOT_VERIFIED"),
+                    "diagnosis": heal.get("diagnosis"),
+                    "summary": verification.get("summary"),
+                }
+            )
+    return results
+
+
+def accept_repair(pipeline_name: str, branch: str, storage: S3Storage, spark) -> dict:
+    """A human explicitly accepting a VERIFIED_PENDING_PR candidate: a real, local `git
+    merge` of its branch into the current branch (never pushed to GitHub -- matches this
+    project's "no real GitHub PR publication" boundary), then a real rerun of this pipeline's
+    ETL/validation so the accepted change actually takes effect in the live environment --
+    merging alone would leave real curated data reflecting the pre-fix state until rerun.
+    Never automatic; only ever called in direct response to an explicit human action."""
+    _section(f"ACCEPT REPAIR: {pipeline_name} ({branch})")
+    try:
+        subprocess.run(
+            ["git", "merge", "--no-ff", branch, "-m", f"Merge {branch}: accept repair for {pipeline_name}"],
+            check=True, capture_output=True, text=True, timeout=30,
+        )
+    except subprocess.CalledProcessError as exc:
+        return {"accepted": False, "pipeline_name": pipeline_name, "branch": branch, "error": f"git merge failed: {exc.stderr.strip()}"}
+    except subprocess.TimeoutExpired:
+        return {"accepted": False, "pipeline_name": pipeline_name, "branch": branch, "error": "git merge timed out"}
+    subprocess.run(["git", "branch", "-d", branch], capture_output=True, timeout=30)
+
+    from src.migrate_lifecycle_to_s3 import migrate_context
+
+    migrate_context(storage)  # re-sync the just-merged context files (e.g. a repointed config) to S3
+
+    spec = PIPELINE_REGISTRY[pipeline_name]
+    business_rules = storage.read_json("context/business_rules.json")
+    pipeline_configuration_file = getattr(spec, "pipeline_configuration_file", None)
+    if pipeline_configuration_file and storage.exists(pipeline_configuration_file):
+        pointer = storage.read_json(pipeline_configuration_file)
+        business_rules_file = pointer.get("business_rules_file")
+        if business_rules_file and storage.exists(business_rules_file):
+            business_rules = storage.read_json(business_rules_file)
+
+    module = importlib.import_module(spec.etl_source_file.replace("/", ".").removesuffix(".py"))
+    outputs = spec.run_etl(module, spark, business_rules, DEFAULT_AS_OF_DATE)
+    for key, df in outputs.items():
+        storage.write_parquet(key, df)
+    validation_rules = storage.read_json(spec.validation_rules_key)
+    validation = spec.run_validate(storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
+
+    pipeline_run = storage.read_json(PIPELINE_RUN_KEY) if storage.exists(PIPELINE_RUN_KEY) else {"pipelines": {}}
+    pipeline_run.setdefault("pipelines", {})[pipeline_name] = {
+        "etl_status": "SUCCESS", "etl_error": None,
+        "validation_status": validation["overall_status"], "validation_error": None,
+    }
+    pipeline_run["overall_status"] = (
+        "SUCCESS" if all(r.get("etl_status") == "SUCCESS" and r.get("validation_status") == "PASS" for r in pipeline_run["pipelines"].values())
+        else "FAILURE"
+    )
+    storage.write_json(PIPELINE_RUN_KEY, pipeline_run)
+    storage.delete(_pending_repair_key(pipeline_name))
+
+    print(f"  merged {branch} into main; {pipeline_name} rerun for real against the accepted change: validation_status={validation['overall_status']}")
+    return {"accepted": True, "pipeline_name": pipeline_name, "branch": branch, "validation_status": validation["overall_status"]}
+
+
+def reject_repair(pipeline_name: str, branch: str, storage: S3Storage) -> dict:
+    """A human explicitly rejecting a candidate: discard its branch, clear the pending
+    record. The real repository was never touched by the candidate in the first place."""
+    _section(f"REJECT REPAIR: {pipeline_name} ({branch})")
+    result = subprocess.run(["git", "branch", "-D", branch], capture_output=True, text=True, timeout=30)
+    rejected = result.returncode == 0
+    storage.delete(_pending_repair_key(pipeline_name))
+    print(f"  {'discarded' if rejected else 'failed to discard'} candidate branch {branch}")
+    return {"rejected": rejected, "pipeline_name": pipeline_name, "branch": branch, "detail": (result.stderr or result.stdout or "").strip()}
 
 
 def _default_model_client_factory() -> DiagnosisModelClient:
