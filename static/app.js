@@ -29,9 +29,7 @@ function fmtBytes(n) {
 const TAB_LOADERS = {
   overview: loadOverview,
   "data-products": loadDataProducts,
-  context: loadContextTab,
   repairs: loadRepairsTab,
-  evaluations: loadEvaluations,
 };
 
 function switchTab(tabName) {
@@ -77,115 +75,7 @@ async function loadHealth() {
   }
 }
 
-// --- Shared renderers (answer / diagnosis / repair / verification stages) ---------------
-
-function renderAnswer(container, answer) {
-  clear(container);
-  const badge = el("span", { className: `status-badge ${answer.answer_status}`, text: answer.answer_status });
-  container.appendChild(badge);
-  container.appendChild(el("p", { text: answer.answer_summary }));
-
-  if (answer.cited_metrics && answer.cited_metrics.length) {
-    const table = el("table");
-    const thead = el("tr", {
-      children: [el("th", { text: "Metric" }), el("th", { text: "Value" }), el("th", { text: "Source" })],
-    });
-    table.appendChild(el("thead", { children: [thead] }));
-    const tbody = el("tbody");
-    for (const m of answer.cited_metrics) {
-      tbody.appendChild(
-        el("tr", {
-          children: [
-            el("td", { text: m.metric_name }),
-            el("td", { text: String(m.value) }),
-            el("td", { text: m.source_reference }),
-          ],
-        })
-      );
-    }
-    table.appendChild(tbody);
-    container.appendChild(table);
-  }
-
-  if (answer.caveats && answer.caveats.length) {
-    const ul = el("ul", { className: "caveats" });
-    for (const c of answer.caveats) ul.appendChild(el("li", { text: c }));
-    container.appendChild(ul);
-  }
-}
-
-function stageStatus(text, good) {
-  return el("span", { className: `stage-status ${good ? "good" : "bad"}`, text });
-}
-
-function renderDiagnosisStage(diagnosis) {
-  const stage = el("div", { className: "stage" });
-  stage.appendChild(el("div", { className: "stage-label", text: "Diagnosis" }));
-  if (!diagnosis) {
-    stage.appendChild(el("p", { text: "(no diagnosis produced -- see verification summary)" }));
-    return stage;
-  }
-  const ok = diagnosis.diagnosis_status === "DIAGNOSED";
-  stage.appendChild(document.createTextNode(diagnosis.diagnosis_status || "UNKNOWN"));
-  stage.appendChild(stageStatus(diagnosis.root_cause_category || "", ok));
-  if (diagnosis.root_cause) stage.appendChild(el("p", { text: diagnosis.root_cause }));
-  if (diagnosis.confidence) stage.appendChild(el("p", { text: `Confidence: ${diagnosis.confidence}` }));
-  if (diagnosis.evidence && diagnosis.evidence.length) {
-    const evidenceWrap = el("div");
-    for (const e of diagnosis.evidence) {
-      const item = el("div", { className: "evidence-item" });
-      item.appendChild(el("span", { className: "source", text: `[${e.source_type}/${e.source_reference}] ` }));
-      item.appendChild(document.createTextNode(e.finding || ""));
-      if (e.expected !== null && e.expected !== undefined) {
-        item.appendChild(el("div", { text: `expected: ${e.expected}  actual: ${e.actual}` }));
-      }
-      evidenceWrap.appendChild(item);
-    }
-    stage.appendChild(evidenceWrap);
-  }
-  return stage;
-}
-
-function renderRepairStage(repairResult, repairPlan) {
-  const stage = el("div", { className: "stage" });
-  stage.appendChild(el("div", { className: "stage-label", text: "Repair" }));
-  if (!repairResult) {
-    stage.appendChild(el("p", { text: "(no repair attempted)" }));
-    return stage;
-  }
-  const ok = repairResult.repair_status === "APPLIED";
-  stage.appendChild(document.createTextNode(repairResult.repair_status || "UNKNOWN"));
-  stage.appendChild(stageStatus(repairResult.repair_type || "", ok));
-  if (repairResult.target_file) stage.appendChild(el("p", { text: `Target: ${repairResult.target_file}` }));
-  if (repairResult.application_details) stage.appendChild(el("p", { text: repairResult.application_details }));
-  const diff = repairPlan && repairPlan.patch && repairPlan.patch.content;
-  if (typeof diff === "string") {
-    stage.appendChild(el("pre", { className: "diff", text: diff }));
-  }
-  return stage;
-}
-
-function renderVerificationStage(verification) {
-  const stage = el("div", { className: "stage" });
-  stage.appendChild(el("div", { className: "stage-label", text: "Verification" }));
-  const ok = verification.verification_status === "VERIFIED" || verification.verification_status === "VERIFIED_PENDING_PR";
-  stage.appendChild(document.createTextNode(verification.verification_status || "UNKNOWN"));
-  stage.appendChild(stageStatus(ok ? (verification.verification_status === "VERIFIED" ? "PROMOTED" : "PENDING REVIEW") : "NOT VERIFIED", ok));
-  if (verification.tests) {
-    stage.appendChild(
-      el("p", { text: `Tests: targeted=${verification.tests.targeted}, full=${verification.tests.full_relevant_suite}` })
-    );
-  }
-  if (verification.failed_checks_before || verification.failed_checks_after) {
-    stage.appendChild(
-      el("p", {
-        text: `Failed checks before: [${(verification.failed_checks_before || []).join(", ")}] -> after: [${(verification.failed_checks_after || []).join(", ")}]`,
-      })
-    );
-  }
-  if (verification.summary) stage.appendChild(el("p", { text: verification.summary }));
-  return stage;
-}
+// --- Repairs tab: pending candidates awaiting a human accept/reject decision --------------
 
 async function decideRepair(pipelineName, branch, decision, statusBox) {
   if (decision === "accept") {
@@ -218,9 +108,7 @@ async function decideRepair(pipelineName, branch, decision, statusBox) {
 function renderPrArtifact(container, prArtifact, opts = {}) {
   clear(container);
   if (!prArtifact) {
-    container.appendChild(
-      el("p", { className: "muted", text: "No PR-ready review package yet -- run an incident investigation with an approved repair that reaches VERIFIED_PENDING_PR." })
-    );
+    container.appendChild(el("p", { className: "muted", text: "No PR-ready review package yet." }));
     return;
   }
   const header = el("div", { className: "pr-header" });
@@ -264,8 +152,6 @@ function renderPrArtifact(container, prArtifact, opts = {}) {
   }
 }
 
-// --- Repairs tab: pending candidates awaiting a human accept/reject decision --------------
-
 async function loadRepairsTab() {
   const box = document.getElementById("repairs-content");
   try {
@@ -275,9 +161,7 @@ async function loadRepairsTab() {
     clear(box);
     const pending = data.pending || [];
     if (!pending.length) {
-      box.appendChild(
-        el("p", { className: "muted", text: "No repairs pending review. The health monitor (Incidents tab) checks automatically, or trigger a check directly." })
-      );
+      box.appendChild(el("p", { className: "muted", text: "No repairs pending review." }));
       return;
     }
     for (const record of pending) {
@@ -392,276 +276,15 @@ async function loadDataProducts() {
   }
 }
 
-// --- Context tab ----------------------------------------------------------------------
-
-async function populatePipelineSelects() {
-  try {
-    const data = await fetchEstate();
-    const names = (data.pipelines || []).map((r) => r.pipeline_name);
-    for (const selectId of ["context-pipeline-select", "incident-pipeline-select"]) {
-      const select = document.getElementById(selectId);
-      if (!select || select.options.length) continue;
-      for (const name of names) select.appendChild(el("option", { text: name, attrs: { value: name } }));
-    }
-  } catch (err) {
-    // Selects stay empty; the tabs that need them will surface their own errors on use.
-  }
-}
-
-async function loadContextTab() {
-  await populatePipelineSelects();
-  const select = document.getElementById("context-pipeline-select");
-  if (select.value) loadContextDetail(select.value);
-}
-
-async function loadContextDetail(pipelineName) {
-  const errorBox = document.getElementById("context-error");
-  errorBox.classList.add("hidden");
-  try {
-    const res = await fetch(`/api/context/${encodeURIComponent(pipelineName)}`);
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || `request failed (${res.status})`);
-
-    const metricsBox = document.getElementById("context-metrics");
-    clear(metricsBox);
-    for (const m of data.metrics || []) {
-      const row = el("div", { className: "metric-row" });
-      const line = el("div");
-      line.appendChild(document.createTextNode(m.metric_name));
-      line.appendChild(el("span", { className: "provenance-badge", text: m.provenance }));
-      if (m.review_status) line.appendChild(el("span", { className: "provenance-badge", text: m.review_status }));
-      row.appendChild(line);
-      if (m.conflicts && m.conflicts.length) {
-        row.appendChild(el("div", { className: "conflict-note", text: `${m.conflicts.length} open context conflict(s)` }));
-      }
-      metricsBox.appendChild(row);
-    }
-    if (!(data.metrics || []).length) metricsBox.appendChild(el("p", { className: "muted", text: "No metric definitions found." }));
-
-    const lineageBox = document.getElementById("context-lineage");
-    clear(lineageBox);
-    lineageBox.appendChild(el("p", { text: `Provenance: ${data.lineage.provenance}` }));
-    lineageBox.appendChild(el("pre", { className: "diff", text: JSON.stringify(data.lineage.value, null, 2) }));
-
-    const metadataBox = document.getElementById("context-pipeline-metadata");
-    clear(metadataBox);
-    metadataBox.appendChild(el("p", { text: `Provenance: ${data.pipeline_metadata.provenance}` }));
-    metadataBox.appendChild(el("pre", { className: "diff", text: JSON.stringify(data.pipeline_metadata.value, null, 2) }));
-
-    const healthBox = document.getElementById("context-health");
-    clear(healthBox);
-    healthBox.appendChild(el("p", { text: `Provenance: ${data.runtime_health.provenance}` }));
-    healthBox.appendChild(el("pre", { className: "diff", text: JSON.stringify(data.runtime_health.value, null, 2) }));
-  } catch (err) {
-    errorBox.textContent = `Could not load context for ${pipelineName}: ${err.message}`;
-    errorBox.classList.remove("hidden");
-  }
-}
-
-document.getElementById("context-pipeline-select").addEventListener("change", (event) => {
-  if (event.target.value) loadContextDetail(event.target.value);
-});
-
-// --- Incidents tab -------------------------------------------------------------------------
-
-let lastIncidentResult = null;
-
-function renderIncidentAnswer(result) {
-  const box = document.getElementById("incident-answer-block");
-  if (result.answer) {
-    renderAnswer(box, result.answer);
-    if (result.corrected_answer) {
-      document.getElementById("incident-candidate-card").className = "card corrected";
-      renderAnswer(document.getElementById("incident-candidate-block"), result.corrected_answer);
-      document.getElementById("incident-candidate-card").querySelector("h2").textContent = "Corrected (promoted) answer";
-    }
-  } else {
-    // pipeline_name path -- no natural-language answer, just the trust check outcome.
-    clear(box);
-    const trustworthy = !result.self_heal;
-    box.appendChild(
-      el("span", { className: `status-badge ${trustworthy ? "ANSWERED" : "UNRELIABLE_DATA"}`, text: trustworthy ? "TRUSTED" : "INCIDENT" })
-    );
-    box.appendChild(el("p", { text: `${result.pipeline_name}: ${trustworthy ? "trust check passed, no incident." : "trust check failed -- see incident response below."}` }));
-  }
-
-  if (result.candidate_answer) {
-    document.getElementById("incident-candidate-card").className = "card corrected";
-    document.getElementById("incident-candidate-card").querySelector("h2").textContent = "Corrected candidate result (unpromoted)";
-    renderAnswer(document.getElementById("incident-candidate-block"), result.candidate_answer);
-  } else if (!result.corrected_answer) {
-    document.getElementById("incident-candidate-card").className = "card corrected hidden";
-  }
-}
-
-function renderIncidentSelfHeal(selfHeal) {
-  const card = document.getElementById("incident-self-heal-card");
-  const container = document.getElementById("incident-self-heal");
-  if (!selfHeal) {
-    card.className = "card hidden";
-    return;
-  }
-  card.className = "card";
-  clear(container);
-  // pipeline_name path: a single heal dict (has repair_verification directly).
-  // question path: {pipeline_name: heal_dict, ...}.
-  const entries = selfHeal.repair_verification !== undefined ? [[null, selfHeal]] : Object.entries(selfHeal);
-  for (const [pipelineName, heal] of entries) {
-    const block = el("div", { className: "pipeline-block" });
-    if (pipelineName) block.appendChild(el("h3", { text: pipelineName }));
-    block.appendChild(renderDiagnosisStage(heal.diagnosis));
-    block.appendChild(renderRepairStage(heal.repair_result, heal.repair_plan));
-    block.appendChild(renderVerificationStage(heal.repair_verification || {}));
-    container.appendChild(block);
-  }
-}
-
-function renderIncidentResult(result) {
-  lastIncidentResult = result;
-
-  document.getElementById("incident-relevant-card").className =
-    result.relevant_pipelines && result.relevant_pipelines.length ? "card" : "card hidden";
-  if (result.relevant_pipelines) {
-    const box = document.getElementById("incident-relevant-pipelines");
-    clear(box);
-    for (const p of result.relevant_pipelines) box.appendChild(el("span", { className: "chip", text: p }));
-  }
-
-  const failures = result.validation_failures || {};
-  const failuresCard = document.getElementById("incident-validation-failures-card");
-  if (Object.keys(failures).length) {
-    failuresCard.className = "card";
-    const box = document.getElementById("incident-validation-failures");
-    clear(box);
-    for (const [pipeline, checks] of Object.entries(failures)) {
-      const block = el("div", { className: "pipeline-block" });
-      block.appendChild(el("h3", { text: pipeline }));
-      const ul = el("ul");
-      for (const c of checks) ul.appendChild(el("li", { text: c }));
-      block.appendChild(ul);
-      box.appendChild(block);
-    }
-  } else {
-    failuresCard.className = "card hidden";
-  }
-
-  renderIncidentAnswer(result);
-  renderIncidentSelfHeal(result.self_heal);
-
-  document.getElementById("incident-results").classList.remove("hidden");
-
-  // Keep the Repairs tab in sync with whatever this incident produced -- it's persisted as a
-  // pending repair the same way an auto-detected one is, so this just re-reads that list.
-  loadRepairsTab();
-}
-
-async function runIncident(body) {
-  const spinner = document.getElementById("incident-spinner");
-  const errorBox = document.getElementById("incident-error");
-  const results = document.getElementById("incident-results");
-  const buttons = document.querySelectorAll("#incident-question-form button, #incident-pipeline-form button");
-
-  spinner.classList.remove("hidden");
-  errorBox.classList.add("hidden");
-  results.classList.add("hidden");
-  for (const b of buttons) b.disabled = true;
-
-  try {
-    const res = await fetch("/api/incident", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      errorBox.textContent = data.detail || `Request failed (${res.status})`;
-      errorBox.classList.remove("hidden");
-      return;
-    }
-    renderIncidentResult(data);
-    loadHealth();
-    estateCache = null; // the estate may have changed (e.g. auto_promote) -- refetch next time
-  } catch (err) {
-    errorBox.textContent = "Could not reach the API.";
-    errorBox.classList.remove("hidden");
-  } finally {
-    spinner.classList.add("hidden");
-    for (const b of buttons) b.disabled = false;
-  }
-}
-
-document.getElementById("incident-question-form").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const question = document.getElementById("incident-question-input").value.trim();
-  if (question) runIncident({ question, mode: "create_pr" });
-});
-
-document.getElementById("incident-pipeline-form").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const pipelineName = document.getElementById("incident-pipeline-select").value;
-  if (!pipelineName) return;
-  const mode = document.getElementById("incident-mode-select").value;
-  const approveOverride = document.getElementById("approve-source-contract-change").checked;
-  runIncident({
-    pipeline_name: pipelineName,
-    mode,
-    approve_categories: approveOverride ? ["SOURCE_CONTRACT_CHANGE"] : [],
-    use_scripted_model: document.getElementById("use-scripted-model").checked && pipelineName === "loan_portfolio",
-  });
-});
-
-// --- Evaluations tab ------------------------------------------------------------------
-
-const EVAL_BUCKET_LABELS = {
-  deterministic: "Deterministic (no model, no real infrastructure)",
-  real_infrastructure: "Real infrastructure (real S3/Spark, no model)",
-  scripted_model: "Scripted-model (full agent loop, zero API cost)",
-  live_model: "Live-model (real OpenAI calls)",
-};
-
-function renderEvalBucket(container, name, bucket) {
-  const section = el("div", { className: "pipeline-block" });
-  section.appendChild(el("h3", { text: EVAL_BUCKET_LABELS[name] || name }));
-  if (!bucket || !bucket.available) {
-    section.appendChild(el("p", { className: "muted", text: "Not available -- nothing real has been measured for this category yet." }));
-    container.appendChild(section);
-    return;
-  }
-  for (const [key, value] of Object.entries(bucket)) {
-    if (key === "available" || key === "source") continue;
-    section.appendChild(el("p", { text: `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}` }));
-  }
-  if (bucket.source) section.appendChild(el("p", { className: "muted", text: bucket.source }));
-  container.appendChild(section);
-}
-
-async function loadEvaluations() {
-  const box = document.getElementById("evaluations-content");
-  try {
-    const res = await fetch("/api/evaluations");
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || `request failed (${res.status})`);
-    clear(box);
-    box.appendChild(
-      el("p", { className: "muted", text: "These four categories are never merged into a single success rate." })
-    );
-    for (const name of ["deterministic", "real_infrastructure", "scripted_model", "live_model"]) {
-      renderEvalBucket(box, name, data[name]);
-    }
-  } catch (err) {
-    box.textContent = `Could not load evaluations: ${err.message}`;
-  }
-}
-
 // --- Automatic health-monitor scan ---------------------------------------------------------
 //
-// Upstream contract change -> health monitor detects an untrusted data product -> incident
-// created automatically -> diagnosed -> a bounded repair is generated automatically (for
-// SOURCE_CONTRACT_CHANGE only -- see src.data_ops.AUTO_APPROVED_CATEGORIES) -> Spark reruns
-// against isolated candidate data -> validators/tests run -> VERIFIED_PENDING_PR -> a human
-// accepts or rejects (Repairs tab). Polling is safe to leave running: a pipeline with an
-// already-pending candidate is reported, not re-diagnosed, so repeated polling only spends a
-// real model call once per newly-detected incident, not once per poll tick.
+// Health monitor detects an untrusted data product -> incident created automatically ->
+// diagnosed -> a bounded repair is generated automatically (for SOURCE_CONTRACT_CHANGE only
+// -- see src.data_ops.AUTO_APPROVED_CATEGORIES) -> Spark reruns against isolated candidate
+// data -> validators/tests run -> VERIFIED_PENDING_PR -> a human accepts or rejects (Repairs
+// tab). Polling is safe to leave running: a pipeline with an already-pending candidate is
+// reported, not re-diagnosed, so repeated polling only spends a real model call once per
+// newly-detected incident, not once per poll tick.
 
 const AUTO_SCAN_INTERVAL_MS = 25000;
 
@@ -719,6 +342,5 @@ async function runAutoScan() {
 
 loadHealth();
 loadOverview();
-populatePipelineSelects();
 runAutoScan();
 setInterval(runAutoScan, AUTO_SCAN_INTERVAL_MS);

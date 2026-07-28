@@ -168,9 +168,19 @@ def test_configuration_change_target_applies_in_isolation(tmp_path):
     REAL repair_targets.json (default repair_targets_file) since this target is real,
     checked-in registry data, not a test fixture."""
     target_file = "context/pipeline_rules/loan_portfolio.json"
+    # Whichever of the two registered allowed_values this pipeline's real, currently-checked-in
+    # pointer does NOT already say -- this file is a genuine, mutable CONFIGURATION_CHANGE
+    # repair target (see context/repair_targets.json), so a previously-accepted repair may
+    # have already flipped it for real; hardcoding one direction would make this test flaky
+    # relative to the repo's actual current state instead of testing the real behavior.
+    original_content = Path(target_file).read_text()
+    current_value = json.loads(original_content)["business_rules_file"]
+    allowed_values = ("context/business_rules.json", "context/business_rules_settled_adopted.json")
+    new_value = next(v for v in allowed_values if v != current_value)
+
     diagnosis = _diagnosis(
         root_cause_category="SOURCE_CONTRACT_CHANGE",
-        recommended_fix={"target_file": target_file, "change_summary": "point at the adopted ruleset", "scope": "MINIMAL"},
+        recommended_fix={"target_file": target_file, "change_summary": f"point at {new_value}", "scope": "MINIMAL"},
     )
     submission = {
         "repair_decision": "PROPOSE_REPAIR",
@@ -180,12 +190,12 @@ def test_configuration_change_target_applies_in_isolation(tmp_path):
         "root_cause_addressed": "x",
         "target_file": target_file,
         "target_symbol_or_setting": "business_rules_file",
-        "current_behavior": "reads context/business_rules.json",
-        "proposed_behavior": "reads context/business_rules_settled_adopted.json",
-        "change_description": "point business_rules_file at the adopted ruleset",
+        "current_behavior": f"reads {current_value}",
+        "proposed_behavior": f"reads {new_value}",
+        "change_description": f"point business_rules_file at {new_value}",
         "patch": {
             "format": "STRUCTURED_CONFIG_EDIT",
-            "content": {"operations": [{"field": "business_rules_file", "value": "context/business_rules_settled_adopted.json"}]},
+            "content": {"operations": [{"field": "business_rules_file", "value": new_value}]},
         },
         "files_expected_to_change": [target_file],
         "files_expected_not_to_change": ["context/business_rules.json"],
@@ -196,7 +206,6 @@ def test_configuration_change_target_applies_in_isolation(tmp_path):
         "evidence_references": ["get_relevant_etl_source"],
     }
     responses = [ModelResponse(tool_calls=[ToolCall(id="1", name=SUBMIT_REPAIR_PLAN_TOOL_NAME, arguments=submission)])]
-    original_content = Path(target_file).read_text()
 
     plan_dict, result = run_apply_lifecycle_repair(
         PIPELINE_NAME,
@@ -213,7 +222,7 @@ def test_configuration_change_target_applies_in_isolation(tmp_path):
 
     workspace_dir = Path(result["workspace_dir"])
     patched = json.loads((workspace_dir / target_file).read_text())
-    assert patched["business_rules_file"] == "context/business_rules_settled_adopted.json"
+    assert patched["business_rules_file"] == new_value
 
 
 def test_eligible_incident_applies_code_change_in_isolation(tmp_path):

@@ -37,34 +37,10 @@ main { max-width: 900px; margin: 0 auto; padding: 1.5rem 2rem; }
   background: var(--card-bg);
   border: 1px solid var(--border);
   color: var(--muted);
+  margin-right: 0.5rem;
 }
 .banner.ok { color: var(--good); border-color: var(--good); }
 .banner.bad { color: var(--bad); border-color: var(--bad); }
-
-#ask-form { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-#question-input {
-  flex: 1;
-  padding: 0.6rem 0.8rem;
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 1rem;
-}
-#ask-button {
-  padding: 0.6rem 1.2rem;
-  background: var(--accent);
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
-#ask-button:disabled { opacity: 0.5; cursor: default; }
-
-.spinner, .error { margin: 1rem 0; padding: 0.75rem 1rem; border-radius: 6px; }
-.spinner { background: var(--card-bg); color: var(--muted); border: 1px solid var(--border); }
-.error { background: #3a1f1f; color: var(--bad); border: 1px solid var(--bad); }
 
 .hidden { display: none !important; }
 
@@ -79,24 +55,9 @@ main { max-width: 900px; margin: 0 auto; padding: 1.5rem 2rem; }
 .card.corrected { border-color: var(--good); }
 .card.corrected h2 { color: var(--good); }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.status-badge.ANSWERED { background: rgba(53, 195, 122, 0.15); color: var(--good); }
-.status-badge.UNRELIABLE_DATA { background: rgba(229, 83, 75, 0.15); color: var(--bad); }
-.status-badge.INSUFFICIENT_DATA { background: rgba(224, 168, 0, 0.15); color: var(--warn); }
-
 table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; font-size: 0.9rem; }
 th, td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 500; }
-
-.caveats { margin-top: 0.5rem; color: var(--muted); font-size: 0.85rem; }
-.caveats li { margin-bottom: 0.2rem; }
 
 .chip {
   display: inline-block;
@@ -107,6 +68,7 @@ th { color: var(--muted); font-weight: 500; }
   color: var(--accent);
   font-size: 0.85rem;
 }
+.chip.warn { background: rgba(224, 168, 0, 0.15); color: var(--warn); }
 
 .pipeline-block {
   border: 1px solid var(--border);
@@ -115,20 +77,6 @@ th { color: var(--muted); font-weight: 500; }
   margin-bottom: 0.75rem;
 }
 .pipeline-block h3 { margin: 0 0 0.5rem; font-size: 0.95rem; }
-.stage {
-  margin: 0.4rem 0;
-  padding-left: 0.75rem;
-  border-left: 2px solid var(--border);
-}
-.stage .stage-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
-.stage-status {
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-left: 0.4rem;
-}
-.stage-status.good { color: var(--good); }
-.stage-status.bad { color: var(--bad); }
 
 pre.diff {
   background: #0d0f13;
@@ -139,9 +87,6 @@ pre.diff {
   font-size: 0.8rem;
   white-space: pre-wrap;
 }
-
-.evidence-item { margin-bottom: 0.4rem; font-size: 0.85rem; }
-.evidence-item .source { color: var(--muted); }
 
 /* --- Console tab navigation ------------------------------------------------------------ */
 
@@ -163,23 +108,6 @@ pre.diff {
 .muted { color: var(--muted); }
 
 .inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.25rem; }
-.inline-form input[type="text"] {
-  flex: 1;
-  min-width: 220px;
-  padding: 0.6rem 0.8rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-  font-size: 1rem;
-}
-.inline-form select {
-  padding: 0.5rem 0.6rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text);
-}
 .inline-form button {
   padding: 0.6rem 1.2rem;
   background: var(--accent);
@@ -190,7 +118,7 @@ pre.diff {
   cursor: pointer;
 }
 .inline-form button:disabled { opacity: 0.5; cursor: default; }
-.checkbox-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.checkbox-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0; }
 
 /* --- Data product estate table ------------------------------------------------------- */
 
@@ -202,7 +130,6 @@ pre.diff {
 .risk-badge { padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
 .risk-badge.LOW { background: rgba(53, 195, 122, 0.15); color: var(--good); }
 .risk-badge.HIGH { background: rgba(229, 83, 75, 0.15); color: var(--bad); }
-.chip.warn { background: rgba(224, 168, 0, 0.15); color: var(--warn); }
 .production-unchanged-note {
   margin-top: 0.75rem;
   padding: 0.6rem 0.8rem;
@@ -211,18 +138,3 @@ pre.diff {
   color: var(--good);
   font-size: 0.85rem;
 }
-
-/* --- Context tab ------------------------------------------------------------------------ */
-
-.provenance-badge {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  margin-left: 0.4rem;
-  background: rgba(79, 140, 255, 0.15);
-  color: var(--accent);
-}
-.metric-row { border-bottom: 1px solid var(--border); padding: 0.5rem 0; }
-.metric-row:last-child { border-bottom: none; }
-.conflict-note { color: var(--warn); font-size: 0.85rem; margin-top: 0.2rem; }
