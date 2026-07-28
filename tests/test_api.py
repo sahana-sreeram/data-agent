@@ -160,33 +160,47 @@ def test_incident_delegates_to_run_incident_response(monkeypatch):
     assert seen["human_approved_categories"] == frozenset({"SOURCE_CONTRACT_CHANGE"})
 
 
-def test_evaluations_reports_unavailable_when_never_run(monkeypatch):
+def test_evaluations_reports_all_four_buckets_unavailable_when_nothing_has_run(monkeypatch):
     class _FakeStorage:
         def exists(self, path: str) -> bool:
             return False
 
+        def list_paths(self, prefix: str) -> list:
+            return []
+
     monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
 
     response = client.get("/api/evaluations")
 
     assert response.status_code == 200
-    assert response.json() == {"available": False}
+    body = response.json()
+    for bucket_name in ("deterministic", "real_infrastructure", "scripted_model", "live_model"):
+        assert body[bucket_name] == {"available": False}
 
 
-def test_evaluations_returns_the_latest_report(monkeypatch):
+def test_evaluations_folds_eval_harness_report_and_persisted_real_infra_result(monkeypatch):
     class _FakeStorage:
         def exists(self, path: str) -> bool:
-            return True
+            return path in ("curated/eval_report_latest.json", "curated/eval_report_bucketed_latest.json")
+
+        def list_paths(self, prefix: str) -> list:
+            return []
 
         def read_json(self, path: str) -> dict:
-            return {"summary": {"scenario_count": 4}}
+            if path == "curated/eval_report_latest.json":
+                return {"refusal_accuracy": {"accuracy": 1.0, "cases": []}, "summary": {"scenario_count": 4}}
+            assert path == "curated/eval_report_bucketed_latest.json"
+            return {"real_infrastructure": {"available": True, "passed": 44, "failed": 0}}
 
     monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
 
     response = client.get("/api/evaluations")
 
     assert response.status_code == 200
-    assert response.json() == {"available": True, "report": {"summary": {"scenario_count": 4}}}
+    body = response.json()
+    assert body["deterministic"]["refusal_accuracy"] == 1.0
+    assert body["real_infrastructure"] == {"available": True, "passed": 44, "failed": 0}
+    assert body["live_model"]["eval_harness_scenarios"]["scenario_count"] == 4
 
 
 def test_index_html_is_served_at_root():

@@ -24,6 +24,7 @@ from src.ask_lifecycle import ANSWER_MODEL_ENV_VAR, AskLifecycleError, answer_li
 from src.context_retriever import ContextRetriever
 from src.context_store.file_store import FileContextStore
 from src.data_ops import data_product_estate, run_incident_response, scale_summary
+from src.eval_report import build_eval_report, load_demo_manifests_from_s3
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
 from src.storage import S3Storage, StorageError
@@ -167,14 +168,21 @@ def incident(request: IncidentRequest) -> dict:
 
 @app.get("/api/evaluations")
 def evaluations() -> dict:
-    """The most recent eval_harness run (curated/eval_report_latest.json), as-is.
-    {"available": false} if the harness has never been run against this environment --
-    the frontend renders that as a clear "not yet run" state, never a fabricated number."""
+    """The four never-merged eval categories (src.eval_report.build_eval_report):
+    deterministic, real_infrastructure, scripted_model, live_model. Does NOT run the live
+    pytest subset inline (that takes real time -- a synchronous HTTP request is the wrong
+    place for it); real_infrastructure reports whatever was last measured via
+    `python3 -m src.eval_report`, or unavailable if that's never been run. Each bucket
+    reports {"available": false} on its own if nothing real backs it yet -- never a
+    fabricated or merged number."""
     try:
         storage = S3Storage()
-        if not storage.exists("curated/eval_report_latest.json"):
-            return {"available": False}
-        return {"available": True, "report": storage.read_json("curated/eval_report_latest.json")}
+        eval_harness_report = storage.read_json("curated/eval_report_latest.json") if storage.exists("curated/eval_report_latest.json") else None
+        demo_manifests = load_demo_manifests_from_s3(storage)
+        report = build_eval_report(eval_harness_report=eval_harness_report, demo_manifests=demo_manifests, run_real_infrastructure=False)
+        if storage.exists("curated/eval_report_bucketed_latest.json"):
+            report["real_infrastructure"] = storage.read_json("curated/eval_report_bucketed_latest.json").get("real_infrastructure", {"available": False})
+        return report
     except StorageError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 

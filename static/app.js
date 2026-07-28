@@ -555,6 +555,29 @@ document.getElementById("incident-pipeline-form").addEventListener("submit", (ev
 
 // --- Evaluations tab ------------------------------------------------------------------
 
+const EVAL_BUCKET_LABELS = {
+  deterministic: "Deterministic (no model, no real infrastructure)",
+  real_infrastructure: "Real infrastructure (real S3/Spark, no model)",
+  scripted_model: "Scripted-model (full agent loop, zero API cost)",
+  live_model: "Live-model (real OpenAI calls)",
+};
+
+function renderEvalBucket(container, name, bucket) {
+  const section = el("div", { className: "pipeline-block" });
+  section.appendChild(el("h3", { text: EVAL_BUCKET_LABELS[name] || name }));
+  if (!bucket || !bucket.available) {
+    section.appendChild(el("p", { className: "muted", text: "Not available -- nothing real has been measured for this category yet." }));
+    container.appendChild(section);
+    return;
+  }
+  for (const [key, value] of Object.entries(bucket)) {
+    if (key === "available" || key === "source") continue;
+    section.appendChild(el("p", { text: `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}` }));
+  }
+  if (bucket.source) section.appendChild(el("p", { className: "muted", text: bucket.source }));
+  container.appendChild(section);
+}
+
 async function loadEvaluations() {
   const box = document.getElementById("evaluations-content");
   try {
@@ -562,18 +585,12 @@ async function loadEvaluations() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || `request failed (${res.status})`);
     clear(box);
-    if (!data.available) {
-      box.appendChild(
-        el("p", { className: "muted", text: "No eval run recorded yet -- run: python3 -m src.eval_harness" })
-      );
-      return;
+    box.appendChild(
+      el("p", { className: "muted", text: "These four categories are never merged into a single success rate." })
+    );
+    for (const name of ["deterministic", "real_infrastructure", "scripted_model", "live_model"]) {
+      renderEvalBucket(box, name, data[name]);
     }
-    const summary = data.report.summary || {};
-    box.appendChild(el("p", { text: `Scenarios run: ${summary.scenario_count}` }));
-    box.appendChild(el("p", { text: `Diagnosis success rate: ${((summary.diagnosis_success_rate || 0) * 100).toFixed(0)}%` }));
-    box.appendChild(el("p", { text: `Repair success rate: ${((summary.repair_success_rate || 0) * 100).toFixed(0)}%` }));
-    box.appendChild(el("p", { text: `Refusal accuracy: ${((summary.refusal_accuracy || 0) * 100).toFixed(0)}%` }));
-    box.appendChild(el("pre", { className: "diff", text: JSON.stringify(data.report, null, 2) }));
   } catch (err) {
     box.textContent = `Could not load evaluations: ${err.message}`;
   }

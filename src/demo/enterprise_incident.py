@@ -42,6 +42,7 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import uuid
 from pathlib import Path
 
 import pandas as pd
@@ -400,7 +401,8 @@ def main(argv: list[str] | None = None) -> None:
     spark = get_spark_session("enterprise-incident-demo")
     spark.sparkContext.setLogLevel("WARN")
 
-    manifest: dict = {"live_model": live_model, "stages": []}
+    run_id = uuid.uuid4().hex[:12]
+    manifest: dict = {"run_id": run_id, "live_model": live_model, "stages": []}
     try:
         if args.reset:
             manifest["stages"].append({"stage": "reset", "result": reset(storage, spark)})
@@ -424,6 +426,12 @@ def main(argv: list[str] | None = None) -> None:
     manifest_path = output_dir / "run_manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, default=str))
     print(f"\nRun manifest written to {manifest_path}")
+
+    # Also persisted to S3 -- a real, growing audit trail of every demo run (scripted and
+    # live-model alike), not just the latest -- so src.eval_report can discover and bucket
+    # real scripted-model/live-model results without needing a local file path.
+    storage.write_json(f"curated/demo_runs/{run_id}.json", manifest)
+    storage.write_json("curated/demo_run_latest.json", manifest)
 
 
 if __name__ == "__main__":
