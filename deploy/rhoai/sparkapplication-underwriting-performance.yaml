@@ -1,23 +1,20 @@
-# Confirmed live (2026-07-28) against the real cluster: `sparkapplications.sparkoperator.k8s.io`
-# (group sparkoperator.k8s.io, version v1beta2) is a real, installed CRD in this cluster --
-# this manifest's apiVersion/kind match exactly what src.platform_backends.pipeline_runner.
-# RHOAISparkRunner already builds programmatically (see its _manifest() method); this file is
-# the same shape as a standalone, `oc apply`-able artifact, useful for a one-off manual
-# submission independent of the MCP/Codex loop.
+# Templated from sparkapplication-loan-portfolio.yaml (the proven-working manifest --
+# see that file's own history / deploy/rhoai/RUNBOOK.md for every fix baked into this
+# shape) for the underwriting_performance pipeline. mainApplicationFile references src/etl_spark_underwriting_performance.py --
+# the exact, unmodified ETL entry point
+# src.lifecycle_pipeline_registry.PIPELINE_REGISTRY['underwriting_performance'] already names
+# (etl_source_file).
 #
-# mainApplicationFile references src/etl_spark_loan_portfolio.py -- the exact, unmodified ETL
-# entry point src.lifecycle_pipeline_registry.PIPELINE_REGISTRY["loan_portfolio"] already names
-# (etl_source_file). image is a placeholder -- set after building/pushing per RUNBOOK.md.
-#
-# Validate with `oc apply --dry-run=server -f sparkapplication-loan-portfolio.yaml` first (see
-# RUNBOOK.md) -- this has not been applied to the live cluster yet.
+# NOT yet applied to or verified against the live cluster -- only loan_portfolio (the
+# flagship payment_service-contract-change scenario) has been proven end to end so far.
+# Validate with `oc apply --dry-run=server -f sparkapplication-underwriting-performance.yaml` first.
 apiVersion: sparkoperator.k8s.io/v1beta2
 kind: SparkApplication
 metadata:
-  name: loan-portfolio-manual
+  name: underwriting-performance-manual
   namespace: data-agent
   labels:
-    pipeline: loan_portfolio
+    pipeline: underwriting_performance
 spec:
   type: Python
   mode: cluster
@@ -30,7 +27,7 @@ spec:
   # it, so the console's own uvicorn ENTRYPOINT breaks job submission outright.
   image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent-spark:latest"
   imagePullPolicy: Always
-  mainApplicationFile: "local:///opt/spark-app/src/etl_spark_loan_portfolio.py"
+  mainApplicationFile: "local:///opt/spark-app/src/etl_spark_underwriting_performance.py"
   sparkVersion: "3.5.5"
   restartPolicy:
     type: Never
@@ -78,11 +75,11 @@ spec:
     coreLimit: "1"
     memory: "1g"
     labels:
-      pipeline: loan_portfolio
+      pipeline: underwriting_performance
   executor:
     instances: 1
     cores: 1
     coreLimit: "1"
     memory: "1g"
     labels:
-      pipeline: loan_portfolio
+      pipeline: underwriting_performance

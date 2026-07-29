@@ -103,10 +103,18 @@ class LocalSparkRunner:
 def _default_k8s_client() -> Any:
     """Constructed only when RHOAISparkRunner is used with no injected client -- the
     `kubernetes` package (an optional dependency, see pyproject.toml's `rhoai` extra) is
-    imported here, never at module load time, so local-only usage never needs it installed."""
+    imported here, never at module load time, so local-only usage never needs it installed.
+
+    Tries in-cluster config first (the mounted service account token/CA cert -- what every
+    real deployment, e.g. the spark-runtime MCP server pod, actually needs) and falls back to
+    the local kubeconfig (~/.kube/config, via `oc`/`kubectl` login) for running this against a
+    real cluster from a developer's own machine outside a pod."""
     import kubernetes
 
-    kubernetes.config.load_kube_config()
+    try:
+        kubernetes.config.load_incluster_config()
+    except kubernetes.config.ConfigException:
+        kubernetes.config.load_kube_config()
     return kubernetes.client.CustomObjectsApi()
 
 
@@ -119,7 +127,15 @@ class RHOAISparkRunner:
     `_default_k8s_client()` builds a real one lazily on first use."""
 
     namespace: str = DEFAULT_NAMESPACE
-    image: str = "REPLACE_WITH_BUILT_IMAGE"  # set post-cluster-access; see deploy/rhoai/
+    # A DIFFERENT image from the console/MCP servers' -- must be built FROM an official Apache
+    # Spark image (e.g. deploy/rhoai/Dockerfile.spark), never the bare python:3.12-slim image
+    # deploy/rhoai/Dockerfile builds for the console/MCP servers. Confirmed live: the Spark
+    # Operator's driver/executor containers rely on the image's own ENTRYPOINT being a real
+    # Spark k8s bootstrap script -- it only ever APPENDS args like `driver --properties-file
+    # ...` to whatever the image's entrypoint already is, never overrides it.
+    image: str = "REPLACE_WITH_BUILT_SPARK_IMAGE"  # set post-cluster-access; see deploy/rhoai/
+    secret_name: str = "data-agent-secrets"
+    s3_endpoint_url: str = "http://minio:9000"
     k8s_client: Any = field(default=None)
 
     def _client(self) -> Any:
@@ -138,7 +154,13 @@ class RHOAISparkRunner:
                 "mode": "cluster",
                 "image": self.image,
                 "mainApplicationFile": f"local:///opt/spark-app/{spec.etl_source_file}",
-                "sparkVersion": "3.5.0",
+                "sparkVersion": "3.5.5",
+                # Deliberately NOT using spec.deps.packages -- confirmed live that the Spark
+                # Operator's own controller pod has a non-writable Ivy cache, so Maven package
+                # resolution fails before a driver pod is even created. hadoop-aws + its AWS SDK
+                # (v1 -- matches deploy/rhoai/Dockerfile.spark's base image's bundled Hadoop
+                # 3.3.4 client) are baked into the image's jars/ directory at build time instead
+                # -- mirrors sparkapplication-loan-portfolio.yaml exactly.
                 "sparkConf": {
                     # Mirrors src/spark_session.py's real S3a config exactly -- see
                     # deploy/rhoai/configmap-spark-defaults.yaml for the ConfigMap this maps to.
@@ -148,13 +170,31 @@ class RHOAISparkRunner:
                     "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",
                     "spark.eventLog.enabled": "true",
                     "spark.eventLog.dir": "s3a://data-agent/spark-events/",
+                    # Confirmed live: this Spark Operator build silently drops
+                    # spec.driver.env/envFrom entirely (a known issue -- see
+                    # kubeflow/spark-operator#1108). Using Spark's OWN native
+                    # (operator-independent) env-injection config keys instead, which
+                    # spark-submit itself honors when building the pod spec.
+                    "spark.kubernetes.driver.secretKeyRef.S3_ACCESS_KEY_ID": f"{self.secret_name}:S3_ACCESS_KEY_ID",
+                    "spark.kubernetes.driver.secretKeyRef.S3_SECRET_ACCESS_KEY": f"{self.secret_name}:S3_SECRET_ACCESS_KEY",
+                    "spark.kubernetes.executor.secretKeyRef.S3_ACCESS_KEY_ID": f"{self.secret_name}:S3_ACCESS_KEY_ID",
+                    "spark.kubernetes.executor.secretKeyRef.S3_SECRET_ACCESS_KEY": f"{self.secret_name}:S3_SECRET_ACCESS_KEY",
+                    "spark.kubernetes.driverEnv.S3_ENDPOINT_URL": self.s3_endpoint_url,
+                    "spark.kubernetes.driverEnv.EXECUTION_BACKEND": "rhoai",
+                    "spark.executorEnv.S3_ENDPOINT_URL": self.s3_endpoint_url,
+                    "spark.executorEnv.EXECUTION_BACKEND": "rhoai",
                 },
                 "restartPolicy": {"type": "Never"},
-                # serviceAccount/cores/memory match deploy/rhoai/sparkapplication-loan-portfolio.yaml
-                # exactly -- a Spark-on-k8s driver needs its own namespace-scoped service account
-                # to manage the executor pods/service it creates (see deploy/rhoai/role.yaml).
-                "driver": {"serviceAccount": "data-agent-app", "cores": 1, "memory": "1g", "labels": {"pipeline": pipeline_name}},
-                "executor": {"instances": 1, "cores": 1, "memory": "1g", "labels": {"pipeline": pipeline_name}},
+                # serviceAccount/cores/coreLimit/memory match
+                # deploy/rhoai/sparkapplication-loan-portfolio.yaml exactly -- a Spark-on-k8s
+                # driver needs its own namespace-scoped service account to manage the executor
+                # pods/service it creates (see deploy/rhoai/role.yaml). coreLimit is required
+                # because this namespace's LimitRange auto-injects a default 500m CPU limit on
+                # any container that doesn't set one explicitly, which a bare cores:1 (a full
+                # core REQUEST) then exceeds -- confirmed live, the driver pod is rejected at
+                # admission before it's ever created without this.
+                "driver": {"serviceAccount": "data-agent-app", "cores": 1, "coreLimit": "1", "memory": "1g", "labels": {"pipeline": pipeline_name}},
+                "executor": {"instances": 1, "cores": 1, "coreLimit": "1", "memory": "1g", "labels": {"pipeline": pipeline_name}},
             },
         }
 

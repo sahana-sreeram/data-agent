@@ -2,6 +2,13 @@
 # the same FastAPI app that runs locally via `uvicorn src.api:app`, using the shared image's
 # default ENTRYPOINT (see deploy/rhoai/Dockerfile). This is what deploy/rhoai/route-run-details.yaml
 # exposes.
+#
+# NOT yet applied to or verified against the live cluster -- but uses the SAME image as
+# mcp-data-ops/mcp-spark-runtime (both already proven live) and needs the same fixes those
+# needed, since /api/incident and /api/repairs/accept run the identical local-mode-Spark
+# repair/verify code path: real resource limits (confirmed live elsewhere: OOMKilled under the
+# namespace's 1536Mi default running concurrent Spark JVMs), and app.kubernetes.io/managed-by
+# labeling. See deploy/rhoai/RUNBOOK.md for everything confirmed live so far.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,6 +16,7 @@ metadata:
   namespace: data-agent
   labels:
     app: data-agent-console
+    app.kubernetes.io/managed-by: claude-demo
 spec:
   replicas: 1
   selector:
@@ -18,14 +26,22 @@ spec:
     metadata:
       labels:
         app: data-agent-console
+        app.kubernetes.io/managed-by: claude-demo
     spec:
       serviceAccountName: data-agent-app
       containers:
         - name: console
-          image: "CHANGE_ME_IMAGE_REF"
-          imagePullPolicy: IfNotPresent
+          image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest"
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           envFrom:
             - configMapRef:
                 name: data-agent-app-config
@@ -42,6 +58,8 @@ kind: Service
 metadata:
   name: data-agent-console
   namespace: data-agent
+  labels:
+    app.kubernetes.io/managed-by: claude-demo
 spec:
   selector:
     app: data-agent-console

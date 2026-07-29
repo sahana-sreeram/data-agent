@@ -1,10 +1,22 @@
-# The real Apache Spark History Server (bitnami's spark image ships spark-class' history-server
-# entrypoint) reading event logs from the same S3 path Spark itself writes to (spark.eventLog.dir
-# above) -- src.platform_backends.runtime_inspector.SparkHistoryRuntimeInspector's
-# HistoryServerClient talks to this over its REST API (<url>/api/v1/applications/...).
+# The real Apache Spark History Server, reading event logs from the same S3 path Spark itself
+# writes to (spark.eventLog.dir) -- src.platform_backends.runtime_inspector.
+# SparkHistoryRuntimeInspector's HistoryServerClient talks to this over its REST API
+# (<url>/api/v1/applications/...).
 #
-# Uses the official bitnami/spark image (has a compatible Spark distribution + S3A jars) rather
-# than this repo's own image -- the History Server is a stock Spark component, not app code.
+# Reuses the SAME image as the Spark driver/executors (deploy/rhoai/Dockerfile.spark,
+# data-agent-spark:latest) rather than a third-party Spark image -- it already has the right
+# Spark version and the hadoop-aws/AWS SDK jars baked in, confirmed live; start-history-
+# server.sh is a standard part of any Apache Spark distribution, not app-specific.
+#
+# Credentials use the AWS SDK v1's own com.amazonaws.auth.EnvironmentVariableCredentialsProvider
+# (reads AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY from the process environment -- confirmed via
+# a real ClassNotFoundException live that org.apache.hadoop.fs.s3a.auth.
+# EnvironmentVariableCredentialsProvider, the AWS-SDK-v2-era Hadoop-native equivalent, does not
+# exist in hadoop-aws 3.3.4, which still ships the v1 SDK) rather than SimpleAWSCredentialsProvider
+# (which only reads Hadoop CONFIG keys, not env vars) -- this is a plain Deployment, not a
+# SparkApplication CR, so plain env/envFrom actually works here (the Spark Operator's own known
+# env/envFrom bug -- kubeflow/spark-operator#1108 -- is specific to its CRD-to-podspec
+# translation, not a general Kubernetes limitation).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,6 +24,7 @@ metadata:
   namespace: data-agent
   labels:
     app: spark-history-server
+    app.kubernetes.io/managed-by: claude-demo
 spec:
   replicas: 1
   selector:
@@ -21,37 +34,54 @@ spec:
     metadata:
       labels:
         app: spark-history-server
+        app.kubernetes.io/managed-by: claude-demo
     spec:
       serviceAccountName: data-agent-app
       containers:
         - name: spark-history-server
-          image: "docker.io/bitnami/spark:3.5"
-          command: ["/opt/bitnami/spark/sbin/start-history-server.sh"]
+          image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent-spark:latest"
+          imagePullPolicy: Always
+          # start-history-server.sh (spark-daemon.sh) forks the JVM into the background and
+          # exits -- fine for a real host, wrong for a container (the pod immediately reports
+          # Completed instead of Running). spark-class runs the JVM directly in the
+          # foreground, which is what a container's main process needs.
+          command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.history.HistoryServer"]
           ports:
             - containerPort: 18080
-          envFrom:
-            - configMapRef:
-                name: data-agent-app-config
-            - secretRef:
-                name: data-agent-secrets
           env:
-            - name: SPARK_HADOOP_FS_S3A_ENDPOINT
+            # OpenShift assigns an arbitrary, non-root UID to a plain Deployment's pod
+            # (unlike the Spark Operator's driver/executor pods, which get a UID matching the
+            # image's baked-in `spark` user via the operator's own webhook) -- confirmed live
+            # that UID can't write to /opt/spark/logs (owned by spark:spark). /tmp is
+            # world-writable regardless of UID.
+            - name: SPARK_LOG_DIR
+              value: "/tmp/spark-logs"
+            - name: AWS_ACCESS_KEY_ID
               valueFrom:
-                configMapKeyRef:
-                  name: data-agent-app-config
-                  key: S3_ENDPOINT_URL
+                secretKeyRef:
+                  name: data-agent-secrets
+                  key: S3_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: data-agent-secrets
+                  key: S3_SECRET_ACCESS_KEY
             - name: SPARK_HISTORY_OPTS
               value: >-
                 -Dspark.history.fs.logDirectory=s3a://data-agent/spark-events/
+                -Dspark.hadoop.fs.s3a.endpoint=http://minio:9000
                 -Dspark.hadoop.fs.s3a.path.style.access=true
                 -Dspark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
                 -Dspark.hadoop.fs.s3a.connection.ssl.enabled=false
+                -Dspark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.EnvironmentVariableCredentialsProvider
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: spark-history-server
   namespace: data-agent
+  labels:
+    app.kubernetes.io/managed-by: claude-demo
 spec:
   selector:
     app: spark-history-server

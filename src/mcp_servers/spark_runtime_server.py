@@ -30,6 +30,33 @@ class SparkRuntimeTools:
             raise ToolError(f"unknown run_id {run_id!r}; call submit_spark_pipeline first")
         return handle
 
+    def _runtime_evidence_id(self, run_id: str) -> str:
+        """Our own run_id (the SparkApplication CR's suffix) is NOT the same id Spark's own
+        History Server indexes by -- confirmed live: the CR is named
+        loan-portfolio-<run_id>, but Spark assigns its OWN internal application id (e.g.
+        spark-4a6e74fd6ed2419bac0b5622329b65df), only knowable once the job has actually
+        started, via the CR's own status.sparkApplicationId. RHOAISparkRunner.get_status()
+        surfaces this in its "raw" field; local mode's LocalSparkRunner.get_status() has no
+        such field, so .get("raw") is simply absent there and this transparently falls back
+        to run_id unchanged -- exactly local mode's existing, already-correct behavior (its
+        LocalRuntimeInspector is keyed by the same run_id used as the Spark job group tag)."""
+        handle = self._require_handle(run_id)
+        status = self.pipeline_runner.get_status(handle)
+        raw = status.get("raw") or {}
+        return raw.get("sparkApplicationId") or run_id
+
+    def _driver_pod_name(self, run_id: str) -> str:
+        """Pod status/logs need the actual k8s pod name, which is neither our run_id nor
+        Spark's application id -- RHOAISparkRunner names the SparkApplication CR (and the
+        Spark Operator names its driver pod after it) as `<backend_ref name>-driver`
+        (confirmed live). Local mode's RunHandle has no backend_ref, so this falls back to
+        run_id unchanged -- LocalRuntimeInspector's stubs don't use it for a real lookup
+        anyway (there are no pods in local mode)."""
+        handle = self._require_handle(run_id)
+        if handle.backend_ref and "name" in handle.backend_ref:
+            return f"{handle.backend_ref['name']}-driver"
+        return run_id
+
     def submit_spark_pipeline(self, pipeline_name: str) -> dict:
         try:
             handle = self.pipeline_runner.submit(pipeline_name)
@@ -43,22 +70,18 @@ class SparkRuntimeTools:
         return self.pipeline_runner.get_status(handle)
 
     def get_spark_run_summary(self, run_id: str) -> dict:
-        self._require_handle(run_id)
-        return self.runtime_inspector.get_run_summary(run_id)
+        return self.runtime_inspector.get_run_summary(self._runtime_evidence_id(run_id))
 
     def get_failed_stages(self, run_id: str) -> dict:
-        self._require_handle(run_id)
-        return {"run_id": run_id, "failed_stages": self.runtime_inspector.get_failed_stages(run_id)}
+        return {"run_id": run_id, "failed_stages": self.runtime_inspector.get_failed_stages(self._runtime_evidence_id(run_id))}
 
     def get_driver_log_excerpt(self, run_id: str, max_lines: int = DEFAULT_LOG_LINES) -> dict:
-        self._require_handle(run_id)
         bounded_max_lines = min(max_lines, MAX_LOG_LINES)
-        excerpt = self.runtime_inspector.get_driver_log_excerpt(run_id, max_lines=bounded_max_lines)
+        excerpt = self.runtime_inspector.get_driver_log_excerpt(self._driver_pod_name(run_id), max_lines=bounded_max_lines)
         return {"run_id": run_id, "excerpt": excerpt, "truncated_to_lines": bounded_max_lines}
 
     def get_pod_status(self, run_id: str) -> dict:
-        self._require_handle(run_id)
-        return self.runtime_inspector.get_pod_status(run_id)
+        return self.runtime_inspector.get_pod_status(self._driver_pod_name(run_id))
 
 
 def build_default_spark_runtime_tools() -> SparkRuntimeTools:

@@ -9,6 +9,7 @@ metadata:
   namespace: data-agent
   labels:
     app: mcp-data-ops
+    app.kubernetes.io/managed-by: claude-demo
 spec:
   replicas: 1
   selector:
@@ -18,15 +19,27 @@ spec:
     metadata:
       labels:
         app: mcp-data-ops
+        app.kubernetes.io/managed-by: claude-demo
     spec:
       serviceAccountName: data-agent-app
       containers:
         - name: mcp-data-ops
-          image: "CHANGE_ME_IMAGE_REF"
-          imagePullPolicy: IfNotPresent
+          image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest"
+          imagePullPolicy: Always
           command: ["python3", "-m", "src.mcp_servers.data_ops_server"]
           ports:
             - containerPort: 8000
+          # Confirmed live: OOMKilled under the namespace LimitRange's default 1536Mi --
+          # create_candidate_repair/verify_candidate_repair each run a real local-mode Spark
+          # JVM (get_spark_session), and verify_candidate_repair's targeted-test rerun spins
+          # up a SECOND one in a pytest subprocess concurrently with the first still live.
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
           envFrom:
             - configMapRef:
                 name: data-agent-app-config

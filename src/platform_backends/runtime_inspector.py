@@ -106,20 +106,46 @@ def _default_history_server_client(base_url: str) -> HistoryServerClient:
     return RealHistoryServerClient(base_url)
 
 
+def _default_k8s_core_v1_client() -> Any:
+    """Constructed only when SparkHistoryRuntimeInspector's pod-status/log methods are used
+    with no injected client -- mirrors pipeline_runner._default_k8s_client's in-cluster-first,
+    kubeconfig-fallback pattern exactly. `kubernetes` (an optional dependency, see
+    pyproject.toml's `rhoai` extra) is imported here, never at module load time."""
+    import kubernetes
+
+    try:
+        kubernetes.config.load_incluster_config()
+    except kubernetes.config.ConfigException:
+        kubernetes.config.load_kube_config()
+    return kubernetes.client.CoreV1Api()
+
+
 @dataclass
 class SparkHistoryRuntimeInspector:
-    """Wraps a real Spark History Server's REST API. `client` is injected for testing (any
-    object matching the `HistoryServerClient` Protocol); production code passes `base_url`
-    and leaves `client` unset -- a real HTTP client is built lazily on first use."""
+    """Wraps a real Spark History Server's REST API for job/stage evidence (`client`, any
+    object matching the `HistoryServerClient` Protocol -- injected for testing; production
+    code passes `base_url` and leaves it unset, a real HTTP client is built lazily). Pod
+    status and driver logs, though, are NOT History Server concepts at all -- confirmed live
+    that a finished run's `executorLogs` are empty once its pods are gone, since History
+    Server only proxies a *live* executor's own log endpoint. Those two methods instead query
+    the Kubernetes API directly (`k8s_client`, any object matching the
+    `kubernetes.client.CoreV1Api` shape -- injected for testing; built lazily otherwise)."""
 
     base_url: str = "http://spark-history-server:18080"
     client: HistoryServerClient | None = field(default=None)
     truncate_at: int = MAX_LOG_LINES
+    namespace: str = "data-agent"
+    k8s_client: Any = field(default=None)
 
     def _http(self) -> HistoryServerClient:
         if self.client is None:
             self.client = _default_history_server_client(self.base_url)
         return self.client
+
+    def _k8s(self) -> Any:
+        if self.k8s_client is None:
+            self.k8s_client = _default_k8s_core_v1_client()
+        return self.k8s_client
 
     def get_run_summary(self, run_id: str) -> dict:
         app = self._http().get_application(run_id)
@@ -133,14 +159,34 @@ class SparkHistoryRuntimeInspector:
         stages = self._http().get_stages(run_id)
         return [s for s in stages if s.get("status") == "FAILED"]
 
-    def get_driver_log_excerpt(self, run_id: str, max_lines: int = DEFAULT_LOG_LINES) -> str:
-        max_lines = min(max_lines, self.truncate_at)
-        log_text = self._http().get_executor_log(run_id, executor_id="driver", log_type="stdout")
-        lines = log_text.splitlines()
-        return "\n".join(lines[-max_lines:])
+    def get_driver_log_excerpt(self, pod_name: str, max_lines: int = DEFAULT_LOG_LINES) -> str:
+        """pod_name -- NOT a run_id or Spark application id; callers (see
+        src.mcp_servers.spark_runtime_server.SparkRuntimeTools._driver_pod_name) resolve the
+        actual k8s pod name from the RunHandle first, since that's the only id this evidence
+        source understands."""
+        bounded_max_lines = min(max_lines, self.truncate_at)
+        try:
+            # Confirmed live: the kubernetes client's default (_preload_content=True) response
+            # deserialization for this endpoint is broken -- it returns a `str`, but produced
+            # via `str(raw_bytes)` internally rather than `raw_bytes.decode(...)`, so the
+            # content literally starts with the two characters `b` and `'` (Python's bytes
+            # repr syntax), not the real log text. Passing _preload_content=False bypasses
+            # that broken path entirely and gives the raw urllib3 response to decode ourselves.
+            response = self._k8s().read_namespaced_pod_log(
+                name=pod_name, namespace=self.namespace, tail_lines=bounded_max_lines, _preload_content=False
+            )
+        except Exception as exc:  # noqa: BLE001 -- a real k8s/log-read failure is reportable evidence, not a crash
+            return f"(could not read pod log for {pod_name!r}: {exc})"
+        return response.data.decode("utf-8", errors="replace")
 
-    def get_pod_status(self, run_id: str) -> dict:
-        # Pod status is an OpenShift/Kubernetes concept, not a History Server one -- callers
-        # needing this against RHOAI should query the cluster directly (see
-        # src.platform_backends.pipeline_runner.RHOAISparkRunner.get_status), not this class.
-        return {"available": False, "reason": "pod status is not exposed by Spark History Server"}
+    def get_pod_status(self, pod_name: str) -> dict:
+        """pod_name -- see get_driver_log_excerpt's docstring."""
+        try:
+            pod = self._k8s().read_namespaced_pod(name=pod_name, namespace=self.namespace)
+        except Exception as exc:  # noqa: BLE001 -- a real k8s read failure is reportable evidence, not a crash
+            return {"available": False, "reason": str(exc)}
+        container_statuses = [
+            {"name": c.name, "ready": c.ready, "restart_count": c.restart_count}
+            for c in (pod.status.container_statuses or [])
+        ]
+        return {"available": True, "pod_name": pod_name, "phase": pod.status.phase, "container_statuses": container_statuses}

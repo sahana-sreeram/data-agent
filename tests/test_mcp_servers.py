@@ -151,20 +151,22 @@ def test_create_candidate_repair_persists_state_and_returns_repair_id(monkeypatc
         "PIPELINE_REGISTRY",
         {PIPELINE_NAME: type("Spec", (), {"validation_rules_key": "context/validations/loan_portfolio.json", "run_validate": staticmethod(lambda *a: {"overall_status": "FAIL", "checks": []})})},
     )
-    monkeypatch.setattr(
-        data_ops_server_module,
-        "run_lifecycle_self_healing",
-        lambda pipeline_name, spark, storage, diag_factory, repair_factory, mode: {
+    seen_kwargs = {}
+
+    def fake_self_healing(pipeline_name, spark, storage, diag_factory, repair_factory, mode, **kwargs):
+        seen_kwargs.update(kwargs)
+        return {
             "run_id": "abc123",
             "diagnosis": {"diagnosis_status": "DIAGNOSED", "root_cause_category": "SOURCE_CONTRACT_CHANGE"},
             "repair_plan": {"repair_decision": "PROPOSE_REPAIR"},
             "repair_result": {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"},
-        },
-    )
+        }
+
+    monkeypatch.setattr(data_ops_server_module, "run_lifecycle_self_healing", fake_self_healing)
 
     state_store = _FakeStateStore()
     tools = _repair_tools(state_store=state_store)
-    result = tools.create_candidate_repair(PIPELINE_NAME)
+    result = tools.create_candidate_repair(PIPELINE_NAME, approve_categories=["SOURCE_CONTRACT_CHANGE"])
 
     assert result["repair_id"] == "abc123"
     assert result["repair_status"] == "APPLIED"
@@ -172,6 +174,27 @@ def test_create_candidate_repair_persists_state_and_returns_repair_id(monkeypatc
     assert stored["pipeline_name"] == PIPELINE_NAME
     assert stored["status"] == "AWAITING_VERIFICATION"
     assert stored["repair_result"]["repair_status"] == "APPLIED"
+    assert seen_kwargs["human_approved_categories"] == frozenset({"SOURCE_CONTRACT_CHANGE"})
+
+
+def test_create_candidate_repair_defaults_to_no_approved_categories(monkeypatch):
+    monkeypatch.setattr(
+        data_ops_server_module,
+        "PIPELINE_REGISTRY",
+        {PIPELINE_NAME: type("Spec", (), {"validation_rules_key": "context/validations/loan_portfolio.json", "run_validate": staticmethod(lambda *a: {"overall_status": "FAIL", "checks": []})})},
+    )
+    seen_kwargs = {}
+
+    def fake_self_healing(pipeline_name, spark, storage, diag_factory, repair_factory, mode, **kwargs):
+        seen_kwargs.update(kwargs)
+        return {"run_id": "xyz", "diagnosis": {}, "repair_plan": {}, "repair_result": {"repair_status": "BLOCKED", "workspace_dir": None, "target_file": None}}
+
+    monkeypatch.setattr(data_ops_server_module, "run_lifecycle_self_healing", fake_self_healing)
+
+    tools = _repair_tools()
+    tools.create_candidate_repair(PIPELINE_NAME)
+
+    assert seen_kwargs["human_approved_categories"] == frozenset()
 
 
 def test_create_candidate_repair_unknown_pipeline_raises():

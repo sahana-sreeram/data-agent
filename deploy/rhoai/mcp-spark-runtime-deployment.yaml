@@ -11,6 +11,7 @@ metadata:
   namespace: data-agent
   labels:
     app: mcp-spark-runtime
+    app.kubernetes.io/managed-by: claude-demo
 spec:
   replicas: 1
   selector:
@@ -20,12 +21,13 @@ spec:
     metadata:
       labels:
         app: mcp-spark-runtime
+        app.kubernetes.io/managed-by: claude-demo
     spec:
       serviceAccountName: data-agent-app
       containers:
         - name: mcp-spark-runtime
-          image: "CHANGE_ME_IMAGE_REF"
-          imagePullPolicy: IfNotPresent
+          image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest"
+          imagePullPolicy: Always
           command: ["python3", "-m", "src.mcp_servers.spark_runtime_server"]
           ports:
             - containerPort: 8000

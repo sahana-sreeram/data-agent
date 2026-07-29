@@ -136,16 +136,12 @@ class _FakeHistoryServerClient:
     def __init__(self) -> None:
         self.applications = {"run-1": {"attempts": [{"completed": True}]}}
         self.stages = {"run-1": [{"status": "COMPLETE"}, {"status": "FAILED", "stageId": 2}]}
-        self.log_lines = [f"line {i}" for i in range(1000)]
 
     def get_application(self, run_id: str) -> dict:
         return self.applications[run_id]
 
     def get_stages(self, run_id: str) -> list[dict]:
         return self.stages[run_id]
-
-    def get_executor_log(self, run_id: str, executor_id: str, log_type: str) -> str:
-        return "\n".join(self.log_lines)
 
 
 def test_spark_history_runtime_inspector_get_run_summary():
@@ -161,11 +157,80 @@ def test_spark_history_runtime_inspector_get_failed_stages():
     assert failed[0]["stageId"] == 2
 
 
-def test_spark_history_runtime_inspector_truncates_driver_log():
-    inspector = SparkHistoryRuntimeInspector(client=_FakeHistoryServerClient(), truncate_at=50)
-    excerpt = inspector.get_driver_log_excerpt("run-1", max_lines=500)
+# --- SparkHistoryRuntimeInspector: pod status/logs (fake k8s CoreV1Api client) ------------
+#
+# Confirmed live against a real Spark History Server: a finished run's executorLogs are empty
+# once its pods are gone (History Server only proxies a *live* executor's own log endpoint) --
+# pod status/logs come from the Kubernetes API directly instead, never from History Server.
+
+
+class _FakeContainerStatus:
+    def __init__(self, name, ready, restart_count):
+        self.name = name
+        self.ready = ready
+        self.restart_count = restart_count
+
+
+class _FakePodStatus:
+    def __init__(self, phase, container_statuses):
+        self.phase = phase
+        self.container_statuses = container_statuses
+
+
+class _FakePod:
+    def __init__(self, phase="Running", container_statuses=None):
+        self.status = _FakePodStatus(phase, container_statuses or [])
+
+
+class _FakeRawHttpResponse:
+    """Mirrors the urllib3.HTTPResponse shape read_namespaced_pod_log(..., _preload_content=
+    False) returns -- a real .data bytes attribute, used specifically to bypass a confirmed
+    bug in the kubernetes client's default (_preload_content=True) response deserialization
+    for this endpoint (see runtime_inspector.get_driver_log_excerpt's comment)."""
+
+    def __init__(self, data: bytes) -> None:
+        self.data = data
+
+
+class _FakeCoreV1Api:
+    def __init__(self) -> None:
+        self.pods = {"loan-portfolio-abc-driver": _FakePod(container_statuses=[_FakeContainerStatus("spark-kubernetes-driver", True, 0)])}
+        self.logs = {"loan-portfolio-abc-driver": "\n".join(f"line {i}" for i in range(1000))}
+
+    def read_namespaced_pod(self, name: str, namespace: str):
+        if name not in self.pods:
+            raise Exception(f"pod {name!r} not found")  # noqa: TRY002 -- mirrors a real ApiException's shape closely enough for this test
+        return self.pods[name]
+
+    def read_namespaced_pod_log(self, name: str, namespace: str, tail_lines: int, _preload_content: bool = True):
+        log_text = self.logs.get(name, "")
+        truncated = "\n".join(log_text.splitlines()[-tail_lines:])
+        assert _preload_content is False, "get_driver_log_excerpt must always pass _preload_content=False"
+        return _FakeRawHttpResponse(truncated.encode("utf-8"))
+
+
+def test_spark_history_runtime_inspector_get_pod_status():
+    inspector = SparkHistoryRuntimeInspector(k8s_client=_FakeCoreV1Api())
+    status = inspector.get_pod_status("loan-portfolio-abc-driver")
+    assert status["available"] is True
+    assert status["phase"] == "Running"
+    assert status["container_statuses"] == [{"name": "spark-kubernetes-driver", "ready": True, "restart_count": 0}]
+
+
+def test_spark_history_runtime_inspector_get_pod_status_unknown_pod():
+    inspector = SparkHistoryRuntimeInspector(k8s_client=_FakeCoreV1Api())
+    status = inspector.get_pod_status("no-such-pod")
+    assert status["available"] is False
+    assert "no-such-pod" in status["reason"]
+
+
+def test_spark_history_runtime_inspector_truncates_driver_log_via_k8s():
+    inspector = SparkHistoryRuntimeInspector(k8s_client=_FakeCoreV1Api(), truncate_at=50)
+    excerpt = inspector.get_driver_log_excerpt("loan-portfolio-abc-driver", max_lines=500)
     assert len(excerpt.splitlines()) == 50
     assert excerpt.splitlines()[-1] == "line 999"
+
+
 
 
 # --- FileStateStore -----------------------------------------------------------------------

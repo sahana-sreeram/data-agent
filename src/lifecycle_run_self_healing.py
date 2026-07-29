@@ -55,8 +55,13 @@ def run_lifecycle_self_healing(
     unchanged). It exists for one specific, explicit action: a human looking at an incident
     that policy defaults to refusing (e.g. SOURCE_CONTRACT_CHANGE) chooses to generate a
     reviewable candidate anyway (see src.lifecycle_apply_repair.run_apply_lifecycle_repair's
-    docstring). ONLY usable with mode="create_pr" -- passing it with any other mode raises,
-    since nothing this unlocks may ever auto-promote.
+    docstring). Usable with mode="create_pr" OR mode="propose_patch" -- both structurally
+    cannot promote anything (propose_patch stops before verify even runs; create_pr's own
+    verify step only ever produces a local, unpushed PR artifact) -- passing it with
+    mode="diagnose_only" or the real-promoting mode="auto_promote" raises, since nothing this
+    unlocks may ever auto-promote. (propose_patch's approval support exists specifically for
+    src.mcp_servers.data_ops_server.DataOpsTools.create_candidate_repair, which splits
+    diagnose+apply from verify across two separate MCP tool calls.)
 
     Returns {"run_id":..., "diagnosis":..., "repair_plan":..., "repair_result":...,
     "repair_verification":...}. Raises whatever the underlying stages raise
@@ -66,8 +71,8 @@ def run_lifecycle_self_healing(
     """
     if mode not in ("diagnose_only", "propose_patch", "create_pr", "auto_promote"):
         raise ValueError(f"unknown mode {mode!r}")
-    if human_approved_categories and mode != "create_pr":
-        raise ValueError("human_approved_categories may only be used with mode='create_pr'")
+    if human_approved_categories and mode not in ("create_pr", "propose_patch"):
+        raise ValueError("human_approved_categories may only be used with mode='create_pr' or mode='propose_patch'")
 
     spec = PIPELINE_REGISTRY[pipeline_name]
     run_id = uuid.uuid4().hex[:12]

@@ -30,8 +30,11 @@ human accept action (src.data_ops.accept_repair).
 from __future__ import annotations
 
 import functools
+import os
 from dataclasses import dataclass
 from typing import Callable
+
+USE_SCRIPTED_MODEL_ENV_VAR = "USE_SCRIPTED_MODEL"
 
 from src.context_retriever import ContextRetriever
 from src.context_store.file_store import FileContextStore
@@ -98,10 +101,16 @@ class DataOpsTools:
         validation_rules = self.storage.read_json(spec.validation_rules_key)
         return spec.run_validate(self.storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
 
-    def create_candidate_repair(self, pipeline_name: str) -> dict:
+    def create_candidate_repair(self, pipeline_name: str, approve_categories: list | None = None) -> dict:
         """Diagnose + apply a bounded repair in an isolated sandbox, stop before verifying.
         Returns a repair_id that verify_candidate_repair later resumes from -- nothing here
-        touches the real repository or curated data."""
+        touches the real repository or curated data.
+
+        approve_categories mirrors src.api.IncidentRequest.approve_categories: policy refuses
+        to generate ANY candidate for certain root-cause categories (e.g.
+        SOURCE_CONTRACT_CHANGE) unless explicitly approved for this one incident -- see
+        src.lifecycle_apply_repair.run_apply_lifecycle_repair's docstring. Empty by default
+        (every category stays refused, matching this system's default policy)."""
         _require_known_pipeline(pipeline_name)
         spec = PIPELINE_REGISTRY[pipeline_name]
         business_rules = self.storage.read_json("context/business_rules.json")
@@ -116,6 +125,7 @@ class DataOpsTools:
             self.diagnosis_model_client_factory,
             self.repair_model_client_factory,
             mode="propose_patch",
+            human_approved_categories=frozenset(approve_categories or []),
         )
         repair_id = result["run_id"]
         self.state_store.set(
@@ -215,12 +225,27 @@ def build_default_data_ops_tools() -> DataOpsTools:
     from src.config import get_state_store
     from src.spark_session import get_spark_session
 
+    diagnosis_factory = _default_diagnosis_model_client_factory
+    repair_factory = _default_repair_model_client_factory
+    if os.environ.get(USE_SCRIPTED_MODEL_ENV_VAR, "").lower() == "true":
+        # Mirrors src/api.py's use_scripted_model request flag / src.demo.enterprise_incident's
+        # --scripted-model default: the same real diagnose/apply/verify code runs (real Spark,
+        # real S3, real sandbox), only the model's responses are canned -- this is specifically
+        # for proving the cluster-backed repair MECHANICS independent of real model behavior,
+        # never a generic stand-in for any pipeline (see enterprise_incident.py's docstring:
+        # it replays one fixed tool-call sequence built for the loan_portfolio
+        # payment_service-contract-change scenario).
+        from src.demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
+
+        diagnosis_factory = _scripted_diagnosis_client_factory
+        repair_factory = _scripted_repair_client_factory
+
     return DataOpsTools(
         storage=S3Storage(),
         context_retriever=ContextRetriever(store=FileContextStore()),
         state_store=get_state_store(),
-        diagnosis_model_client_factory=_default_diagnosis_model_client_factory,
-        repair_model_client_factory=_default_repair_model_client_factory,
+        diagnosis_model_client_factory=diagnosis_factory,
+        repair_model_client_factory=repair_factory,
         spark_factory=lambda: get_spark_session("mcp-data-ops"),
     )
 
@@ -288,7 +313,9 @@ def build_data_ops_mcp_server(tools: DataOpsTools | None = None):
         description=(
             "Diagnose this data product's failure and apply a bounded repair inside an isolated sandbox. "
             "Stops before verifying -- the real repository and curated data are never touched. "
-            "Returns a repair_id; call verify_candidate_repair(repair_id) next."
+            "Returns a repair_id; call verify_candidate_repair(repair_id) next. Some root-cause "
+            "categories (e.g. SOURCE_CONTRACT_CHANGE) are refused by default policy -- pass "
+            "approve_categories to explicitly approve generating a candidate for this one incident anyway."
         ),
     )
     server.add_tool(

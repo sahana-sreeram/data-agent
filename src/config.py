@@ -37,7 +37,12 @@ def get_pipeline_runner():
     if backend == "rhoai":
         from src.platform_backends.pipeline_runner import RHOAISparkRunner
 
-        return RHOAISparkRunner(namespace=os.environ.get("RHOAI_NAMESPACE", "data-agent"))
+        return RHOAISparkRunner(
+            namespace=os.environ.get("RHOAI_NAMESPACE", "data-agent"),
+            image=os.environ.get("RHOAI_SPARK_IMAGE", "REPLACE_WITH_BUILT_SPARK_IMAGE"),
+            secret_name=os.environ.get("RHOAI_SECRET_NAME", "data-agent-secrets"),
+            s3_endpoint_url=os.environ.get("S3_ENDPOINT_URL", "http://minio:9000"),
+        )
     if backend != "local":
         raise ValueError(f"unknown {EXECUTION_BACKEND_ENV_VAR}={backend!r}; expected 'local' or 'rhoai'")
 
@@ -51,7 +56,10 @@ def get_runtime_inspector():
     if backend == "spark_history":
         from src.platform_backends.runtime_inspector import SparkHistoryRuntimeInspector
 
-        return SparkHistoryRuntimeInspector(base_url=os.environ.get("SPARK_HISTORY_SERVER_URL", "http://spark-history-server:18080"))
+        return SparkHistoryRuntimeInspector(
+            base_url=os.environ.get("SPARK_HISTORY_SERVER_URL", "http://spark-history-server:18080"),
+            namespace=os.environ.get("RHOAI_NAMESPACE", "data-agent"),
+        )
     if backend != "local":
         raise ValueError(f"unknown {RUNTIME_BACKEND_ENV_VAR}={backend!r}; expected 'local' or 'spark_history'")
 
