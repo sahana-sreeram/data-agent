@@ -32,14 +32,20 @@ from dataclasses import dataclass, field
 from src.legacy.diagnosis_agent import _serialize_tool_call
 from src.model_client import DiagnosisModelClient, ModelClientError, ToolCall
 
-DEFAULT_MAX_TURNS = 16
+
+# Requiring one submission at a time (confirm a pipeline's job has left SUBMITTED before
+# submitting the next -- see SYSTEM_PROMPT) costs more turns than the old back-to-back
+# submission behavior: confirmed live (2026-07-29) that a real 6-pipeline run exhausted 16
+# turns with every model call succeeding, purely from the extra status-check turns the
+# sequential-submission requirement adds, not from any looping or model confusion.
+DEFAULT_MAX_TURNS = 40
 REPORT_TOOL_NAME = "report_morning_loop_summary"
 
 SYSTEM_PROMPT = """You are Codex, running the morning data-operations loop for a lending data platform, entirely through MCP tools exposed by two servers: "spark-runtime" (submit_spark_pipeline, get_spark_application_status, get_spark_run_summary, get_failed_stages, get_driver_log_excerpt, get_pod_status) and "data-ops" (get_data_product_context, get_metric_context, get_lineage, get_runtime_health, get_relevant_pipeline_code, run_data_product_validation, create_candidate_repair, verify_candidate_repair, get_pr_ready_artifact).
 
 You will be given a list of data products (pipelines) to check this morning. For each one:
 
-1. Submit it for execution: submit_spark_pipeline(pipeline_name). This proves the Spark job itself runs -- independent of whether its output is trustworthy.
+1. Submit it for execution: submit_spark_pipeline(pipeline_name). This proves the Spark job itself runs -- independent of whether its output is trustworthy. IMPORTANT: submit pipelines one at a time, never back-to-back -- confirm via get_spark_application_status that a pipeline's job has left the SUBMITTED state (RUNNING, SUCCEEDED, or FAILED) before calling submit_spark_pipeline for the next pipeline. Submitting multiple pipelines in rapid succession can overwhelm the Spark Operator's own submission controller and leave later jobs stuck indefinitely.
 2. Check the run's own health: get_spark_application_status and get_spark_run_summary (and get_failed_stages if anything looks wrong). A SUCCEEDED Spark run means only that it executed without error -- it does NOT mean the data it produced is correct.
 3. Check whether the data product is actually trustworthy: run_data_product_validation(pipeline_name). This is the real trust signal, separate from Spark's own execution status. A pipeline can run to completion and still be silently wrong.
 4. If validation fails, gather evidence before concluding anything: get_data_product_context, get_lineage, get_relevant_pipeline_code, and get_metric_context for the specific metric(s) that failed. Combine this with the Spark runtime evidence from steps 1-2 to tell a semantic failure (the job ran fine; the business logic or an upstream contract is wrong) apart from an infrastructure failure (the job itself failed or a stage had failed tasks).
@@ -49,7 +55,7 @@ You will be given a list of data products (pipelines) to check this morning. For
 
 You are never able to push, merge, or promote anything yourself -- the loop's job ends at a local, verified, human-reviewable artifact. A human decides separately whether to accept it.
 
-You are not required to call every tool for every pipeline -- a pipeline that is already trustworthy needs only steps 1-3. Work through pipelines one at a time or interleaved, however makes sense.
+You are not required to call every tool for every pipeline -- a pipeline that is already trustworthy needs only steps 1-3. Work through pipelines strictly one at a time (finish or at least submit-and-confirm-running for one before starting the next) -- never submit_spark_pipeline for multiple pipelines back-to-back.
 
 When you have checked every pipeline you were given, and only then, call the report_morning_loop_summary tool exactly once with your full summary. You are not finished until you call it."""
 

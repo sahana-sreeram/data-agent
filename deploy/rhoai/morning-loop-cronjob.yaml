@@ -24,6 +24,13 @@ spec:
   suspend: true
   jobTemplate:
     spec:
+      # Confirmed live (2026-07-29): a run that fails with ModelClientError (e.g. did not
+      # converge within max_turns) is not something a blind retry fixes -- Kubernetes' default
+      # backoffLimit (6) silently created a second full run behind our backs, resubmitting
+      # SparkApplications for pipelines already processed and burning more real, billed OpenAI
+      # calls with nobody watching. A failed run needs a human to look at it, not an automatic
+      # retry storm.
+      backoffLimit: 0
       template:
         metadata:
           labels:

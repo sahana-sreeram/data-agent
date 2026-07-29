@@ -330,6 +330,62 @@ def test_accept_repair_merges_resolves_pointer_and_reruns(monkeypatch):
     assert any(c[0][:2] == ["git", "branch"] for c in calls)
 
 
+def test_accept_repair_falls_back_to_applying_stored_diff_when_branch_merge_fails(monkeypatch):
+    """The branch that created a candidate may live in a different pod's ephemeral git repo
+    than whichever pod is serving this accept call (confirmed live, ROSA, 2026-07-29) -- this
+    is the common case once create_candidate_repair/accept_repair can run in different
+    processes, not an edge case."""
+    calls = []
+
+    def fake_run(args, **kwargs):
+        calls.append(args)
+        if args[:2] == ["git", "merge"]:
+            raise subprocess.CalledProcessError(1, "git", stderr="repair/abc - not something we can merge")
+        return subprocess.CompletedProcess(args, 0, stdout="", stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr(data_ops_module, "importlib", type("M", (), {"import_module": staticmethod(lambda name: "fake-module")}))
+    monkeypatch.setattr("src.migrate_lifecycle_to_s3.migrate_context", lambda storage: None)
+
+    spec = _fake_spec(pipeline_configuration_file=None)
+    monkeypatch.setattr(data_ops_module, "PIPELINE_REGISTRY", {"loan_portfolio": spec})
+
+    storage = _FakeAcceptStorage(
+        {
+            "context/business_rules.json": {"marker": "stale"},
+            "context/validations/loan_portfolio.json": {"rules": []},
+            "curated/pending_repairs/loan_portfolio.json": {
+                "pipeline_name": "loan_portfolio",
+                "pr_artifact": {
+                    "diff": "--- a/context/business_rules.json\n+++ b/context/business_rules.json\n@@ -1 +1 @@\n-old\n+new\n",
+                    "target_file": "context/business_rules.json",
+                },
+            },
+        }
+    )
+
+    result = accept_repair("loan_portfolio", "repair/abc", storage, spark="fake-spark")
+
+    assert result["accepted"] is True
+    assert result["validation_status"] == "PASS"
+    assert not storage.exists("curated/pending_repairs/loan_portfolio.json")
+    assert any(c[:2] == ["git", "merge"] for c in calls)
+    assert any(c[:2] == ["git", "apply"] for c in calls)
+    assert any(c[:2] == ["git", "add"] for c in calls)
+    assert any(c[:2] == ["git", "commit"] for c in calls)
+    assert not any(c[:2] == ["git", "branch"] for c in calls)  # nothing to delete locally -- the branch never existed here
+
+
+def test_accept_repair_reports_original_merge_error_when_no_stored_diff_available(monkeypatch):
+    monkeypatch.setattr(
+        subprocess, "run", lambda *a, **k: (_ for _ in ()).throw(subprocess.CalledProcessError(1, "git", stderr="not something we can merge"))
+    )
+    storage = _FakeAcceptStorage({"curated/pending_repairs/loan_portfolio.json": {"pipeline_name": "loan_portfolio"}})  # no pr_artifact
+    result = accept_repair("loan_portfolio", "repair/abc", storage, spark="fake-spark")
+    assert result["accepted"] is False
+    assert "not something we can merge" in result["error"]
+
+
 def test_reject_repair_deletes_branch_and_clears_pending_record(monkeypatch):
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: subprocess.CompletedProcess(a, 0, stdout="", stderr=""))
     storage = _FakeAcceptStorage({"curated/pending_repairs/loan_portfolio.json": {"pipeline_name": "loan_portfolio"}})

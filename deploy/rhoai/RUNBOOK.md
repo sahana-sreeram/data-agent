@@ -326,41 +326,102 @@ and `tests.full_relevant_suite` both `PASS`.
     (globs for `hadoop-client-api-*.jar` in whatever pyspark is actually installed) --
     superseded by #13's version pin, but the dynamic detection is kept as a defense-in-depth
     correctness fix regardless of what gets installed in the future.
+16. Submitting all 6 pipelines' SparkApplications back-to-back (as the real OpenAI model did on
+    its first unguided run of `codex_mcp_loop` against all 6 pipelines, 2026-07-29) overwhelms
+    this cluster's Spark Operator controller -- every driver pod except the first got scheduled
+    but its `spark-drv-*-conf-map` ConfigMap was never created, so all 5 later drivers sat in
+    `ContainerCreating` forever (confirmed live via `FailedMount ... configmap ... not found`
+    events; cleaned up via `oc delete sparkapplication` + `oc delete pod --force`). Fixed by
+    tightening `SYSTEM_PROMPT` (`src/agents/codex_mcp_loop.py`) to require confirming (via
+    `get_spark_application_status`) that one pipeline's job has left `SUBMITTED` before
+    submitting the next -- a prompt-level fix, since the Spark Operator's own concurrency
+    handling isn't something this project controls.
+17. Two compounding issues surfaced together on a second cluster (ROSA, 2026-07-29) once bug
+    #16's fix was in place: (a) requiring one-at-a-time submission costs more model turns than
+    the old (unsafe) back-to-back behavior -- a real 6-pipeline run exhausted
+    `DEFAULT_MAX_TURNS=16` with every one of its OpenAI calls succeeding, purely from the extra
+    status-check turns the sequential-submission requirement now adds -- fixed by raising
+    `DEFAULT_MAX_TURNS` to 40 (`src/agents/codex_mcp_loop.py`). (b) That `ModelClientError`
+    failure exited non-zero, and the Job's unset `backoffLimit` defaulted to Kubernetes' normal
+    6 retries -- a second full run silently started behind our backs, resubmitting
+    SparkApplications for pipelines the first run had already processed and burning more real,
+    billed OpenAI calls with nobody watching. Fixed by setting `backoffLimit: 0` on the
+    CronJob's `jobTemplate` (`morning-loop-cronjob.yaml`) -- a run that didn't converge needs a
+    human to look at it, not an automatic retry storm.
+18. `accept_repair` ran `git merge --no-ff <branch>` against whatever repo the CURRENT process
+    happened to be in -- fine locally (one long-lived process), broken on a real cluster:
+    `create_candidate_repair`/`verify_candidate_repair` create their branch inside the
+    `mcp-data-ops` pod's own ephemeral git repo, but `accept_repair` only runs via
+    `/api/repairs/accept` on the **console** pod -- a different pod with its own independent,
+    ephemeral git history that never saw that branch (confirmed live, ROSA, 2026-07-29:
+    `git merge failed: merge: repair/2226af983ee3 - not something we can merge`). Even calling
+    it from the *same* pod wouldn't help long-term -- any redeploy/restart wipes the branch
+    too. Fixed by falling back to `git apply`-ing the pending-repair record's own stored
+    unified diff directly when the branch merge fails (`src/data_ops.py::accept_repair`) --
+    the diff is already persisted as DATA in the state store, not live git state, so applying
+    it works regardless of which pod/process created the candidate and survives restarts.
+    Confirmed live: `accept_repair` on ROSA correctly detected the unmergeable branch, applied
+    the stored diff instead, reran the real pipeline, and `loan_portfolio` came back
+    `validation_status=PASS` on real cluster data.
+
+## Real-world friction encountered (not project bugs, but worth knowing about)
+
+- **Docker Hub anonymous pull rate limit**: `oc start-build` pulls `python:3.12-slim` from
+  `docker.io` unauthenticated (100 pulls/6h per source IP) -- on both RHOAI and ROSA this was
+  hit repeatedly during a day of iterating on builds, especially on a cloud-hosted cluster
+  sharing a NAT gateway IP with other tenants. Retrying every few minutes always eventually
+  got through (once within 1 retry, once after ~20 min). If this becomes a recurring blocker,
+  authenticate the `builder` ServiceAccount's pulls: create a Docker Hub access token, then
+  `oc create secret docker-registry dockerhub-pull-secret --docker-server=docker.io
+  --docker-username=<user> --docker-password=<token>` + `oc secrets link builder
+  dockerhub-pull-secret --for=pull` -- authenticated pulls get a materially higher limit.
+- **OpenAI `insufficient_quota`**: this is an org/account-level billing gate, not a per-key or
+  per-model limit -- a new key under the same org hits the identical error immediately, and
+  switching to a cheaper model doesn't help either, since the gate applies before OpenAI even
+  looks at which model was requested. Only fixed by raising the account's spending limit/adding
+  funds at `platform.openai.com`.
+- **`/api/repairs/accept`'s real Spark rerun can exceed a Route's default gateway timeout**
+  (observed: a 504 after ~30s on ROSA) even though the request completes successfully
+  server-side seconds later -- check `oc logs deployment/data-agent-console` and
+  `GET /api/repairs/pending` (should be empty) / `GET /api/run-details/latest` to confirm the
+  real outcome rather than trusting the HTTP response alone if this endpoint is ever
+  hit directly instead of through a client with a longer timeout.
 
 ## What is NOT done yet
 
-- **Real Codex/OpenAI**: `USE_SCRIPTED_MODEL=true` proves the infrastructure; connecting a
-  real model means creating a Secret with a real `OPENAI_API_KEY` from your local environment
-  (never printed):
-  ```
-  oc create secret generic data-agent-secrets -n data-agent --dry-run=client -o yaml \
-    --from-literal=S3_ACCESS_KEY_ID="$MINIO_ACCESS_KEY" \
-    --from-literal=S3_SECRET_ACCESS_KEY="$MINIO_SECRET_KEY" \
-    --from-literal=OPENAI_API_KEY="$OPENAI_API_KEY" | oc apply -f -
-  oc set env deployment/mcp-data-ops -n data-agent USE_SCRIPTED_MODEL-
-  ```
-  then rerun step 11 and evaluate whether the real model follows the intended tool sequence,
-  stops when evidence is insufficient, and converges without looping.
-- **Console deployment** (`deploy/rhoai/console-deployment.yaml`) and the **Route**
-  (`route-run-details.yaml`) -- not yet applied. Same image/fixes as the MCP servers apply
-  (git, resource limits may be needed too since the console can also trigger repairs).
-- **CronJob** (`morning-loop-cronjob.yaml`) -- not yet applied; calls
-  `src.agents.codex_mcp_loop`, which has been proven against a real OpenAI model locally
-  (2026-07-28, `loan_portfolio` with the contract-change scenario injected: the model called
-  the full intended tool sequence, correctly classified the failure as `SOURCE_CONTRACT_CHANGE`,
-  and correctly stopped without forcing a repair once `create_candidate_repair` reported
-  `BLOCKED` -- `context/business_rules.json` isn't in the repair target allowlist -- rather
-  than looping or fabricating a fix) but never yet against the live cluster.
-- **Other 5 pipelines' SparkApplications** -- only `loan_portfolio` (the flagship scenario)
-  has been proven on RHOAI. The others would need their own SparkApplication manifests
-  (templated from `sparkapplication-loan-portfolio.yaml`) if the full morning-loop demo
-  should run against RHOAI for every pipeline, not just the flagship one.
-- **`accept_repair`/promotion on RHOAI** -- `verify_candidate_repair` reaching
-  `VERIFIED_PENDING_PR` is the end of what's been proven; a human explicitly accepting that
-  candidate (a real git merge + rerun) has only ever been tested against the local path.
+- **Other 5 pipelines' SparkApplication YAML manifests** (`sparkapplication-*.yaml`, one per
+  pipeline) -- templated and present in this repo but not individually `oc apply`'d/validated
+  standalone; the morning loop's own `submit_spark_pipeline` tool builds its own
+  `SparkApplication` object dynamically instead of applying these files, and that dynamic path
+  IS proven for all 6 pipelines (see bug #16/#17's live runs). These static per-pipeline
+  manifests remain useful for a manual, single-pipeline sanity check (as step 7 does for
+  `loan_portfolio`) but aren't required for the full demo to work.
+
+Everything else in the original plan -- real Codex/OpenAI, console + Route, CronJob (including
+a full real, all-6-pipeline run), and `accept_repair` promotion -- has now been proven live on
+two separate clusters (RHOAI, 2026-07-29; ROSA, 2026-07-29).
 
 ## Reproducing from scratch (e.g. after deleting and recreating the `data-agent` project)
 
 Run steps 2-11 in order. Everything is either a committed file in this repo (`deploy/rhoai/*`,
 `Dockerfile*`) or an exact command above -- nothing else was done by hand. Steps 2 (image
 builds) are the slowest (~2-5 min each); everything else is fast once the images exist.
+
+On a cluster that has never run this before, also confirm the Spark Operator itself is
+installed (`oc get crd sparkapplications.sparkoperator.k8s.io`) -- it is NOT an OperatorHub
+package for the `sparkoperator.k8s.io/v1beta2` API this project targets; install via Helm:
+```
+helm repo add spark-operator https://kubeflow.github.io/spark-operator && helm repo update
+helm install spark-operator spark-operator/spark-operator --namespace spark-operator --create-namespace \
+  --set webhook.enable=true \
+  --set controller.podSecurityContext.fsGroup=null --set webhook.podSecurityContext.fsGroup=null \
+  --set-json 'spark.jobNamespaces=["data-agent"]'
+```
+The two `--set ...podSecurityContext.fsGroup=null` overrides are required on OpenShift/ROSA:
+the chart hardcodes `fsGroup: 185`, which every real SCC on OpenShift rejects (confirmed live,
+ROSA, 2026-07-29) -- setting it to null lets OpenShift assign one from the namespace's allowed
+range instead. `spark.jobNamespaces` (not the top-level `jobNamespaces` value -- confirmed live
+that setting the wrong one silently renders to `--namespaces=default` and the operator never
+sees any SparkApplication created in a different namespace) must include your project's name,
+or the operator's controller never sees any `SparkApplication` created there at all -- it just
+sits with no `status` and no events, forever.
