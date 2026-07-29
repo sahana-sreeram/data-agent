@@ -391,6 +391,18 @@ and `tests.full_relevant_suite` both `PASS`.
     Confirmed live: `accept_repair` on ROSA correctly detected the unmergeable branch, applied
     the stored diff instead, reran the real pipeline, and `loan_portfolio` came back
     `validation_status=PASS` on real cluster data.
+19. The console's own health-monitor poller (`static/app.js::runAutoScan`, fires every 25s
+    unconditionally) calls `/api/incidents/scan`, which -- the very first time it discovers a
+    newly-untrusted pipeline with no pending repair cached yet -- runs a real diagnose/apply/
+    verify cycle including a real Spark rerun and pytest run. Confirmed live (ROSA,
+    2026-07-29) this reliably exceeds OpenShift's default ~30s Route gateway timeout: the
+    browser gets a 504/network error and shows "Health monitor: could not reach the API,"
+    even though the repair is generated correctly seconds later server-side (confirmed by
+    re-calling the endpoint immediately after -- it returned `already_pending` in under half a
+    second). The exact same class of issue affects `/api/repairs/accept`'s real pipeline
+    rerun. Fixed by setting `haproxy.router.openshift.io/timeout: 120s` on the console's Route
+    (`route-run-details.yaml`) -- a client-side timing artifact, not an application bug, but
+    one that reads as a hard failure to anyone watching the console live.
 
 ## Real-world friction encountered (not project bugs, but worth knowing about)
 
