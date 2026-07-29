@@ -30,7 +30,8 @@ import datetime
 import hashlib
 import importlib
 import inspect
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from src.context_enrichment.contract_detector import detect_payment_service_contract_version
@@ -242,3 +243,74 @@ class ContextRetriever:
         return ContextFact(
             asset_id=pipeline_name, field="runtime_health", value=runtime.model_dump(), provenance="runtime"
         )
+
+
+DEMO_CONTEXT_MODE_ENV_VAR = "DEMO_CONTEXT_MODE"
+
+
+def is_demo_context_blind() -> bool:
+    """Shared by build_context_retriever below and src/lifecycle_diagnostic_tools.py's
+    build_diagnostic_tools_for_pipeline (via src/lifecycle_diagnose_pipeline.py) -- one env var
+    read, so both the outer MCP context tools and the inner diagnosis agent's raw-code/raw-
+    business-rules tools go blind together."""
+    return os.environ.get(DEMO_CONTEXT_MODE_ENV_VAR, "full") == "blind"
+
+
+def _default_context_retriever() -> "ContextRetriever":
+    from src.context_store.file_store import FileContextStore
+
+    return ContextRetriever(store=FileContextStore())
+
+
+@dataclass
+class BlindContextRetriever:
+    """Stand-in for ContextRetriever, used only when DEMO_CONTEXT_MODE=blind, that removes
+    the context layer specifically -- metric definitions, lineage, structural pipeline
+    metadata, and the ETL-source-as-context view -- while deliberately leaving
+    get_runtime_health working (delegated to a real ContextRetriever below): "is this
+    pipeline currently healthy" is a basic operational signal an agent has regardless of
+    whether any context/metadata layer exists, not something this layer provides.
+
+    Duck-typed to ContextRetriever's exact method signatures so it's a drop-in replacement
+    anywhere a ContextRetriever is threaded through (see build_context_retriever). Raw ETL
+    source code and context/business_rules.json bypass this class entirely (several diagnosis
+    tools read them directly -- see src/lifecycle_diagnostic_tools.py's
+    get_relevant_etl_source/get_pipeline_business_rules); DEMO_CONTEXT_MODE=blind blinds those
+    too, via LifecycleDiagnosticTools.blind_raw_context (see is_demo_context_blind below and
+    that class's field comment) -- confirmed live (ROSA, 2026-07-29) that blinding only this
+    class wasn't enough to change gpt-5's diagnosis for the flagship incident, since it could
+    still reconstruct the answer from raw code + raw rules alone."""
+
+    _real: ContextRetriever = field(default_factory=lambda: _default_context_retriever())
+
+    def _blind(self, pipeline_name: str, field_name: str) -> ContextFact:
+        return ContextFact(asset_id=pipeline_name, field=field_name, value=None, provenance="context_layer_disabled")
+
+    def get_metric(self, pipeline_name: str, metric_name: str, storage: S3Storage) -> ContextFact:
+        return self._blind(pipeline_name, metric_name)
+
+    def get_lineage(self, pipeline_name: str, storage: S3Storage) -> ContextFact:
+        return self._blind(pipeline_name, "lineage")
+
+    def get_pipeline_metadata(self, pipeline_name: str, storage: S3Storage) -> ContextFact:
+        return self._blind(pipeline_name, "pipeline_metadata")
+
+    def get_relevant_code(self, pipeline_name: str, storage: S3Storage) -> ContextFact:
+        return self._blind(pipeline_name, "relevant_code")
+
+    def get_business_rules(self, pipeline_name: str, storage: S3Storage) -> ContextFact:
+        return self._blind(pipeline_name, "business_rules")
+
+    def get_runtime_health(self, pipeline_name: str, storage: S3Storage) -> ContextFact:
+        return self._real.get_runtime_health(pipeline_name, storage)
+
+
+def build_context_retriever() -> "ContextRetriever | BlindContextRetriever":
+    """The one place diagnosis-quality-affecting call sites (src/mcp_servers/data_ops_server.py,
+    src/lifecycle_diagnose_pipeline.py) construct a context retriever from -- lets
+    DEMO_CONTEXT_MODE=blind swap in BlindContextRetriever for both the outer MCP tools and the
+    inner diagnosis agent's tools with one env var, since both run inside the same mcp-data-ops
+    pod. Defaults to the real, full context layer."""
+    if is_demo_context_blind():
+        return BlindContextRetriever()
+    return _default_context_retriever()

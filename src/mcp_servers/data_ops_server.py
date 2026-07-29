@@ -36,8 +36,7 @@ from typing import Callable
 
 USE_SCRIPTED_MODEL_ENV_VAR = "USE_SCRIPTED_MODEL"
 
-from src.context_retriever import ContextRetriever
-from src.context_store.file_store import FileContextStore
+from src.context_retriever import BlindContextRetriever, ContextRetriever, build_context_retriever
 from src.dataset_registry_tools import ToolError
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
 from src.lifecycle_run_self_healing import run_lifecycle_self_healing
@@ -68,7 +67,7 @@ def _fact_dict(fact) -> dict:
 @dataclass
 class DataOpsTools:
     storage: S3Storage
-    context_retriever: ContextRetriever
+    context_retriever: ContextRetriever | BlindContextRetriever
     state_store: StateStore
     diagnosis_model_client_factory: Callable[[], DiagnosisModelClient]
     repair_model_client_factory: Callable[[], DiagnosisModelClient]
@@ -242,7 +241,7 @@ def build_default_data_ops_tools() -> DataOpsTools:
 
     return DataOpsTools(
         storage=S3Storage(),
-        context_retriever=ContextRetriever(store=FileContextStore()),
+        context_retriever=build_context_retriever(),
         state_store=get_state_store(),
         diagnosis_model_client_factory=diagnosis_factory,
         repair_model_client_factory=repair_factory,

@@ -212,6 +212,34 @@ scenario only -- see `src.demo.enterprise_incident`):
 oc set env deployment/mcp-data-ops -n data-agent USE_SCRIPTED_MODEL=true
 ```
 
+For a live demo of what the context layer itself buys you, `DEMO_CONTEXT_MODE=blind` (see
+`src/context_retriever.py::BlindContextRetriever` and
+`src/lifecycle_diagnostic_tools.py::LifecycleDiagnosticTools.blind_raw_context`) swaps out
+metric definitions, lineage, structural pipeline metadata, raw ETL source, AND raw
+`context/business_rules.json` -- for both the outer MCP tools AND `create_candidate_repair`'s
+own inner diagnosis agent (one env var covers both, since they run in the same pod). Run the
+same incident once with this unset (full context) and once with it set, both against the real
+model, and compare the diagnosis:
+```
+oc set env deployment/mcp-data-ops -n data-agent DEMO_CONTEXT_MODE=blind
+# ...call create_candidate_repair again, compare diagnosis confidence/evidence/target_file...
+oc set env deployment/mcp-data-ops -n data-agent DEMO_CONTEXT_MODE-
+```
+Confirmed live (ROSA, 2026-07-29), in two stages:
+1. The narrower version (context layer only, raw code/rules still visible) did NOT change
+   gpt-5's diagnosis for the flagship incident -- it reconstructed the same `HIGH`-confidence,
+   correct answer from raw ETL source + raw business rules + data-aggregation tools alone.
+2. Widening blind mode to also withhold raw code/rules (the current behavior) DID produce a
+   real, measurable gap on the identical incident: confidence dropped `HIGH` -> `MEDIUM`, and
+   the diagnosis explicitly flagged its own uncertainty --
+   *"The exact current contents of context/business_rules.json could not be retrieved (context
+   layer disabled), so we inferred it still lists 'PAID' and not 'SETTLED'"* -- listing the
+   exact blinded artifacts (`context/business_rules.json`, the ETL source snippet) under
+   `additional_evidence_needed`. The model still reached the right general conclusion from raw
+   data aggregation alone, but visibly shifted from confirmed fact to honest, flagged
+   inference -- a more credible demo point than a binary right/wrong: **the context layer is
+   what turns "we think, based on inference" into "we know, confirmed directly."**
+
 Manual test via a real MCP client (from your own machine, port-forwarded):
 ```python
 # pip install mcp, then:

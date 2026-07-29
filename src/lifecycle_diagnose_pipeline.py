@@ -19,8 +19,7 @@ from __future__ import annotations
 import argparse
 import os
 
-from src.context_retriever import ContextRetriever
-from src.context_store.file_store import FileContextStore
+from src.context_retriever import build_context_retriever, is_demo_context_blind
 from src.legacy.diagnose_incident import build_starting_context
 from src.legacy.diagnosis_agent import DiagnosisAgentError
 from src.legacy.diagnosis_models import DiagnosisValidationError, build_no_incident_diagnosis, diagnosis_to_dict
@@ -95,9 +94,14 @@ def run_diagnose_pipeline(pipeline_name: str, storage: S3Storage, model_client_f
         validation_results = raw_validation
 
     try:
-        context_retriever = ContextRetriever(store=FileContextStore())
+        context_retriever = build_context_retriever()
         tools = build_diagnostic_tools_for_pipeline(
-            pipeline_name, storage, validation_results, business_rules, context_retriever=context_retriever
+            pipeline_name,
+            storage,
+            validation_results,
+            business_rules,
+            context_retriever=context_retriever,
+            blind_raw_context=is_demo_context_blind(),
         )
         starting_context = build_starting_context(validation_results)
         known_metrics = known_metric_names_from(tools.metrics)

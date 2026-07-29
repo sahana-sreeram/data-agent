@@ -169,7 +169,10 @@ happened.
 
 `deploy/rhoai/` has the Kubernetes/OpenShift manifests (Spark Operator `SparkApplication`,
 Spark History Server, both MCP servers, minimal namespace-scoped RBAC, ConfigMaps/Secret
-templates -- no real secrets committed) and `deploy/rhoai/RUNBOOK.md` for deploying them.
+templates -- no real secrets committed), `deploy/rhoai/RUNBOOK.md` for deploying them,
+`deploy/rhoai/DEMO_SCRIPT.md` for presenting the full lifecycle live, and
+`deploy/rhoai/GENERALIZABILITY.md` for why this is a reusable "unified context layer for agent
+action on RHOAI" contract rather than a one-off lending example.
 
 ## Evaluations
 

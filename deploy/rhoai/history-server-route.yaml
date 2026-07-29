@@ -1,0 +1,18 @@
+# Exposes Spark History Server (deploy/rhoai/history-server-deployment.yaml) outside the
+# cluster, mirroring route-run-details.yaml's exact shape -- previously only reachable via
+# `oc port-forward svc/spark-history-server`. Lets a demo click into a real job's DAG/stage
+# UI live in a browser instead of needing a terminal.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: spark-history-server
+  namespace: data-agent
+spec:
+  to:
+    kind: Service
+    name: spark-history-server
+  port:
+    targetPort: 18080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

@@ -10,6 +10,7 @@ UPSTREAM_CONTRACT_SCENARIOS). No real S3/Spark/model calls.
 from __future__ import annotations
 
 import src.lifecycle_diagnose_pipeline as diagnose_module
+from src.context_retriever import ContextRetriever
 
 PIPELINE_NAME = "payment_performance"
 
@@ -125,3 +126,38 @@ def test_curated_pass_but_raw_fail_uses_raw_checks_as_diagnosis_evidence(monkeyp
     # both the tool-builder and the starting context got the RAW validator's failed checks,
     # not an empty/passing curated result
     assert all(vr == raw_failure for vr in seen_validation_results)
+
+
+def test_run_diagnose_pipeline_respects_demo_context_mode(monkeypatch):
+    """DEMO_CONTEXT_MODE=blind (see src/context_retriever.py) must reach the inner diagnosis
+    agent's own tools, not just the outer MCP data-ops tools -- this is what
+    create_candidate_repair's diagnosis actually runs on."""
+    from src.context_retriever import BlindContextRetriever
+
+    seen_context_retrievers: list = []
+    seen_blind_flags: list = []
+
+    monkeypatch.setattr(
+        diagnose_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: _fake_spec(lambda *a: {"overall_status": "FAIL", "checks": [{"id": "x", "status": "FAIL"}]})}
+    )
+    monkeypatch.setattr(diagnose_module, "validate_lifecycle_raw", lambda *a: (_ for _ in ()).throw(AssertionError("should not run")))
+
+    def fake_build_tools(pipeline_name, storage, validation_results, business_rules, context_retriever=None, blind_raw_context=False):
+        seen_context_retrievers.append(context_retriever)
+        seen_blind_flags.append(blind_raw_context)
+        return type("Tools", (), {"metrics": {}})()
+
+    monkeypatch.setattr(diagnose_module, "build_diagnostic_tools_for_pipeline", fake_build_tools)
+    monkeypatch.setattr(diagnose_module, "build_starting_context", lambda validation_results: {})
+    monkeypatch.setattr(diagnose_module, "run_lifecycle_diagnosis", lambda *a, **k: type("R", (), {})())
+    monkeypatch.setattr(diagnose_module, "diagnosis_to_dict", lambda result: {"diagnosis_status": "DIAGNOSED"})
+
+    monkeypatch.delenv("DEMO_CONTEXT_MODE", raising=False)
+    diagnose_module.run_diagnose_pipeline(PIPELINE_NAME, _FakeStorage(), lambda: "fake-client")
+    assert isinstance(seen_context_retrievers[-1], ContextRetriever)
+    assert seen_blind_flags[-1] is False
+
+    monkeypatch.setenv("DEMO_CONTEXT_MODE", "blind")
+    diagnose_module.run_diagnose_pipeline(PIPELINE_NAME, _FakeStorage(), lambda: "fake-client")
+    assert isinstance(seen_context_retrievers[-1], BlindContextRetriever)
+    assert seen_blind_flags[-1] is True

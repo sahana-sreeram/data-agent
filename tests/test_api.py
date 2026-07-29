@@ -296,6 +296,38 @@ def test_run_details_latest_falls_back_to_estate_and_pending_when_no_codex_run(m
     assert body["codex_run"] is None
 
 
+def test_run_details_includes_history_server_url_from_env_var(monkeypatch):
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return False
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+    monkeypatch.setenv("HISTORY_SERVER_URL", "https://spark-history-server-data-agent.apps.example.com")
+
+    response = client.get("/api/run-details/latest")
+
+    assert response.json()["history_server_url"] == "https://spark-history-server-data-agent.apps.example.com"
+
+
+def test_run_details_history_server_url_is_none_when_unset(monkeypatch):
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return False
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+    monkeypatch.delenv("HISTORY_SERVER_URL", raising=False)
+
+    response = client.get("/api/run-details/latest")
+
+    assert response.json()["history_server_url"] is None
+
+
 def test_run_details_latest_includes_codex_run_when_present(monkeypatch):
     fake_codex_run = {"run_id": "abc123", "backend": "codex_mcp", "stages": [{"tool": "submit_spark_pipeline", "arguments": {}, "result": "{}"}], "final_report": {"summary": "all healthy"}}
     monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])

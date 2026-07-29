@@ -288,6 +288,11 @@ def run_details(run_id: str) -> dict:
             "data_products": data_product_estate(storage),
             "pending_repairs": list_pending_repairs(storage),
             "codex_run": codex_run,
+            # Plain env var, set once via `oc set env deployment/data-agent-console
+            # HISTORY_SERVER_URL=https://<route-host>` after applying
+            # deploy/rhoai/history-server-route.yaml -- None locally/before that Route exists,
+            # in which case the console simply omits the link (see app.js).
+            "history_server_url": os.environ.get("HISTORY_SERVER_URL"),
         }
     except StorageError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc

@@ -343,10 +343,42 @@ function renderRunDetailsWorkflow(cardEl, box, codexRun) {
   }
 }
 
+// Tools whose result carries real Spark/pod runtime evidence -- see
+// src/mcp_servers/spark_runtime_server.py. Pulls the LAST matching stage out of the same
+// codexRun.stages data renderRunDetailsWorkflow already renders (no new backend call).
+const SPARK_EVIDENCE_TOOLS = new Set(["get_spark_application_status", "get_spark_run_summary", "get_pod_status"]);
+
+function renderRunDetailsInfra(cardEl, box, codexRun, historyServerUrl) {
+  const stages = (codexRun && codexRun.stages) || [];
+  const lastEvidenceStage = [...stages].reverse().find((s) => SPARK_EVIDENCE_TOOLS.has(s.tool));
+
+  if (!historyServerUrl && !lastEvidenceStage) {
+    cardEl.classList.add("hidden");
+    return;
+  }
+  cardEl.classList.remove("hidden");
+  clear(box);
+
+  if (historyServerUrl) {
+    const link = el("a", { text: "View in Spark History Server" });
+    link.href = historyServerUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    box.appendChild(el("p", { children: [link] }));
+  }
+
+  if (lastEvidenceStage) {
+    box.appendChild(el("p", { className: "muted", text: `Latest runtime evidence -- ${lastEvidenceStage.tool}:` }));
+    box.appendChild(el("pre", { className: "diff", text: lastEvidenceStage.result }));
+  }
+}
+
 async function loadRunDetails() {
   const estateBox = document.getElementById("run-details-estate");
   const workflowCard = document.getElementById("run-details-workflow-card");
   const workflowBox = document.getElementById("run-details-workflow");
+  const infraCard = document.getElementById("run-details-infra-card");
+  const infraBox = document.getElementById("run-details-infra");
   const repairsBox = document.getElementById("run-details-repairs");
   try {
     const res = await fetch("/api/run-details/latest");
@@ -355,6 +387,7 @@ async function loadRunDetails() {
 
     renderRunDetailsEstate(estateBox, data.data_products || []);
     renderRunDetailsWorkflow(workflowCard, workflowBox, data.codex_run);
+    renderRunDetailsInfra(infraCard, infraBox, data.codex_run, data.history_server_url);
 
     clear(repairsBox);
     const pending = data.pending_repairs || [];

@@ -363,3 +363,36 @@ def test_get_pod_status():
     tools = SparkRuntimeTools(pipeline_runner=_FakePipelineRunner(), runtime_inspector=_FakeInspector())
     submitted = tools.submit_spark_pipeline(PIPELINE_NAME)
     assert tools.get_pod_status(submitted["run_id"])["available"] is True
+
+
+# --- build_default_data_ops_tools: DEMO_CONTEXT_MODE toggle -------------------------------
+
+
+def _stub_data_ops_construction_dependencies(monkeypatch):
+    """build_default_data_ops_tools constructs real S3Storage/state-store/Spark session --
+    stub all three (state-store/spark_session are imported inside the function body, so
+    patching their defining modules before the call still takes effect) so these tests
+    exercise only the context_retriever wiring this feature actually adds."""
+    monkeypatch.setattr(data_ops_server_module, "S3Storage", lambda: "fake-storage")
+    monkeypatch.setattr("src.config.get_state_store", lambda: "fake-state-store")
+    monkeypatch.setattr("src.spark_session.get_spark_session", lambda name: "fake-spark")
+
+
+def test_build_default_data_ops_tools_defaults_to_full_context_layer(monkeypatch):
+    _stub_data_ops_construction_dependencies(monkeypatch)
+    monkeypatch.delenv("DEMO_CONTEXT_MODE", raising=False)
+
+    tools = data_ops_server_module.build_default_data_ops_tools()
+
+    assert isinstance(tools.context_retriever, ContextRetriever)
+
+
+def test_build_default_data_ops_tools_respects_demo_context_mode_blind(monkeypatch):
+    from src.context_retriever import BlindContextRetriever
+
+    _stub_data_ops_construction_dependencies(monkeypatch)
+    monkeypatch.setenv("DEMO_CONTEXT_MODE", "blind")
+
+    tools = data_ops_server_module.build_default_data_ops_tools()
+
+    assert isinstance(tools.context_retriever, BlindContextRetriever)
