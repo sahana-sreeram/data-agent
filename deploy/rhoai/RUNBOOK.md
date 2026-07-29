@@ -345,8 +345,12 @@ and `tests.full_relevant_suite` both `PASS`.
   (`route-run-details.yaml`) -- not yet applied. Same image/fixes as the MCP servers apply
   (git, resource limits may be needed too since the console can also trigger repairs).
 - **CronJob** (`morning-loop-cronjob.yaml`) -- not yet applied; calls
-  `src.agents.codex_mcp_loop`, which has not yet been run against the live cluster at all
-  (only tested against fakes locally).
+  `src.agents.codex_mcp_loop`, which has been proven against a real OpenAI model locally
+  (2026-07-28, `loan_portfolio` with the contract-change scenario injected: the model called
+  the full intended tool sequence, correctly classified the failure as `SOURCE_CONTRACT_CHANGE`,
+  and correctly stopped without forcing a repair once `create_candidate_repair` reported
+  `BLOCKED` -- `context/business_rules.json` isn't in the repair target allowlist -- rather
+  than looping or fabricating a fix) but never yet against the live cluster.
 - **Other 5 pipelines' SparkApplications** -- only `loan_portfolio` (the flagship scenario)
   has been proven on RHOAI. The others would need their own SparkApplication manifests
   (templated from `sparkapplication-loan-portfolio.yaml`) if the full morning-loop demo
