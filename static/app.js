@@ -202,6 +202,32 @@ document.getElementById("qa-form").addEventListener("submit", (event) => {
   input.value = "";
 });
 
+// --- Codex/MCP run trigger: launches the real harness as a one-off Job (RHOAI only) ------
+
+document.getElementById("codex-run-trigger-btn").addEventListener("click", async () => {
+  const button = document.getElementById("codex-run-trigger-btn");
+  const status = document.getElementById("codex-run-status");
+  button.disabled = true;
+  status.textContent = "Launching...";
+  try {
+    const res = await fetch("/api/codex-run/trigger", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pipeline_name: "loan_portfolio" }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      status.textContent = `Could not launch: ${data.detail || res.statusText}`;
+    } else {
+      status.textContent = `Launched ${data.job_name} -- takes a few minutes; refresh this tab once it completes.`;
+    }
+  } catch (err) {
+    status.textContent = "Could not reach the API.";
+  } finally {
+    button.disabled = false;
+  }
+});
+
 // --- Repairs tab: pending candidates awaiting a human accept/reject decision --------------
 
 async function decideRepair(pipelineName, branch, decision, statusBox) {

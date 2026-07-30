@@ -19,6 +19,10 @@ data:
   # console's bare python:3.12-slim image. See deploy/rhoai/sparkapplication-loan-portfolio.yaml's
   # header comment for why.
   RHOAI_SPARK_IMAGE: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent-spark:latest"
+  # The SAME image as the console/MCP servers (not RHOAI_SPARK_IMAGE above) -- src/api.py's
+  # "run Codex/MCP now" action (POST /api/codex-run/trigger) clones morning-loop-cronjob.yaml's
+  # jobTemplate to launch src.agents.codex_mcp_loop on demand, scoped to one pipeline.
+  CODEX_RUN_IMAGE: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest"
   SPARK_HISTORY_SERVER_URL: "http://spark-history-server:18080"
   MCP_DATA_OPS_URL: "http://mcp-data-ops:8000/mcp"
   MCP_SPARK_RUNTIME_URL: "http://mcp-spark-runtime:8000/mcp"

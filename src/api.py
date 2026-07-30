@@ -64,6 +64,14 @@ class RepairDecisionRequest(BaseModel):
     branch: str
 
 
+class CodexRunRequest(BaseModel):
+    pipeline_name: str = "loan_portfolio"
+
+
+CODEX_RUN_IMAGE_ENV_VAR = "CODEX_RUN_IMAGE"
+CODEX_RUN_NAMESPACE_ENV_VAR = "RHOAI_NAMESPACE"
+
+
 def _model_client_factory() -> DiagnosisModelClient:
     answer_model = os.environ.get(ANSWER_MODEL_ENV_VAR)
     return OpenAIDiagnosisModelClient(model=answer_model) if answer_model else OpenAIDiagnosisModelClient()
@@ -334,6 +342,87 @@ def repairs_reject(request: RepairDecisionRequest) -> dict:
         return reject_repair(request.pipeline_name, request.branch, storage)
     except StorageError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+def _codex_run_batch_api():
+    """Lazy import -- the `kubernetes` package (pyproject.toml's `rhoai` extra) is never
+    required for the local-only path. Mirrors src.platform_backends.pipeline_runner.
+    _default_k8s_client's in-cluster/kubeconfig fallback. A separate function (not inlined
+    into the endpoint) so tests can monkeypatch this one call site with a fake client instead
+    of needing the real package installed."""
+    import kubernetes
+
+    try:
+        kubernetes.config.load_incluster_config()
+    except kubernetes.config.ConfigException:
+        kubernetes.config.load_kube_config()
+    return kubernetes.client.BatchV1Api()
+
+
+def _build_codex_run_job(pipeline_name: str) -> dict:
+    """A one-off Job cloning deploy/rhoai/morning-loop-cronjob.yaml's jobTemplate exactly
+    (same image, resources, envFrom, serviceAccount, backoffLimit=0 -- a run that doesn't
+    converge needs a human to look at it, not a retry storm) but scoped to a single pipeline
+    via --pipeline, with a generated name instead of the CronJob's fixed one. This IS the real
+    Codex/MCP harness (src.agents.codex_mcp_loop) -- a genuine MCP client making real network
+    calls to mcp-data-ops/mcp-spark-runtime -- run on demand instead of only on the CronJob's
+    schedule."""
+    image = os.environ.get(CODEX_RUN_IMAGE_ENV_VAR, "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest")
+    labels = {"app.kubernetes.io/managed-by": "claude-demo", "app.kubernetes.io/component": "codex-run"}
+    return {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {"generateName": "codex-run-", "labels": labels},
+        "spec": {
+            "backoffLimit": 0,
+            "template": {
+                "metadata": {"labels": labels},
+                "spec": {
+                    "serviceAccountName": "data-agent-app",
+                    "restartPolicy": "Never",
+                    "containers": [
+                        {
+                            "name": "codex-run",
+                            "image": image,
+                            "imagePullPolicy": "Always",
+                            "command": ["python3", "-m", "src.agents.codex_mcp_loop", "--pipeline", pipeline_name],
+                            "resources": {
+                                "requests": {"cpu": "500m", "memory": "2Gi"},
+                                "limits": {"cpu": "2", "memory": "4Gi"},
+                            },
+                            "envFrom": [
+                                {"configMapRef": {"name": "data-agent-app-config"}},
+                                {"secretRef": {"name": "data-agent-secrets"}},
+                            ],
+                        }
+                    ],
+                },
+            },
+        },
+    }
+
+
+@app.post("/api/codex-run/trigger")
+def codex_run_trigger(request: CodexRunRequest) -> dict:
+    """Launch the real Codex/MCP harness as a one-off Kubernetes Job, scoped to one pipeline
+    -- the actual MCP-over-the-network agent loop, distinct from the console's own direct-call
+    Q&A/auto-scan path (src.data_ops, AGENT_HARNESS=current always, regardless of what that env
+    var says -- nothing in this module branches on it). Fire-and-forget: returns as soon as the
+    Job is created; the harness itself takes minutes. Watch its progress via `oc get pods`/`oc
+    logs`, or the Run Details tab once it writes curated/demo_run_latest.json on completion.
+    RHOAI-only: requires the `kubernetes` package (pyproject.toml's `rhoai` extra) and the
+    batch/jobs RBAC grant in deploy/rhoai/role.yaml."""
+    if request.pipeline_name not in PIPELINE_REGISTRY:
+        raise HTTPException(status_code=404, detail=f"unknown pipeline {request.pipeline_name!r}; known: {sorted(PIPELINE_REGISTRY)}")
+    namespace = os.environ.get(CODEX_RUN_NAMESPACE_ENV_VAR, "data-agent")
+    try:
+        batch_api = _codex_run_batch_api()
+        job = batch_api.create_namespaced_job(namespace=namespace, body=_build_codex_run_job(request.pipeline_name))
+    except ImportError as exc:
+        raise HTTPException(status_code=501, detail="kubernetes package not installed -- this action requires RHOAI mode (pip install -e '.[rhoai]')") from exc
+    except Exception as exc:  # noqa: BLE001 -- surface any k8s API failure (RBAC, connectivity) as a clean 502, not a stack trace
+        raise HTTPException(status_code=502, detail=f"failed to create Codex/MCP run Job: {exc}") from exc
+    return {"job_name": job.metadata.name, "namespace": namespace, "pipeline_name": request.pipeline_name}
 
 
 # Mounted last: FastAPI matches routes in registration order, and StaticFiles(html=True)

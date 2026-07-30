@@ -449,6 +449,67 @@ def test_repairs_reject_delegates_to_reject_repair(monkeypatch):
     assert response.json() == fake_result
 
 
+def test_build_codex_run_job_is_scoped_to_the_given_pipeline():
+    job = api_module._build_codex_run_job("loan_portfolio")
+    container = job["spec"]["template"]["spec"]["containers"][0]
+    assert container["command"] == ["python3", "-m", "src.agents.codex_mcp_loop", "--pipeline", "loan_portfolio"]
+    assert job["spec"]["backoffLimit"] == 0
+    assert job["spec"]["template"]["spec"]["serviceAccountName"] == "data-agent-app"
+    assert job["metadata"]["generateName"] == "codex-run-"
+
+
+class _FakeJob:
+    class metadata:
+        name = "codex-run-abc123"
+
+
+class _FakeBatchApi:
+    def __init__(self):
+        self.calls = []
+
+    def create_namespaced_job(self, namespace, body):
+        self.calls.append((namespace, body))
+        return _FakeJob()
+
+
+def test_codex_run_trigger_creates_job_and_returns_its_name(monkeypatch):
+    fake_api = _FakeBatchApi()
+    monkeypatch.setattr(api_module, "_codex_run_batch_api", lambda: fake_api)
+    monkeypatch.setenv("RHOAI_NAMESPACE", "data-agent")
+
+    response = client.post("/api/codex-run/trigger", json={"pipeline_name": "loan_portfolio"})
+
+    assert response.status_code == 200
+    assert response.json() == {"job_name": "codex-run-abc123", "namespace": "data-agent", "pipeline_name": "loan_portfolio"}
+    assert len(fake_api.calls) == 1
+    namespace, body = fake_api.calls[0]
+    assert namespace == "data-agent"
+    assert body["spec"]["template"]["spec"]["containers"][0]["command"][-1] == "loan_portfolio"
+
+
+def test_codex_run_trigger_rejects_an_unknown_pipeline(monkeypatch):
+    fake_api = _FakeBatchApi()
+    monkeypatch.setattr(api_module, "_codex_run_batch_api", lambda: fake_api)
+
+    response = client.post("/api/codex-run/trigger", json={"pipeline_name": "not_a_real_pipeline"})
+
+    assert response.status_code == 404
+    assert fake_api.calls == []  # never even tries the k8s call for an unknown pipeline
+
+
+def test_codex_run_trigger_surfaces_k8s_failure_as_502(monkeypatch):
+    class _FailingBatchApi:
+        def create_namespaced_job(self, namespace, body):
+            raise RuntimeError("Forbidden: cannot create jobs")
+
+    monkeypatch.setattr(api_module, "_codex_run_batch_api", lambda: _FailingBatchApi())
+
+    response = client.post("/api/codex-run/trigger", json={"pipeline_name": "loan_portfolio"})
+
+    assert response.status_code == 502
+    assert "Forbidden" in response.json()["detail"]
+
+
 def test_index_html_is_served_at_root():
     response = client.get("/")
     assert response.status_code == 200

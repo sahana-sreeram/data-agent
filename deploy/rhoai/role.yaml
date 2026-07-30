@@ -42,3 +42,12 @@ rules:
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
     verbs: ["get", "list", "watch", "delete", "deletecollection"]
+  # The console's "run Codex/MCP now" action (POST /api/codex-run/trigger, src/api.py) creates
+  # a one-off Job cloning morning-loop-cronjob.yaml's jobTemplate, scoped to a single pipeline
+  # -- this is the actual Codex/MCP harness (src.agents.codex_mcp_loop), run on demand instead
+  # of only on the CronJob's schedule. The Job runs as this SAME service account (no
+  # cross-account elevation), so no additional SCC/impersonation permission is needed beyond
+  # create/get/list/delete on jobs themselves.
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "delete"]
