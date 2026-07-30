@@ -116,16 +116,36 @@ class DataOpsTools:
         validation_rules = self.storage.read_json(spec.validation_rules_key)
         validation_before = spec.run_validate(self.storage, business_rules, validation_rules, DEFAULT_AS_OF_DATE)
 
+        # Reserve this pipeline's pending-repair slot immediately, before the (multi-second)
+        # diagnose+apply work below -- src.data_ops.auto_scan_and_repair's health-monitor scan
+        # (polled from the console UI every 25s, possibly from a different pod than this one)
+        # only skips a pipeline once curated/pending_repairs/<pipeline>.json exists; without
+        # this, a poll landing mid-flight here would start its OWN independent repair attempt
+        # for the same incident, and its _run_pytest_against_patched_code could transiently
+        # overwrite the real target file while this call (or a later Accept) is also reading/
+        # writing it. Skip the reservation if a real pending review is already sitting there --
+        # never clobber it. verify_candidate_repair below clears this placeholder if it doesn't
+        # end in VERIFIED_PENDING_PR, so a rejected/failed candidate never blocks future scans.
+        pending_key = _pending_repair_key(pipeline_name)
+        reserved_pending_slot = not self.storage.exists(pending_key)
+        if reserved_pending_slot:
+            self.storage.write_json(pending_key, {"pipeline_name": pipeline_name, "status": "in_progress"})
+
         spark = self.spark_factory()
-        result = run_lifecycle_self_healing(
-            pipeline_name,
-            spark,
-            self.storage,
-            self.diagnosis_model_client_factory,
-            self.repair_model_client_factory,
-            mode="propose_patch",
-            human_approved_categories=frozenset(approve_categories or []),
-        )
+        try:
+            result = run_lifecycle_self_healing(
+                pipeline_name,
+                spark,
+                self.storage,
+                self.diagnosis_model_client_factory,
+                self.repair_model_client_factory,
+                mode="propose_patch",
+                human_approved_categories=frozenset(approve_categories or []),
+            )
+        except Exception:
+            if reserved_pending_slot:
+                self.storage.delete(pending_key)
+            raise
         repair_id = result["run_id"]
         self.state_store.set(
             f"{REPAIR_STATE_KEY_PREFIX}{repair_id}",
@@ -141,12 +161,17 @@ class DataOpsTools:
                 "validation_rules": validation_rules,
             },
         )
+        repair_status = (result["repair_result"] or {}).get("repair_status")
+        if reserved_pending_slot and repair_status != "APPLIED":
+            # Nothing to verify -- e.g. BLOCKED for human review -- so no verify_candidate_repair
+            # call is coming to clear the reservation below. Release it now.
+            self.storage.delete(pending_key)
         return {
             "repair_id": repair_id,
             "pipeline_name": pipeline_name,
             "diagnosis": result["diagnosis"],
             "repair_plan": result["repair_plan"],
-            "repair_status": (result["repair_result"] or {}).get("repair_status"),
+            "repair_status": repair_status,
         }
 
     def verify_candidate_repair(self, repair_id: str) -> dict:
@@ -177,9 +202,10 @@ class DataOpsTools:
         record["status"] = verification["verification_status"]
         self.state_store.set(f"{REPAIR_STATE_KEY_PREFIX}{repair_id}", record)
 
+        pending_key = _pending_repair_key(pipeline_name)
         if verification.get("verification_status") == "VERIFIED_PENDING_PR":
             self.storage.write_json(
-                _pending_repair_key(pipeline_name),
+                pending_key,
                 {
                     "pipeline_name": pipeline_name,
                     "status": "pending_review",
@@ -187,6 +213,11 @@ class DataOpsTools:
                     "diagnosis": record["diagnosis"],
                 },
             )
+        elif self.storage.exists(pending_key) and (self.storage.read_json(pending_key) or {}).get("status") == "in_progress":
+            # create_candidate_repair reserved this slot so a concurrent health-monitor scan
+            # wouldn't also attempt this pipeline; this run didn't reach VERIFIED_PENDING_PR,
+            # so release it -- otherwise no future scan/candidate could ever run for it again.
+            self.storage.delete(pending_key)
 
         return {
             "repair_id": repair_id,
