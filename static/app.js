@@ -546,6 +546,10 @@ async function runAutoScan() {
   }
 }
 
+document.getElementById("check-incidents-now-btn").addEventListener("click", () => {
+  runAutoScan();
+});
+
 // --- Init -------------------------------------------------------------------------------
 
 loadHealth();
