@@ -44,14 +44,14 @@ in a browser.
 Both narrative beats reuse the one proven, fast, purely-data-driven flagship scenario
 (`payment_service` renaming `PAID`->`SETTLED`) -- no image rebuild needed, ~10s to inject.
 
-**3a. Inject it** (against the cluster's MinIO, over a port-forward -- see RUNBOOK.md step 10
-for the exact command):
+**3a. Inject it** (`MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` must already be exported -- see
+RUNBOOK.md step 4/5):
 ```
-oc port-forward svc/minio -n data-agent 19000:9000 &
-S3_ENDPOINT_URL=http://localhost:19000 S3_ACCESS_KEY_ID=$MINIO_ACCESS_KEY \
-S3_SECRET_ACCESS_KEY=$MINIO_SECRET_KEY S3_BUCKET=data-agent \
-python3 -c "from src.storage import S3Storage; from src.demo.enterprise_incident import inject_contract_change; print(inject_contract_change(S3Storage(), None))"
+./scripts/demo/inject-bug.sh
 ```
+Reset afterward with `./scripts/demo/reset-bug.sh` (restores raw data, reruns clean, clears
+any pending repair -- idempotent, safe to run even if nothing is injected).
+
 Point: every job (event generation, ingestion, the real Spark run) reports SUCCESS, yet
 `loan_portfolio` is now silently wrong -- ask Act 1's outstanding-principal question again to
 show the console/Q&A now flags it as untrusted.
