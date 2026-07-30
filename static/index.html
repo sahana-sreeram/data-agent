@@ -10,12 +10,10 @@
 <header>
   <h1>Data Operations Console</h1>
   <div id="health-banner" class="banner">Checking pipeline health...</div>
-  <div id="auto-scan-banner" class="banner">Health monitor starting...</div>
   <label class="checkbox-label" id="use-scripted-model-label">
     <input type="checkbox" id="use-scripted-model" checked />
     Scripted model
   </label>
-  <button id="check-incidents-now-btn" type="button">Check for incidents now</button>
   <nav id="tab-nav">
     <button class="tab-button active" data-tab="overview">Overview</button>
     <button class="tab-button" data-tab="qa">Q&amp;A</button>
@@ -69,6 +67,11 @@
     <section class="card hidden" id="run-details-infra-card">
       <h2>Infrastructure</h2>
       <div id="run-details-infra"></div>
+    </section>
+    <section class="card">
+      <h2>Diagnose &amp; repair</h2>
+      <button id="check-incidents-now-btn" type="button">Diagnose &amp; generate repair</button>
+      <div id="auto-scan-banner" class="banner">Health monitor starting...</div>
     </section>
     <section class="card">
       <h2>Review package</h2>
