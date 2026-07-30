@@ -22,3 +22,14 @@ S3_ACCESS_KEY_ID="$MINIO_ACCESS_KEY" \
 S3_SECRET_ACCESS_KEY="$MINIO_SECRET_KEY" \
 S3_BUCKET=data-agent \
 python3 -m src.demo.enterprise_incident --reset
+
+# Confirmed live (2026-07-30): the console pod's own git checkout permanently records any
+# repair it has ever accepted (accept_repair commits directly to it). Resetting the S3-side
+# data above does NOT touch that pod's local git state -- so after an earlier accept, a later
+# fresh repair's diff can fail to `git apply` against the now-stale checkout ("patch does not
+# apply"), even though the underlying data is genuinely reset. Restarting the pod resets its
+# git checkout back to the pristine, un-accepted state baked into the image, keeping it in
+# sync with the just-reset data.
+echo "Restarting the console to reset its git state (avoids a stale-patch mismatch on the next Accept)..."
+oc rollout restart deployment/data-agent-console -n "$NAMESPACE"
+oc rollout status deployment/data-agent-console -n "$NAMESPACE" --timeout=90s
