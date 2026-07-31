@@ -440,15 +440,32 @@ def auto_scan_and_repair(
             results.append({"pipeline_name": pipeline_name, "status": "already_pending", "pending": storage.read_json(pending_key)})
             continue
 
+        # Reserve this pipeline's pending-repair slot immediately, before the (multi-second,
+        # real Spark + pytest) self-heal call below -- this is a scan, so the SAME scan (this
+        # loop, on a 25s browser-polled interval) or another scan/candidate-generation call
+        # against the same pipeline could otherwise start its own concurrent attempt during
+        # that window: the check above only sees a pending record once one gets WRITTEN, which
+        # doesn't happen until this attempt finishes. Two overlapping attempts don't just waste
+        # work -- each one's verification step transiently overwrites the real target file
+        # in place (src.lifecycle_verify_repair._run_pytest_against_patched_code), and enough
+        # of them running at once against a resource-limited pod can starve it of workers
+        # entirely (confirmed live: 3 overlapping scans made the console stop answering
+        # requests). Cleared below if this attempt doesn't end in VERIFIED_PENDING_PR.
+        storage.write_json(pending_key, {"pipeline_name": pipeline_name, "status": "in_progress"})
+
         _section(f"AUTO-DETECTED INCIDENT: {pipeline_name}")
-        heal = _attempt_self_heal(
-            pipeline_name,
-            storage,
-            diagnosis_model_client_factory,
-            mode="create_pr",
-            human_approved_categories=AUTO_APPROVED_CATEGORIES,
-            repair_model_client_factory=repair_model_client_factory,
-        )
+        try:
+            heal = _attempt_self_heal(
+                pipeline_name,
+                storage,
+                diagnosis_model_client_factory,
+                mode="create_pr",
+                human_approved_categories=AUTO_APPROVED_CATEGORIES,
+                repair_model_client_factory=repair_model_client_factory,
+            )
+        except Exception:
+            storage.delete(pending_key)
+            raise
         _print_heal(pipeline_name, heal, "create_pr")
         verification = heal.get("repair_verification") or {}
 
@@ -462,6 +479,7 @@ def auto_scan_and_repair(
             storage.write_json(pending_key, pending_record)
             results.append(pending_record)
         else:
+            storage.delete(pending_key)
             results.append(
                 {
                     "pipeline_name": pipeline_name,
