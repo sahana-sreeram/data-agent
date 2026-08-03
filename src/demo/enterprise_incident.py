@@ -337,7 +337,7 @@ SCRIPTED_DIAGNOSIS = {
         "target_file": "context/pipeline_rules/loan_portfolio.json",
         "change_summary": (
             "Point loan_portfolio's business_rules_file at the already-approved "
-            "settled-adopted ruleset instead of editing the shared, cross-pipeline "
+            "ruleset instead of editing the shared, cross-pipeline "
             "business_rules.json or the ETL source directly."
         ),
         "scope": "MINIMAL",
@@ -356,18 +356,18 @@ SCRIPTED_REPAIR_SUBMISSION = {
     "target_file": "context/pipeline_rules/loan_portfolio.json",
     "target_symbol_or_setting": "business_rules_file",
     "current_behavior": "loan_portfolio reads context/business_rules.json, which still only approves PAID as a successful payment status.",
-    "proposed_behavior": "loan_portfolio reads context/business_rules_settled_adopted.json instead, which additionally approves SETTLED.",
-    "change_description": "Point loan_portfolio's business_rules_file at the already-approved settled-adopted ruleset.",
+    "proposed_behavior": "loan_portfolio reads context/business_rules_demo.json instead, which additionally approves SETTLED.",
+    "change_description": "Point loan_portfolio's business_rules_file at the already-approved ruleset.",
     "patch": {
         "format": "STRUCTURED_CONFIG_EDIT",
-        "content": {"operations": [{"field": "business_rules_file", "value": "context/business_rules_settled_adopted.json"}]},
+        "content": {"operations": [{"field": "business_rules_file", "value": "context/business_rules_demo.json"}]},
     },
     "files_expected_to_change": ["context/pipeline_rules/loan_portfolio.json"],
     "files_expected_not_to_change": ["context/business_rules.json", "src/etl_spark_loan_portfolio.py"],
     "verification_steps": ["rerun loan_portfolio ETL against the adopted ruleset", "rerun validate_loan_portfolio"],
     "rollback_description": "Revert the pointer back to context/business_rules.json.",
     "risk_level": "LOW",
-    "assumptions": ["context/business_rules_settled_adopted.json correctly reflects the org's approved response to the payment_service v2 contract."],
+    "assumptions": ["context/business_rules_demo.json correctly reflects the org's approved response to the payment_service v2 contract."],
     "evidence_references": ["get_failed_checks", "trace_failed_check_to_code"],
 }
 

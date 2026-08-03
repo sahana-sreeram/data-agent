@@ -175,7 +175,7 @@ def test_configuration_change_target_applies_in_isolation(tmp_path):
     # relative to the repo's actual current state instead of testing the real behavior.
     original_content = Path(target_file).read_text()
     current_value = json.loads(original_content)["business_rules_file"]
-    allowed_values = ("context/business_rules.json", "context/business_rules_settled_adopted.json")
+    allowed_values = ("context/business_rules.json", "context/business_rules_demo.json")
     new_value = next(v for v in allowed_values if v != current_value)
 
     diagnosis = _diagnosis(

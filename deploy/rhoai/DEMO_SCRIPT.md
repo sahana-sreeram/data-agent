@@ -61,7 +61,7 @@ show the console/Q&A now flags it as untrusted.
 oc set env deployment/mcp-data-ops -n data-agent USE_SCRIPTED_MODEL=true
 ```
 This does NOT make the run fake -- it only determines what `create_candidate_repair`'s own
-internal diagnosis concludes (deterministic, always the already-approved settled-adopted fix)
+internal diagnosis concludes (deterministic, always the already-approved fix)
 so the run reliably reaches `VERIFIED_PENDING_PR` instead of `BLOCKED` (see 3c). The outer
 Codex loop deciding *when* to call that tool still uses a real OpenAI model, and every MCP
 call, Spark rerun, git worktree, and test run is identical either way.

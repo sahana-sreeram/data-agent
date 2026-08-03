@@ -311,8 +311,8 @@ def test_accept_repair_merges_resolves_pointer_and_reruns(monkeypatch):
     storage = _FakeAcceptStorage(
         {
             "context/business_rules.json": {"marker": "stale"},
-            "context/pipeline_rules/loan_portfolio.json": {"business_rules_file": "context/business_rules_settled_adopted.json"},
-            "context/business_rules_settled_adopted.json": {"marker": "adopted"},
+            "context/pipeline_rules/loan_portfolio.json": {"business_rules_file": "context/business_rules_demo.json"},
+            "context/business_rules_demo.json": {"marker": "adopted"},
             "context/validations/loan_portfolio.json": {"rules": []},
             "curated/pending_repairs/loan_portfolio.json": {"pipeline_name": "loan_portfolio"},
         }

@@ -686,7 +686,7 @@ def test_resolve_rerun_inputs_for_a_configuration_change_target_reads_the_candid
     workspace_dir = tmp_path / "workspace"
     patched_path = workspace_dir / target_file
     patched_path.parent.mkdir(parents=True, exist_ok=True)
-    patched_path.write_text(json.dumps({"business_rules_file": "context/business_rules_settled_adopted.json"}))
+    patched_path.write_text(json.dumps({"business_rules_file": "context/business_rules_demo.json"}))
     stale_business_rules = {"successful_payment_statuses": ["PAID"]}
 
     module, effective_business_rules = verify_module._resolve_rerun_inputs(

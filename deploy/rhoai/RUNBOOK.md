@@ -299,7 +299,7 @@ result = await session.call_tool('verify_candidate_repair', {'repair_id': repair
 
 Confirmed live end to end, 2026-07-29 -- reaches `VERIFIED_PENDING_PR` with a real local git
 branch, real diff (`context/pipeline_rules/loan_portfolio.json` repointed to
-`context/business_rules_settled_adopted.json`), real before/after metrics, `tests.targeted`
+`context/business_rules_demo.json`), real before/after metrics, `tests.targeted`
 and `tests.full_relevant_suite` both `PASS`.
 
 ## Real bugs found and fixed getting here (each documented inline where the fix lives)

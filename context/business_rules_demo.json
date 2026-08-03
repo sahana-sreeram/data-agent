@@ -40,7 +40,7 @@
     "MISSED, FAILED, and SCHEDULED payments have amount_paid == 0 and never count toward successful payments.",
     "A future iteration may enrich this rule so LATE payments count once flagged as received, at which point this file -- not the transformation code -- is where that change belongs."
   ],
-  "settled_adopted_notes": [
+  "demo_notes": [
     "This file is the ORG-APPROVED response to payment_service's v2 contract change (successful installments renamed PAID -> SETTLED): SETTLED is recognized as an equivalent successful-payment outcome alongside PAID, everywhere business_rules.successful_payment_statuses is read.",
     "This file exists independently of any repair action -- it represents a real business decision, already made and checked into the repository. The only thing a governed repair may do is point one pipeline's context/pipeline_rules/<pipeline>.json at this file instead of the stale context/business_rules.json, via a registered CONFIGURATION_CHANGE repair target (see context/repair_targets.json). It never edits the shared, cross-pipeline context/business_rules.json directly.",
     "valid_payment_event_statuses here additionally includes SETTLED for internal consistency of this adopted ruleset, but this has no effect on src/validate_lifecycle_raw.py's raw enum check, which always reads the shared context/business_rules.json regardless of any pipeline's pointer -- updating the org-wide raw status catalog is a separate, still-open action, deliberately not bundled into this pipeline-scoped repair."

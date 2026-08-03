@@ -97,7 +97,7 @@ What actually happens, live-verified end to end:
    incident. The repair targets a narrowly-scoped, pipeline-owned config pointer
    (`context/pipeline_rules/loan_portfolio.json`) — never the shared, cross-pipeline
    `context/business_rules.json`, never the ETL source directly — repointing it at an
-   already-approved ruleset (`context/business_rules_settled_adopted.json`). Applied in a real
+   already-approved ruleset (`context/business_rules_demo.json`). Applied in a real
    git worktree, Spark reruns against the isolated candidate, independent validation passes,
    and the outcome is `VERIFIED_PENDING_PR` with a real PR-ready artifact (diff, branch, risk
    classification, human-review flag) — never auto-promoted.
