@@ -61,14 +61,10 @@ python3 -m src.events_to_lifecycle_tables --from s3
 python3 -m src.run_lifecycle_etl_pipelines
 ```
 
-The flagship demo scenario itself stays pinned to a fixed small-scale dataset so its
-reconciliation check remains correct — the 20K run above is a one-time proof, not the
-permanent demo environment.
-
 ## RHOAI platform mode (optional)
 
 Everything above runs entirely locally by default. `src/platform_backends/` makes the same
-lifecycle runnable on Red Hat OpenShift AI instead — Spark via the Spark Operator, runtime
+lifecycle runnable on Red Hat OpenShift AI instead: Spark via the Spark Operator, runtime
 evidence from Spark History Server, Codex driving the loop through MCP tool calls. See
 [`deploy/rhoai/RUNBOOK.md`](deploy/rhoai/RUNBOOK.md) for deployment and env-var/MCP reference,
 and [`GENERALIZABILITY.md`](deploy/rhoai/GENERALIZABILITY.md) for why this is a reusable
