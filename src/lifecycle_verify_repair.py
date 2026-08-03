@@ -390,6 +390,14 @@ def run_verify_lifecycle_repair(
 
     workspace_dir = Path(repair_result["workspace_dir"])
     protected_hashes_before = _protected_file_hashes(pipeline_name, spec.validation_rules_key)
+    # Snapshot the real file's pre-repair bytes up front, before anything below can touch it --
+    # _run_pytest_against_patched_code temporarily overwrites this exact path with the patched
+    # bytes (to dodge sys.modules caching) and restores it in a finally block, but re-reading
+    # the live path *after* that call (as this used to do) could race a concurrent run and pick
+    # up already-patched content, producing an empty reported diff whose stored "" patch then
+    # fails to apply on Accept.
+    real_target_path = Path(repair_result["target_file"])
+    original_target_content = real_target_path.read_text() if real_target_path.exists() else ""
 
     try:
         patched_module, effective_business_rules = _resolve_rerun_inputs(
@@ -460,7 +468,7 @@ def run_verify_lifecycle_repair(
             pipeline_name=pipeline_name,
             run_id=run_id,
             target_file=repair_result["target_file"],
-            original_content=Path(repair_result["target_file"]).read_text(),
+            original_content=original_target_content,
             patched_content=patched_content,
             diagnosis=diagnosis or {},
             repair_plan=repair_plan or {},

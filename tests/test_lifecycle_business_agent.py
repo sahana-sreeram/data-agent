@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.legacy.answer_models import AnswerValidationError
+from src.answer_models import AnswerValidationError
 from src.lifecycle_business_agent import (
     SUBMIT_ANSWER_TOOL_NAME,
     LifecycleBusinessAgentError,

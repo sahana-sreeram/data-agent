@@ -1,0 +1,85 @@
+# Templated from sparkapplication-loan-portfolio.yaml (the proven-working manifest --
+# see that file's own history / deploy/rhoai/RUNBOOK.md for every fix baked into this
+# shape) for the underwriting_performance pipeline. mainApplicationFile references src/etl_spark_underwriting_performance.py --
+# the exact, unmodified ETL entry point
+# src.lifecycle_pipeline_registry.PIPELINE_REGISTRY['underwriting_performance'] already names
+# (etl_source_file).
+#
+# NOT yet applied to or verified against the live cluster -- only loan_portfolio (the
+# flagship payment_service-contract-change scenario) has been proven end to end so far.
+# Validate with `oc apply --dry-run=server -f sparkapplication-underwriting-performance.yaml` first.
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: underwriting-performance-manual
+  namespace: data-agent
+  labels:
+    pipeline: underwriting_performance
+spec:
+  type: Python
+  mode: cluster
+  # A DIFFERENT image from the console/MCP servers -- built FROM apache/spark:3.5.5-python3
+  # (see deploy/rhoai/Dockerfile.spark), not the bare python:3.12-slim image
+  # deploy/rhoai/Dockerfile builds. Confirmed live: the Spark Operator's driver/executor
+  # containers rely on the image's own ENTRYPOINT being a real Spark k8s bootstrap script
+  # (only present in official Apache Spark images) -- it APPENDS args like `driver
+  # --properties-file ...` to whatever the image's entrypoint already is, it never overrides
+  # it, so the console's own uvicorn ENTRYPOINT breaks job submission outright.
+  image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent-spark:latest"
+  imagePullPolicy: Always
+  mainApplicationFile: "local:///opt/spark-app/src/etl_spark_underwriting_performance.py"
+  sparkVersion: "3.5.5"
+  restartPolicy:
+    type: Never
+  # Deliberately NOT using spec.deps.packages (Maven/Ivy resolution): confirmed live that the
+  # Spark Operator's own controller pod (which runs `spark-submit` itself, on ITS OWN bundled
+  # Spark, to hand the job to the k8s scheduler -- not this image) has a non-writable Ivy
+  # cache, so a package dependency fails before a driver pod is even created:
+  #   Exception in thread "main" java.io.FileNotFoundException:
+  #   /opt/spark/.ivy2/cache/resolved-....xml (No such file or directory)
+  # hadoop-aws + its AWS SDK (v1 -- matches this image's own bundled Hadoop 3.3.4 client) are
+  # baked into the image's jars/ directory at build time instead (see
+  # deploy/rhoai/Dockerfile.spark) -- no runtime package resolution needed anywhere.
+  sparkConf:
+    spark.hadoop.fs.s3a.path.style.access: "true"
+    spark.hadoop.fs.s3a.impl: "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    spark.hadoop.fs.s3a.connection.ssl.enabled: "false"
+    spark.hadoop.fs.s3a.aws.credentials.provider: "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider"
+    spark.eventLog.enabled: "true"
+    spark.eventLog.dir: "s3a://data-agent/spark-events/"
+    # Confirmed live: this Spark Operator build silently drops spec.driver.env/envFrom
+    # entirely (a known issue -- see kubeflow/spark-operator#1108) -- the driver pod started
+    # and ran our actual Python script, but S3_ACCESS_KEY_ID/S3_SECRET_ACCESS_KEY were never
+    # set, because envFrom never reached the pod spec at all. Using Spark's OWN native
+    # (operator-independent) env-injection config keys instead, which spark-submit itself
+    # honors when building the pod spec:
+    spark.kubernetes.driver.secretKeyRef.S3_ACCESS_KEY_ID: "data-agent-secrets:S3_ACCESS_KEY_ID"
+    spark.kubernetes.driver.secretKeyRef.S3_SECRET_ACCESS_KEY: "data-agent-secrets:S3_SECRET_ACCESS_KEY"
+    spark.kubernetes.executor.secretKeyRef.S3_ACCESS_KEY_ID: "data-agent-secrets:S3_ACCESS_KEY_ID"
+    spark.kubernetes.executor.secretKeyRef.S3_SECRET_ACCESS_KEY: "data-agent-secrets:S3_SECRET_ACCESS_KEY"
+    # S3_ENDPOINT_URL is non-secret (an in-cluster service DNS name) -- fine as a literal here.
+    # EXECUTION_BACKEND=rhoai is what makes src.spark_session.get_spark_session skip
+    # .master("local[*]"), letting spark-submit's own k8s master setting actually take effect.
+    spark.kubernetes.driverEnv.S3_ENDPOINT_URL: "http://minio:9000"
+    spark.kubernetes.driverEnv.EXECUTION_BACKEND: "rhoai"
+    spark.executorEnv.S3_ENDPOINT_URL: "http://minio:9000"
+    spark.executorEnv.EXECUTION_BACKEND: "rhoai"
+  driver:
+    serviceAccount: data-agent-app
+    cores: 1
+    # Confirmed live: the namespace's LimitRange (data-agent-core-resource-limits) auto-injects
+    # a default 500m CPU LIMIT on any container that doesn't set one explicitly -- cores:1
+    # alone sets only the REQUEST (to a full core), which then exceeds that default limit and
+    # the driver pod is rejected at admission ("must be less than or equal to cpu limit of
+    # 500m") before it's ever created. coreLimit makes the limit explicit instead of defaulted.
+    coreLimit: "1"
+    memory: "1g"
+    labels:
+      pipeline: underwriting_performance
+  executor:
+    instances: 1
+    cores: 1
+    coreLimit: "1"
+    memory: "1g"
+    labels:
+      pipeline: underwriting_performance

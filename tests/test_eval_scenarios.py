@@ -11,7 +11,7 @@ import pytest
 
 from src.eval_scenarios import BUG_SCENARIOS, REFUSAL_CASES, UPSTREAM_CONTRACT_SCENARIOS
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
-from src.legacy.repair_models import RepairEligibility
+from src.repair_models import RepairEligibility
 
 
 @pytest.mark.parametrize("scenario", BUG_SCENARIOS, ids=lambda s: s.name)

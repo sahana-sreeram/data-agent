@@ -25,9 +25,9 @@
       "repair_type": "CONFIGURATION_CHANGE",
       "editable_fields": ["business_rules_file"],
       "allowed_values": {
-        "business_rules_file": ["context/business_rules.json", "context/business_rules_settled_adopted.json"]
+        "business_rules_file": ["context/business_rules.json", "context/business_rules_demo.json"]
       },
-      "description": "Points loan_portfolio's ETL/validation execution at which already-approved business-rules file to read for payment-status compatibility. The default (checked-in) value points at the shared, cross-pipeline context/business_rules.json (successful_payment_statuses=[PAID] only); the adopted value points at context/business_rules_settled_adopted.json (successful_payment_statuses=[PAID, SETTLED]), reflecting the org's approval of payment_service v2's SETTLED status as an equivalent successful-payment outcome. No file CONTENT is edited by this target -- only which already-approved file loan_portfolio reads -- and ONLY for loan_portfolio; every other pipeline continues reading the shared context/business_rules.json, completely unaffected. This is the SOURCE_CONTRACT_CHANGE-shaped repair: it never touches the shared business_rules.json or any ETL source file."
+      "description": "Points loan_portfolio's ETL/validation execution at which already-approved business-rules file to read for payment-status compatibility. The default (checked-in) value points at the shared, cross-pipeline context/business_rules.json (successful_payment_statuses=[PAID] only); the adopted value points at context/business_rules_demo.json (successful_payment_statuses=[PAID, SETTLED]), reflecting the org's approval of payment_service v2's SETTLED status as an equivalent successful-payment outcome. No file CONTENT is edited by this target -- only which already-approved file loan_portfolio reads -- and ONLY for loan_portfolio; every other pipeline continues reading the shared context/business_rules.json, completely unaffected. This is the SOURCE_CONTRACT_CHANGE-shaped repair: it never touches the shared business_rules.json or any ETL source file."
     },
     "src/etl_spark_campaign_funnel.py": {
       "repair_type": "CODE_CHANGE",

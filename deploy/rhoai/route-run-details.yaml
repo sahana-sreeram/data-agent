@@ -1,0 +1,33 @@
+# Exposes the console (Overview / Q&A / Run Details -- see static/) outside the cluster.
+# host is left unset so OpenShift assigns the default `<name>-<namespace>.<router-canonical-
+# domain>` -- confirmed live (2026-07-28) that no routes currently exist in this namespace, and
+# the router's canonical domain wasn't inspected (no `oc get ingresses.config/cluster` access
+# checked yet); set `spec.host` explicitly here once that's confirmed, or leave it to the
+# default if that's acceptable for the demo.
+#
+# haproxy.router.openshift.io/timeout: several endpoints behind this Route do real,
+# synchronous work that can exceed OpenShift's default ~30s Route gateway timeout --
+# /api/repairs/accept (a real git apply + real pipeline rerun) and /api/incidents/scan (a
+# real diagnose/apply/verify cycle including a real Spark rerun + pytest run, triggered
+# automatically every 25s by the console's own health-monitor poller -- see
+# static/app.js::runAutoScan) -- confirmed live (ROSA, 2026-07-29) that both can return a 504
+# to the browser/client even though the request completes successfully seconds later
+# server-side. Without this, the FIRST auto-scan tick after any new incident is injected (no
+# pending repair cached yet) reliably times out and the console shows a false "could not
+# reach the API" error, even though the repair is generated fine in the background.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: data-agent-console
+  namespace: data-agent
+  annotations:
+    haproxy.router.openshift.io/timeout: 120s
+spec:
+  to:
+    kind: Service
+    name: data-agent-console
+  port:
+    targetPort: 8000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

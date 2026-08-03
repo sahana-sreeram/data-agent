@@ -1,0 +1,21 @@
+# Exposes MinIO's own web console (port 9001, see minio-deployment.yaml's
+# --console-address :9001) outside the cluster, mirroring route-run-details.yaml/
+# history-server-route.yaml's exact shape -- previously only reachable via
+# `oc port-forward svc/minio 9001:9001`. Lets a demo browse the raw/curated bucket layout
+# live instead of needing `mc`/a terminal. Login uses the same MINIO_ROOT_USER/
+# MINIO_ROOT_PASSWORD credentials chosen in RUNBOOK.md step 4 (the minio-credentials Secret) --
+# never hardcode or commit the actual values.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: minio-console
+  namespace: data-agent
+spec:
+  to:
+    kind: Service
+    name: minio
+  port:
+    targetPort: 9001
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

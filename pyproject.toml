@@ -3,17 +3,36 @@ name = "data-agent"
 version = "0.1.0"
 description = "Self-healing enterprise data-agent MVP: synthetic data generation for a simulated lending company"
 requires-python = ">=3.12"
-dependencies = ["pandas", "openai", "python-dotenv", "fastapi", "uvicorn", "pyspark", "boto3", "pydantic", "pyyaml"]
+dependencies = [
+    "pandas==3.0.3",
+    "openai",
+    "python-dotenv",
+    "fastapi",
+    "uvicorn",
+    "pyspark==4.1.2",
+    "boto3",
+    "pydantic",
+    "pyyaml",
+    "mcp",
+    "pyarrow",
+    "pytest",
+]
+# pandas/pyspark are pinned exactly (not left to float) after a real, confirmed-live bug:
+# an unpinned install resolved pandas 3.0.5 + pyspark 4.2.0 in the deployed image vs. pandas
+# 3.0.3 + pyspark 4.1.2 in local dev -- the same test file passed 5/5 locally and failed 2/5
+# in the image with "ValueError: assignment destination is read-only", a pandas/PySpark Arrow
+# interop bug specific to that exact version combination. Pinned to the versions this
+# project's full test suite (775+ tests) is actually verified against.
 
 [project.optional-dependencies]
-dev = ["pytest"]
+rhoai = ["kubernetes", "redis"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src", "demo"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "services"]
+testpaths = ["tests", "demo/services"]

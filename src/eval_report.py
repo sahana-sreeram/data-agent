@@ -11,7 +11,7 @@ Every number here comes from something that was actually run:
   model call.
 - real_infrastructure: a real pytest run against real S3/Spark (no model calls), run fresh
   by this module unless explicitly skipped.
-- scripted_model / live_model: real python3 -m src.demo.enterprise_incident --run-repair
+- scripted_model / live_model: real python3 -m demo.enterprise_incident --run-repair
   runs (see that module's docstring), discovered from curated/demo_runs/*.json -- each run's
   own `live_model` flag says which bucket it belongs to. src.eval_harness's scenario results
   (which always use a real model today) are folded into live_model too, clearly labeled by
@@ -140,7 +140,7 @@ def _bucket_from_demo_manifests(manifests: list[dict], *, live_model: bool) -> d
         "available": True,
         "runs_measured": len(relevant),
         "run_ids": [m.get("run_id") for m in relevant],
-        "source": f"{len(relevant)} real `python3 -m src.demo.enterprise_incident {label}` run(s)",
+        "source": f"{len(relevant)} real `python3 -m demo.enterprise_incident {label}` run(s)",
     }
     if outcomes:
         bucket["repair_verification_outcomes"] = outcomes

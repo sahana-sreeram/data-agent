@@ -1,0 +1,14 @@
+# The RHOAI project this demo deploys into. Confirmed live (2026-07-28) that `data-agent`
+# already exists, owned by the authenticated user (ssreeram@redhat.com) -- SKIP this file
+# against the current cluster. Confirmed live via `oc apply --dry-run=server`: applying this
+# to an already-existing Project that wasn't itself created via `oc apply`/`oc create
+# --save-config` fails ("field is immutable, try updating the namespace") -- an OpenShift
+# Project-controller quirk, not a mistake in this file. This manifest exists only so a
+# from-scratch environment can create the same namespace in one step (or just run
+# `oc new-project data-agent` directly, which is simpler for that case).
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  name: data-agent
+  labels:
+    app.kubernetes.io/part-of: data-agent-demo

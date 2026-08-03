@@ -275,6 +275,116 @@ def test_repairs_pending_returns_list_pending_repairs(monkeypatch):
     assert response.json() == {"pending": fake_pending}
 
 
+def test_run_details_latest_falls_back_to_estate_and_pending_when_no_codex_run(monkeypatch):
+    fake_rows = [{"pipeline_name": "loan_portfolio", "etl_status": "SUCCESS", "validation_status": "PASS", "context_provenance": "legacy_file", "review_status": None, "open_conflicts": 0}]
+    fake_pending = [{"pipeline_name": "loan_portfolio", "status": "pending_review"}]
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: fake_rows)
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: fake_pending)
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return False
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+
+    response = client.get("/api/run-details/latest")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["data_products"] == fake_rows
+    assert body["pending_repairs"] == fake_pending
+    assert body["codex_run"] is None
+
+
+def test_run_details_includes_history_server_url_from_env_var(monkeypatch):
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return False
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+    monkeypatch.setenv("HISTORY_SERVER_URL", "https://spark-history-server-data-agent.apps.example.com")
+
+    response = client.get("/api/run-details/latest")
+
+    assert response.json()["history_server_url"] == "https://spark-history-server-data-agent.apps.example.com"
+
+
+def test_run_details_history_server_url_is_none_when_unset(monkeypatch):
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return False
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+    monkeypatch.delenv("HISTORY_SERVER_URL", raising=False)
+
+    response = client.get("/api/run-details/latest")
+
+    assert response.json()["history_server_url"] is None
+
+
+def test_run_details_latest_includes_codex_run_when_present(monkeypatch):
+    fake_codex_run = {"run_id": "abc123", "backend": "codex_mcp", "stages": [{"tool": "submit_spark_pipeline", "arguments": {}, "result": "{}"}], "final_report": {"summary": "all healthy"}}
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return path == "curated/demo_run_latest.json"
+
+        def read_json(self, path: str) -> dict:
+            assert path == "curated/demo_run_latest.json"
+            return fake_codex_run
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+
+    response = client.get("/api/run-details/latest")
+
+    assert response.status_code == 200
+    assert response.json()["codex_run"] == fake_codex_run
+
+
+def test_run_details_specific_run_id_reads_its_own_key(monkeypatch):
+    fake_codex_run = {"run_id": "xyz789", "backend": "codex_mcp", "stages": [], "final_report": None}
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return path == "curated/demo_runs/xyz789.json"
+
+        def read_json(self, path: str) -> dict:
+            assert path == "curated/demo_runs/xyz789.json"
+            return fake_codex_run
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+
+    response = client.get("/api/run-details/xyz789")
+
+    assert response.status_code == 200
+    assert response.json()["codex_run"]["run_id"] == "xyz789"
+
+
+def test_run_details_unknown_run_id_is_404(monkeypatch):
+    monkeypatch.setattr(api_module, "data_product_estate", lambda storage: [])
+    monkeypatch.setattr(api_module, "list_pending_repairs", lambda storage: [])
+
+    class _FakeStorage:
+        def exists(self, path: str) -> bool:
+            return False
+
+    monkeypatch.setattr(api_module, "S3Storage", _FakeStorage)
+
+    response = client.get("/api/run-details/does-not-exist")
+
+    assert response.status_code == 404
+
+
 def test_repairs_accept_rejects_an_unknown_pipeline():
     response = client.post("/api/repairs/accept", json={"pipeline_name": "not_a_real_pipeline", "branch": "repair/abc"})
     assert response.status_code == 404
@@ -337,6 +447,67 @@ def test_repairs_reject_delegates_to_reject_repair(monkeypatch):
 
     assert response.status_code == 200
     assert response.json() == fake_result
+
+
+def test_build_codex_run_job_is_scoped_to_the_given_pipeline():
+    job = api_module._build_codex_run_job("loan_portfolio")
+    container = job["spec"]["template"]["spec"]["containers"][0]
+    assert container["command"] == ["python3", "-m", "src.agents.codex_mcp_loop", "--pipeline", "loan_portfolio"]
+    assert job["spec"]["backoffLimit"] == 0
+    assert job["spec"]["template"]["spec"]["serviceAccountName"] == "data-agent-app"
+    assert job["metadata"]["generateName"] == "codex-run-"
+
+
+class _FakeJob:
+    class metadata:
+        name = "codex-run-abc123"
+
+
+class _FakeBatchApi:
+    def __init__(self):
+        self.calls = []
+
+    def create_namespaced_job(self, namespace, body):
+        self.calls.append((namespace, body))
+        return _FakeJob()
+
+
+def test_codex_run_trigger_creates_job_and_returns_its_name(monkeypatch):
+    fake_api = _FakeBatchApi()
+    monkeypatch.setattr(api_module, "_codex_run_batch_api", lambda: fake_api)
+    monkeypatch.setenv("RHOAI_NAMESPACE", "data-agent")
+
+    response = client.post("/api/codex-run/trigger", json={"pipeline_name": "loan_portfolio"})
+
+    assert response.status_code == 200
+    assert response.json() == {"job_name": "codex-run-abc123", "namespace": "data-agent", "pipeline_name": "loan_portfolio"}
+    assert len(fake_api.calls) == 1
+    namespace, body = fake_api.calls[0]
+    assert namespace == "data-agent"
+    assert body["spec"]["template"]["spec"]["containers"][0]["command"][-1] == "loan_portfolio"
+
+
+def test_codex_run_trigger_rejects_an_unknown_pipeline(monkeypatch):
+    fake_api = _FakeBatchApi()
+    monkeypatch.setattr(api_module, "_codex_run_batch_api", lambda: fake_api)
+
+    response = client.post("/api/codex-run/trigger", json={"pipeline_name": "not_a_real_pipeline"})
+
+    assert response.status_code == 404
+    assert fake_api.calls == []  # never even tries the k8s call for an unknown pipeline
+
+
+def test_codex_run_trigger_surfaces_k8s_failure_as_502(monkeypatch):
+    class _FailingBatchApi:
+        def create_namespaced_job(self, namespace, body):
+            raise RuntimeError("Forbidden: cannot create jobs")
+
+    monkeypatch.setattr(api_module, "_codex_run_batch_api", lambda: _FailingBatchApi())
+
+    response = client.post("/api/codex-run/trigger", json={"pipeline_name": "loan_portfolio"})
+
+    assert response.status_code == 502
+    assert "Forbidden" in response.json()["detail"]
 
 
 def test_index_html_is_served_at_root():

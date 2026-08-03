@@ -1,0 +1,16 @@
+# Apply after role.yaml (references it by name) -- confirmed live via `oc apply
+# --dry-run=server` that applying this before role.yaml exists fails with a real, expected
+# NotFound error, not a bug in this file.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: data-agent-app
+  namespace: data-agent
+subjects:
+  - kind: ServiceAccount
+    name: data-agent-app
+    namespace: data-agent
+roleRef:
+  kind: Role
+  name: data-agent-app
+  apiGroup: rbac.authorization.k8s.io

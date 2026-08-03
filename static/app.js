@@ -28,8 +28,7 @@ function fmtBytes(n) {
 
 const TAB_LOADERS = {
   overview: loadOverview,
-  "data-products": loadDataProducts,
-  repairs: loadRepairsTab,
+  "run-details": loadRunDetails,
 };
 
 function switchTab(tabName) {
@@ -184,7 +183,7 @@ async function askQuestion(question) {
     addQaHistoryEntry(question, data);
     loadHealth();
     estateCache = null;
-    if (data.self_heal) loadRepairsTab();
+    if (data.self_heal) loadRunDetails();
   } catch (err) {
     errorBox.textContent = "Could not reach the API.";
     errorBox.classList.remove("hidden");
@@ -201,6 +200,32 @@ document.getElementById("qa-form").addEventListener("submit", (event) => {
   if (!question) return;
   askQuestion(question);
   input.value = "";
+});
+
+// --- Codex/MCP run trigger: launches the real harness as a one-off Job (RHOAI only) ------
+
+document.getElementById("codex-run-trigger-btn").addEventListener("click", async () => {
+  const button = document.getElementById("codex-run-trigger-btn");
+  const status = document.getElementById("codex-run-status");
+  button.disabled = true;
+  status.textContent = "Launching...";
+  try {
+    const res = await fetch("/api/codex-run/trigger", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pipeline_name: "loan_portfolio" }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      status.textContent = `Could not launch: ${data.detail || res.statusText}`;
+    } else {
+      status.textContent = `Launched ${data.job_name} -- takes a few minutes; refresh this tab once it completes.`;
+    }
+  } catch (err) {
+    status.textContent = "Could not reach the API.";
+  } finally {
+    button.disabled = false;
+  }
 });
 
 // --- Repairs tab: pending candidates awaiting a human accept/reject decision --------------
@@ -227,7 +252,7 @@ async function decideRepair(pipelineName, branch, decision, statusBox) {
     estateCache = null;
     statusBox.textContent = decision === "accept" ? `Accepted -- ${pipelineName} rerun, validation_status=${data.validation_status}.` : "Rejected -- candidate discarded.";
     loadHealth();
-    loadRepairsTab();
+    loadRunDetails();
   } catch (err) {
     statusBox.textContent = "Could not reach the API.";
   }
@@ -280,28 +305,132 @@ function renderPrArtifact(container, prArtifact, opts = {}) {
   }
 }
 
-async function loadRepairsTab() {
-  const box = document.getElementById("repairs-content");
+function renderRunDetailsEstate(box, rows) {
+  clear(box);
+  const table = el("table");
+  table.appendChild(
+    el("thead", {
+      children: [
+        el("tr", {
+          children: [
+            el("th", { text: "Data product" }),
+            el("th", { text: "ETL" }),
+            el("th", { text: "Trust" }),
+            el("th", { text: "Context" }),
+            el("th", { text: "Review" }),
+            el("th", { text: "Conflicts" }),
+          ],
+        }),
+      ],
+    })
+  );
+  const tbody = el("tbody");
+  for (const r of rows) {
+    const trusted = r.validation_status === "PASS";
+    tbody.appendChild(
+      el("tr", {
+        className: trusted ? "" : "estate-row-untrusted",
+        children: [
+          el("td", { text: r.pipeline_name }),
+          el("td", { text: r.etl_status || "-" }),
+          el("td", { text: r.validation_status || "UNKNOWN" }),
+          el("td", { text: r.context_provenance }),
+          el("td", { text: r.review_status || "-" }),
+          el("td", { text: String(r.open_conflicts) }),
+        ],
+      })
+    );
+  }
+  table.appendChild(tbody);
+  box.appendChild(table);
+}
+
+function renderRunDetailsWorkflow(cardEl, box, codexRun) {
+  if (!codexRun) {
+    cardEl.classList.add("hidden");
+    return;
+  }
+  cardEl.classList.remove("hidden");
+  clear(box);
+  box.appendChild(el("p", { text: `run_id: ${codexRun.run_id}  --  backend: ${codexRun.backend || "current"}` }));
+
+  const stages = codexRun.stages || [];
+  if (stages.length) {
+    const ol = el("ol", { className: "mcp-timeline" });
+    for (const stage of stages) {
+      const label = stage.tool ? `${stage.tool}(${JSON.stringify(stage.arguments || {})})` : JSON.stringify(stage);
+      ol.appendChild(el("li", { text: label }));
+    }
+    box.appendChild(ol);
+  }
+
+  if (codexRun.final_report) {
+    box.appendChild(el("p", { text: codexRun.final_report.summary || "" }));
+  }
+}
+
+// Tools whose result carries real Spark/pod runtime evidence -- see
+// src/mcp_servers/spark_runtime_server.py. Pulls the LAST matching stage out of the same
+// codexRun.stages data renderRunDetailsWorkflow already renders (no new backend call).
+const SPARK_EVIDENCE_TOOLS = new Set(["get_spark_application_status", "get_spark_run_summary", "get_pod_status"]);
+
+function renderRunDetailsInfra(cardEl, box, codexRun, historyServerUrl) {
+  const stages = (codexRun && codexRun.stages) || [];
+  const lastEvidenceStage = [...stages].reverse().find((s) => SPARK_EVIDENCE_TOOLS.has(s.tool));
+
+  if (!historyServerUrl && !lastEvidenceStage) {
+    cardEl.classList.add("hidden");
+    return;
+  }
+  cardEl.classList.remove("hidden");
+  clear(box);
+
+  if (historyServerUrl) {
+    const link = el("a", { text: "View in Spark History Server" });
+    link.href = historyServerUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    box.appendChild(el("p", { children: [link] }));
+  }
+
+  if (lastEvidenceStage) {
+    box.appendChild(el("p", { className: "muted", text: `Latest runtime evidence -- ${lastEvidenceStage.tool}:` }));
+    box.appendChild(el("pre", { className: "diff", text: lastEvidenceStage.result }));
+  }
+}
+
+async function loadRunDetails() {
+  const estateBox = document.getElementById("run-details-estate");
+  const workflowCard = document.getElementById("run-details-workflow-card");
+  const workflowBox = document.getElementById("run-details-workflow");
+  const infraCard = document.getElementById("run-details-infra-card");
+  const infraBox = document.getElementById("run-details-infra");
+  const repairsBox = document.getElementById("run-details-repairs");
   try {
-    const res = await fetch("/api/repairs/pending");
+    const res = await fetch("/api/run-details/latest");
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || `request failed (${res.status})`);
-    clear(box);
-    const pending = data.pending || [];
+
+    renderRunDetailsEstate(estateBox, data.data_products || []);
+    renderRunDetailsWorkflow(workflowCard, workflowBox, data.codex_run);
+    renderRunDetailsInfra(infraCard, infraBox, data.codex_run, data.history_server_url);
+
+    clear(repairsBox);
+    const pending = data.pending_repairs || [];
     if (!pending.length) {
-      box.appendChild(el("p", { className: "muted", text: "No repairs pending review." }));
-      return;
-    }
-    for (const record of pending) {
-      const block = el("div", { className: "pipeline-block" });
-      block.appendChild(el("h3", { text: record.pipeline_name }));
-      const artifactBox = el("div");
-      block.appendChild(artifactBox);
-      renderPrArtifact(artifactBox, record.pr_artifact, { pipelineName: record.pipeline_name });
-      box.appendChild(block);
+      repairsBox.appendChild(el("p", { className: "muted", text: "No repairs pending review." }));
+    } else {
+      for (const record of pending) {
+        const block = el("div", { className: "pipeline-block" });
+        block.appendChild(el("h3", { text: record.pipeline_name }));
+        const artifactBox = el("div");
+        block.appendChild(artifactBox);
+        renderPrArtifact(artifactBox, record.pr_artifact, { pipelineName: record.pipeline_name });
+        repairsBox.appendChild(block);
+      }
     }
   } catch (err) {
-    box.textContent = `Could not load pending repairs: ${err.message}`;
+    estateBox.textContent = `Could not load run details: ${err.message}`;
   }
 }
 
@@ -352,55 +481,6 @@ async function loadOverview() {
     scaleBox.appendChild(el("p", { text: `${data.registered_pipelines} registered pipelines, ${data.upstream_services} upstream services.` }));
   } catch (err) {
     scaleBox.textContent = "Scale summary unavailable.";
-  }
-}
-
-// --- Data Products tab --------------------------------------------------------------------
-
-async function loadDataProducts() {
-  const box = document.getElementById("data-products-table");
-  try {
-    const data = await fetchEstate();
-    const rows = data.pipelines || [];
-    clear(box);
-    const table = el("table");
-    table.appendChild(
-      el("thead", {
-        children: [
-          el("tr", {
-            children: [
-              el("th", { text: "Data product" }),
-              el("th", { text: "ETL" }),
-              el("th", { text: "Trust" }),
-              el("th", { text: "Context" }),
-              el("th", { text: "Review" }),
-              el("th", { text: "Conflicts" }),
-            ],
-          }),
-        ],
-      })
-    );
-    const tbody = el("tbody");
-    for (const r of rows) {
-      const trusted = r.validation_status === "PASS";
-      tbody.appendChild(
-        el("tr", {
-          className: trusted ? "" : "estate-row-untrusted",
-          children: [
-            el("td", { text: r.pipeline_name }),
-            el("td", { text: r.etl_status || "-" }),
-            el("td", { text: r.validation_status || "UNKNOWN" }),
-            el("td", { text: r.context_provenance }),
-            el("td", { text: r.review_status || "-" }),
-            el("td", { text: String(r.open_conflicts) }),
-          ],
-        })
-      );
-    }
-    table.appendChild(tbody);
-    box.appendChild(table);
-  } catch (err) {
-    box.textContent = `Could not load data product estate: ${err.message}`;
   }
 }
 
@@ -465,6 +545,10 @@ async function runAutoScan() {
     _autoScanInFlight = false;
   }
 }
+
+document.getElementById("check-incidents-now-btn").addEventListener("click", () => {
+  runAutoScan();
+});
 
 // --- Init -------------------------------------------------------------------------------
 

@@ -88,6 +88,15 @@ class LifecycleDiagnosticTools:
     pipeline_name: str = ""
     storage: S3Storage | None = None
     context_retriever: ContextRetriever | None = None
+    # False by default -- every existing construction site is unaffected. When True (see
+    # build_diagnostic_tools_for_pipeline / src.context_retriever.is_demo_context_blind),
+    # get_business_rules/get_pipeline_business_rules/get_relevant_etl_source also go dark --
+    # this is the wider half of DEMO_CONTEXT_MODE=blind: raw ETL source and raw
+    # business_rules.json bypass ContextRetriever entirely (see this module's own docstring),
+    # so blinding just the context_retriever-backed tools wasn't enough to demonstrate a real
+    # diagnosis-quality gap against a capable model (confirmed live, ROSA, 2026-07-29: gpt-5
+    # reconstructed the correct diagnosis from raw code + raw rules alone).
+    blind_raw_context: bool = False
 
     def _dataset_registry(self) -> dict[str, pd.DataFrame]:
         return self.raw_tables
@@ -136,7 +145,10 @@ class LifecycleDiagnosticTools:
         return {"failed_checks": failed}
 
     def get_business_rules(self) -> dict:
-        """context/business_rules.json content, verbatim."""
+        """context/business_rules.json content, verbatim -- or a disabled marker when
+        blind_raw_context is set (see the class docstring/field comment)."""
+        if self.blind_raw_context:
+            return {"disabled": True, "note": "context layer disabled for this demo run"}
         return self.business_rules
 
     def get_pipeline_business_rules(self) -> dict:
@@ -212,7 +224,11 @@ class LifecycleDiagnosticTools:
         }
 
     def get_relevant_etl_source(self) -> dict:
-        """The source of every ETL function that computes this pipeline's curated output(s)."""
+        """The source of every ETL function that computes this pipeline's curated output(s) --
+        or just the file name, with function bodies withheld, when blind_raw_context is set
+        (see the class docstring/field comment)."""
+        if self.blind_raw_context:
+            return {"file": self.etl_source_file, "functions": {}, "note": "context layer disabled for this demo run"}
         return {
             "file": self.etl_source_file,
             "functions": {name: inspect.getsource(fn) for name, fn in self.etl_functions.items()},
@@ -276,6 +292,7 @@ def build_diagnostic_tools_for_pipeline(
     validation_results: dict,
     business_rules: dict,
     context_retriever: ContextRetriever | None = None,
+    blind_raw_context: bool = False,
 ) -> LifecycleDiagnosticTools:
     """Load exactly the raw tables and ETL functions this pipeline needs, per
     PIPELINE_REGISTRY, and construct a LifecycleDiagnosticTools around them."""
@@ -296,6 +313,7 @@ def build_diagnostic_tools_for_pipeline(
         lineage_key=spec.lineage_key,
         pipeline_name=pipeline_name,
         storage=storage,
+        blind_raw_context=blind_raw_context,
         context_retriever=context_retriever,
     )
 

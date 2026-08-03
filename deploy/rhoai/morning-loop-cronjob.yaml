@@ -1,0 +1,57 @@
+# Optional -- the "high-level morning data-operations loop" Codex/MCP entry point
+# (src.agents.codex_mcp_loop.main), run on a schedule instead of manually. Disabled by default
+# (suspend: true) until a real OPENAI_API_KEY-backed run has been verified manually once (see
+# RUNBOOK.md) -- this calls a real, billed model on every trigger, unlike the free/local
+# --scripted-model path used for testing.
+#
+# NOT yet applied to or verified against the live cluster; src.agents.codex_mcp_loop has never
+# been run against RHOAI at all (only tested against fakes locally, see
+# tests/test_codex_mcp_loop.py). Uses the SAME image and resource profile as
+# mcp-data-ops/mcp-spark-runtime (both already proven live) since codex_mcp_loop.main()
+# builds BOTH MCP tool sets IN-PROCESS (see src.agents.codex_mcp_loop.run_and_persist_codex_mcp_loop)
+# rather than connecting to the already-deployed mcp-data-ops/mcp-spark-runtime Services over
+# HTTP -- it needs everything those pods needed: git, .git history, pinned pandas/pyspark,
+# and enough memory for concurrent local-mode Spark JVMs.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-agent-morning-loop
+  namespace: data-agent
+  labels:
+    app.kubernetes.io/managed-by: claude-demo
+spec:
+  schedule: "0 7 * * 1-5"  # 7am weekdays -- placeholder, adjust to your team's actual morning
+  suspend: true
+  jobTemplate:
+    spec:
+      # Confirmed live (2026-07-29): a run that fails with ModelClientError (e.g. did not
+      # converge within max_turns) is not something a blind retry fixes -- Kubernetes' default
+      # backoffLimit (6) silently created a second full run behind our backs, resubmitting
+      # SparkApplications for pipelines already processed and burning more real, billed OpenAI
+      # calls with nobody watching. A failed run needs a human to look at it, not an automatic
+      # retry storm.
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/managed-by: claude-demo
+        spec:
+          serviceAccountName: data-agent-app
+          restartPolicy: Never
+          containers:
+            - name: morning-loop
+              image: "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest"
+              imagePullPolicy: Always
+              command: ["python3", "-m", "src.agents.codex_mcp_loop"]
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "2Gi"
+                limits:
+                  cpu: "2"
+                  memory: "4Gi"
+              envFrom:
+                - configMapRef:
+                    name: data-agent-app-config
+                - secretRef:
+                    name: data-agent-secrets

@@ -42,7 +42,7 @@ NULLABLE_STRING_COLUMNS_BY_TABLE: dict[str, list[str]] = {
 
 CONTEXT_FILES = {
     "business_rules.json": "context/business_rules.json",
-    "business_rules_settled_adopted.json": "context/business_rules_settled_adopted.json",
+    "business_rules_demo.json": "context/business_rules_demo.json",
     "pipeline_rules/loan_portfolio.json": "context/pipeline_rules/loan_portfolio.json",
     "data_dictionary.json": "context/data_dictionary.json",
     "lineage.json": "context/lineage.json",

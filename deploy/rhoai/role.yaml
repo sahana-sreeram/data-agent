@@ -1,0 +1,53 @@
+# Minimal, namespace-scoped RBAC for data-agent-app -- no cluster-admin, no wildcard verbs/
+# resources. Confirmed live (2026-07-28) against the real cluster that `sparkapplications.
+# sparkoperator.k8s.io` / `scheduledsparkapplications.sparkoperator.k8s.io` are real, installed
+# CRDs (group sparkoperator.k8s.io, version v1beta2) and that the authenticated user can
+# already create sparkapplications/deployments/rolebindings in this namespace -- this Role is
+# what that access should be narrowed down to for the app's own service account, rather than
+# the broader ad hoc permissions an interactive user session happens to have.
+#
+# Validate with `oc apply --dry-run=server -f role.yaml` before real use (see RUNBOOK.md).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-agent-app
+  namespace: data-agent
+rules:
+  # Submit and inspect Spark pipeline runs (src.platform_backends.pipeline_runner.RHOAISparkRunner,
+  # the spark-runtime MCP server's submit_spark_pipeline/get_spark_application_status).
+  - apiGroups: ["sparkoperator.k8s.io"]
+    resources: ["sparkapplications", "scheduledsparkapplications"]
+    verbs: ["get", "list", "watch", "create", "delete", "update"]
+  # The Spark driver (running as this service account) manages its own executor pods and the
+  # headless service/configmap it creates for executor discovery -- standard requirements for
+  # Spark-on-Kubernetes cluster mode, not something specific to this app. deletecollection is
+  # a SEPARATE verb from delete in RBAC -- confirmed live that the driver's own cleanup path
+  # (deleting executor pods/configmaps by label selector, a bulk operation) needs it explicitly;
+  # `delete` alone (single-resource-by-name) is not enough and fails with "Forbidden" during
+  # cleanup even though everything up to that point succeeded.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete", "deletecollection"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "delete", "deletecollection"]
+  # Confirmed live: the driver's cleanup path ALSO unconditionally attempts to delete any
+  # PVCs by label selector (Spark-on-k8s's dynamic/on-disk-shuffle PVC support), even though
+  # this app never actually requests one -- omitting this produces the same benign-but-noisy
+  # Forbidden error at shutdown as the pods/configmaps case above (the job itself still
+  # completes successfully either way, but the error is real RBAC noise worth eliminating).
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "delete", "deletecollection"]
+  # The console's "run Codex/MCP now" action (POST /api/codex-run/trigger, src/api.py) creates
+  # a one-off Job cloning morning-loop-cronjob.yaml's jobTemplate, scoped to a single pipeline
+  # -- this is the actual Codex/MCP harness (src.agents.codex_mcp_loop), run on demand instead
+  # of only on the CronJob's schedule. The Job runs as this SAME service account (no
+  # cross-account elevation), so no additional SCC/impersonation permission is needed beyond
+  # create/get/list/delete on jobs themselves.
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "delete"]

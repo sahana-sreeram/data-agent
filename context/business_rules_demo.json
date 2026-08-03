@@ -1,0 +1,48 @@
+{
+  "successful_payment_statuses": ["PAID", "SETTLED"],
+  "valid_payment_statuses": ["SCHEDULED", "PAID", "LATE", "MISSED", "FAILED"],
+  "valid_loan_statuses": ["ACTIVE", "CLOSED", "DEFAULTED"],
+  "outstanding_balance_formula": "total_original_principal - total_successful_payments",
+  "valid_channels": ["EMAIL", "SOCIAL", "PARTNER"],
+  "valid_discount_types": ["RATE_DISCOUNT", "FEE_WAIVER"],
+  "valid_email_event_types": ["SENT", "OPENED", "CLICKED"],
+  "valid_application_statuses": ["SUBMITTED", "WITHDRAWN", "DECISIONED"],
+  "valid_decision_values": ["APPROVED", "REJECTED", "MANUAL_REVIEW"],
+  "valid_rejection_reasons": [
+    "LOW_CREDIT_SCORE",
+    "HIGH_DEBT_TO_INCOME",
+    "INSUFFICIENT_INCOME",
+    "INCOMPLETE_APPLICATION",
+    "FRAUD_RISK"
+  ],
+  "valid_payment_event_types": ["PAYMENT", "REVERSAL"],
+  "valid_payment_event_statuses": ["PAID", "LATE", "MISSED", "FAILED", "REVERSED", "SETTLED"],
+  "valid_delinquency_buckets": ["CURRENT", "30", "60", "90_PLUS"],
+  "prepayment_threshold_days": 3,
+  "interest_accrual": {
+    "day_count_convention": "ACT/365",
+    "accrues_on_statuses": ["ACTIVE"]
+  },
+  "loss_rate_denominator": "total_funded_principal",
+  "lifecycle_etl_notes": [
+    "prepayment_threshold_days: a PAID payment_event dated this many days or more before its payment_schedule due_date counts as a prepayment, for the payment_performance pipeline's prepayment_rate metric.",
+    "interest_accrual: only ACTIVE loans continue accruing interest for the loan_portfolio pipeline's total_accrued_interest metric (CLOSED/DEFAULTED loans' interest is not separately tracked in the MVP) -- simple interest, ACT/365 day-count convention.",
+    "loss_rate_denominator: loss_rate (delinquency_default pipeline) is expressed as a fraction of total_funded_principal, not of total_balance_at_default -- a portfolio-level loss rate, not a loss-given-default rate. Both are valid industry conventions; this pins down which one this system uses."
+  ],
+  "lifecycle_notes": [
+    "These valid_* keys (added for the 12-table lifecycle model: campaigns, coupon_rules, email_events, prequal_offers, applications, underwriting_decisions, loans, payment_schedule, payment_events, delinquency_events, defaults) are additive -- the original keys above (successful_payment_statuses, valid_payment_statuses, valid_loan_statuses, outstanding_balance_formula) remain exactly as they were and continue to govern the original 3-scenario customers/loans/payments model unmodified.",
+    "successful_payment_statuses is reused as-is for the lifecycle model's payment_events table -- PaymentEventStatus.PAID's value is the literal string 'PAID', identical to the original PaymentStatus.PAID, so no separate key is needed.",
+    "valid_loan_statuses is reused as-is for the lifecycle model's loans table -- LoanStatus (ACTIVE/CLOSED/DEFAULTED) is unchanged between the two models; only loans gained a new application_id column, not a new status vocabulary."
+  ],
+  "notes": [
+    "For the MVP, only PAID is treated as a successfully settled principal payment.",
+    "LATE payments have amount_paid > 0 in the raw data (the money was eventually received), but LATE is retained as a behavioral status and deliberately excluded from the portfolio balance calculation. This is an MVP simplification, not a claim that late-paid amounts were never collected.",
+    "MISSED, FAILED, and SCHEDULED payments have amount_paid == 0 and never count toward successful payments.",
+    "A future iteration may enrich this rule so LATE payments count once flagged as received, at which point this file -- not the transformation code -- is where that change belongs."
+  ],
+  "demo_notes": [
+    "This file is the ORG-APPROVED response to payment_service's v2 contract change (successful installments renamed PAID -> SETTLED): SETTLED is recognized as an equivalent successful-payment outcome alongside PAID, everywhere business_rules.successful_payment_statuses is read.",
+    "This file exists independently of any repair action -- it represents a real business decision, already made and checked into the repository. The only thing a governed repair may do is point one pipeline's context/pipeline_rules/<pipeline>.json at this file instead of the stale context/business_rules.json, via a registered CONFIGURATION_CHANGE repair target (see context/repair_targets.json). It never edits the shared, cross-pipeline context/business_rules.json directly.",
+    "valid_payment_event_statuses here additionally includes SETTLED for internal consistency of this adopted ruleset, but this has no effect on src/validate_lifecycle_raw.py's raw enum check, which always reads the shared context/business_rules.json regardless of any pipeline's pointer -- updating the org-wide raw status catalog is a separate, still-open action, deliberately not bundled into this pipeline-scoped repair."
+  ]
+}

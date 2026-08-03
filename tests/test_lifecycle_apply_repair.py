@@ -16,7 +16,7 @@ from src.lifecycle_apply_repair import ApplyLifecycleRepairError, run_apply_life
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.lifecycle_repair_agent import SUBMIT_REPAIR_PLAN_TOOL_NAME
 from src.model_client import ModelResponse, ScriptedDiagnosisModelClient, ToolCall
-from src.legacy.repair_models import RepairEligibility, evaluate_repair_eligibility
+from src.repair_models import RepairEligibility, evaluate_repair_eligibility
 
 PIPELINE_NAME = "loan_portfolio"
 ETL_SOURCE_FILE = PIPELINE_REGISTRY[PIPELINE_NAME].etl_source_file
@@ -175,7 +175,7 @@ def test_configuration_change_target_applies_in_isolation(tmp_path):
     # relative to the repo's actual current state instead of testing the real behavior.
     original_content = Path(target_file).read_text()
     current_value = json.loads(original_content)["business_rules_file"]
-    allowed_values = ("context/business_rules.json", "context/business_rules_settled_adopted.json")
+    allowed_values = ("context/business_rules.json", "context/business_rules_demo.json")
     new_value = next(v for v in allowed_values if v != current_value)
 
     diagnosis = _diagnosis(

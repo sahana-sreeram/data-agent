@@ -156,6 +156,11 @@ pre.diff {
 
 .estate-row-untrusted td { color: var(--bad); }
 
+/* --- Run Details: Codex/MCP workflow timeline ------------------------------------------ */
+
+.mcp-timeline { margin: 0.5rem 0 0; padding-left: 1.2rem; font-size: 0.85rem; color: var(--muted); }
+.mcp-timeline li { margin-bottom: 0.3rem; font-family: ui-monospace, monospace; }
+
 /* --- PR / review-package artifact ------------------------------------------------------ */
 
 .pr-header { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; }

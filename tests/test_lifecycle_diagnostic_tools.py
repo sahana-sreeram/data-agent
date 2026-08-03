@@ -80,6 +80,21 @@ def tools():
     )
 
 
+@pytest.fixture()
+def blind_tools():
+    return LifecycleDiagnosticTools(
+        raw_tables={"loans": LOANS, "payment_events": PAYMENT_EVENTS},
+        validation_results=VALIDATION_RESULTS,
+        business_rules=BUSINESS_RULES,
+        metrics=METRICS,
+        etl_source_file="src/etl_spark_loan_portfolio.py",
+        etl_functions={"compute_loan_portfolio": compute_loan_portfolio},
+        lineage=LINEAGE,
+        lineage_key="curated.loan_portfolio",
+        blind_raw_context=True,
+    )
+
+
 def test_list_datasets_exposes_every_raw_table(tools):
     assert tools.list_datasets() == {"datasets": ["loans", "payment_events"]}
 
@@ -123,6 +138,24 @@ def test_get_relevant_etl_source_returns_every_functions_source(tools):
     assert result["file"] == "src/etl_spark_loan_portfolio.py"
     assert set(result["functions"]) == {"compute_loan_portfolio"}
     assert "def compute_loan_portfolio" in result["functions"]["compute_loan_portfolio"]
+
+
+def test_blind_raw_context_disables_get_business_rules(blind_tools):
+    result = blind_tools.get_business_rules()
+    assert result == {"disabled": True, "note": "context layer disabled for this demo run"}
+
+
+def test_blind_raw_context_disables_get_pipeline_business_rules_too(blind_tools):
+    """get_pipeline_business_rules is a separately-allowlisted tool name aliasing
+    get_business_rules -- must not leak the real rules through the alias."""
+    result = blind_tools.get_pipeline_business_rules()
+    assert result == {"disabled": True, "note": "context layer disabled for this demo run"}
+
+
+def test_blind_raw_context_withholds_etl_source_but_keeps_the_file_name(blind_tools):
+    result = blind_tools.get_relevant_etl_source()
+    assert result["file"] == "src/etl_spark_loan_portfolio.py"
+    assert result["functions"] == {}
 
 
 def test_dispatch_tool_returns_error_dict_instead_of_raising(tools):

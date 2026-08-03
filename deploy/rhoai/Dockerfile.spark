@@ -1,0 +1,48 @@
+# The image the Spark Operator actually runs for driver/executor pods -- DELIBERATELY
+# SEPARATE from deploy/rhoai/Dockerfile (the console/API + both MCP servers' image).
+#
+# Confirmed live (2026-07-28): the Spark Operator's driver/executor containers rely on the
+# base image's own ENTRYPOINT being a real Spark k8s bootstrap script (/opt/entrypoint.sh,
+# bundled only in official Apache Spark images, NOT in the pip `pyspark` wheel) -- the
+# Operator only ever APPENDS args like `driver --properties-file ...` to whatever the image's
+# entrypoint already is, it never overrides it. Building our own app image FROM bare
+# python:3.12-slim (as deploy/rhoai/Dockerfile does for the console/MCP servers, which set
+# their OWN explicit `command:` in their Deployments) breaks Spark job submission outright --
+# the Operator's args get appended to our uvicorn command instead of a real Spark entrypoint.
+#
+# This image bundles PySpark 3.5.5 natively via $SPARK_HOME (not pip) -- no dependency on
+# whatever `pyspark` version pyproject.toml/local dev happens to have installed, and Python
+# 3.8 (this image's own bundled interpreter) never needs to run anything outside this
+# repo's ETL scripts' narrow import chain (pyspark + src/spark_session.py + src/storage.py:
+# pandas, boto3, pyarrow, python-dotenv only -- no fastapi/pydantic/mcp/openai, none of which
+# this job needs).
+#
+# Build from the REPO ROOT:
+#   docker build -f deploy/rhoai/Dockerfile.spark -t <registry>/data-agent-spark:latest .
+FROM apache/spark:3.5.5-python3
+
+# hadoop-aws + its AWS SDK (v1 -- matches this image's own bundled hadoop-client-api/runtime
+# 3.3.4.jar, confirmed via `docker run --rm --entrypoint sh apache/spark:3.5.5-python3 -c "ls
+# /opt/spark/jars | grep hadoop-client"`) baked in at build time rather than resolved via
+# spark.jars.packages/spec.deps.packages at submit/run time -- confirmed live that the Spark
+# Operator's own controller pod (which runs `spark-submit` itself, on ITS OWN bundled Spark,
+# to hand the job to the k8s scheduler) has a non-writable Ivy cache, so a package dependency
+# fails before a driver pod is even created.
+RUN curl -fsSL -o /opt/spark/jars/hadoop-aws-3.3.4.jar \
+      https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar && \
+    curl -fsSL -o /opt/spark/jars/aws-java-sdk-bundle-1.12.262.jar \
+      https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar
+
+WORKDIR /opt/spark-app
+COPY src ./src
+# The image's default `spark` user (uid 185) can't write to its own $HOME -- confirmed live
+# ("Permission denied: '/home/spark'") -- root only for this install step.
+USER root
+RUN pip3 install --no-cache-dir pandas boto3 pyarrow python-dotenv
+USER spark
+
+# mainApplicationFile (e.g. local:///opt/spark-app/src/etl_spark_loan_portfolio.py) is invoked
+# by spark-submit as a raw script path, not `python -m` -- sys.path[0] becomes the script's OWN
+# directory (.../src/), not /opt/spark-app, so `from src.spark_session import ...` would fail
+# without this on PYTHONPATH explicitly.
+ENV PYTHONPATH="/opt/spark-app"

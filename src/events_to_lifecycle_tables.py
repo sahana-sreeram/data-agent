@@ -3,7 +3,7 @@ shapes, so migrate_lifecycle_to_s3.py and all 5 existing Spark ETL pipelines run
 unmodified regardless of whether the data originated from direct generation or from services.
 
 Each event's payload IS the same dict a raw-table dataclass's to_dict() produces (see
-services/common/runner.py) -- reconstructing a table is just concatenating every event whose
+demo/services/common/runner.py) -- reconstructing a table is just concatenating every event whose
 domain event_type maps to it and dropping the envelope's own underscore-prefixed columns
 (_event_id, _event_type, _schema_version, _service, _emitted_at). No business logic lives
 here; this is a structural pass-through, not a transformation.

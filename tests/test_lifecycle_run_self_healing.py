@@ -195,7 +195,7 @@ def test_unknown_mode_raises_value_error():
         self_healing_module.run_lifecycle_self_healing(PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None, mode="not_a_real_mode")
 
 
-def test_human_approved_categories_requires_create_pr_mode():
+def test_human_approved_categories_rejects_a_real_promoting_mode():
     import pytest
 
     with pytest.raises(ValueError):
@@ -203,6 +203,36 @@ def test_human_approved_categories_requires_create_pr_mode():
             PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None,
             mode="auto_promote", human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
         )
+    with pytest.raises(ValueError):
+        self_healing_module.run_lifecycle_self_healing(
+            PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None,
+            mode="diagnose_only", human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
+        )
+
+
+def test_human_approved_categories_is_allowed_with_propose_patch_mode(monkeypatch):
+    """propose_patch structurally cannot promote (it stops before verify even runs) -- this
+    is the exact mode src.mcp_servers.data_ops_server.DataOpsTools.create_candidate_repair
+    uses, so a human-approved override must be usable there too, not just with create_pr."""
+    seen_kwargs = {}
+    monkeypatch.setattr(self_healing_module, "PIPELINE_REGISTRY", {PIPELINE_NAME: _spec_with_validate(lambda *a: {"overall_status": "FAIL", "checks": []})})
+    monkeypatch.setattr(self_healing_module, "run_diagnose_pipeline", lambda p, s, f: {"diagnosis_status": "DIAGNOSED", "root_cause_category": "SOURCE_CONTRACT_CHANGE"})
+
+    def fake_apply(p, s, d, v, f, **kwargs):
+        seen_kwargs.update(kwargs)
+        return {"repair_decision": "PROPOSE_REPAIR"}, {"repair_status": "APPLIED", "workspace_dir": "/tmp/x", "target_file": "x.py"}
+
+    monkeypatch.setattr(self_healing_module, "run_apply_lifecycle_repair", fake_apply)
+    monkeypatch.setattr(self_healing_module, "run_verify_lifecycle_repair", lambda *a, **k: (_ for _ in ()).throw(AssertionError("must not verify in propose_patch mode")))
+
+    result = self_healing_module.run_lifecycle_self_healing(
+        PIPELINE_NAME, "fake-spark", _FakeStorage(), lambda: None, lambda: None,
+        mode="propose_patch", human_approved_categories=frozenset({"SOURCE_CONTRACT_CHANGE"}),
+    )
+
+    assert seen_kwargs["human_approved_categories"] == frozenset({"SOURCE_CONTRACT_CHANGE"})
+    assert result["repair_result"]["repair_status"] == "APPLIED"
+    assert result["repair_verification"] is None
 
 
 def test_human_approved_categories_is_threaded_through_to_apply_repair(monkeypatch):

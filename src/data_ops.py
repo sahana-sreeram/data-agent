@@ -243,7 +243,7 @@ def run_incident_response(
 
     repair_model_client_factory (only meaningful on the `pipeline_name` path) overrides which
     model client repair planning uses -- None (the default) preserves the real repair model
-    src.ask_lifecycle._attempt_self_heal already uses. See src.demo.enterprise_incident for
+    src.ask_lifecycle._attempt_self_heal already uses. See demo.enterprise_incident for
     the one real caller of this today: a scripted, no-API-cost repair client for repeatable
     demo runs.
 
@@ -440,15 +440,32 @@ def auto_scan_and_repair(
             results.append({"pipeline_name": pipeline_name, "status": "already_pending", "pending": storage.read_json(pending_key)})
             continue
 
+        # Reserve this pipeline's pending-repair slot immediately, before the (multi-second,
+        # real Spark + pytest) self-heal call below -- this is a scan, so the SAME scan (this
+        # loop, on a 25s browser-polled interval) or another scan/candidate-generation call
+        # against the same pipeline could otherwise start its own concurrent attempt during
+        # that window: the check above only sees a pending record once one gets WRITTEN, which
+        # doesn't happen until this attempt finishes. Two overlapping attempts don't just waste
+        # work -- each one's verification step transiently overwrites the real target file
+        # in place (src.lifecycle_verify_repair._run_pytest_against_patched_code), and enough
+        # of them running at once against a resource-limited pod can starve it of workers
+        # entirely (confirmed live: 3 overlapping scans made the console stop answering
+        # requests). Cleared below if this attempt doesn't end in VERIFIED_PENDING_PR.
+        storage.write_json(pending_key, {"pipeline_name": pipeline_name, "status": "in_progress"})
+
         _section(f"AUTO-DETECTED INCIDENT: {pipeline_name}")
-        heal = _attempt_self_heal(
-            pipeline_name,
-            storage,
-            diagnosis_model_client_factory,
-            mode="create_pr",
-            human_approved_categories=AUTO_APPROVED_CATEGORIES,
-            repair_model_client_factory=repair_model_client_factory,
-        )
+        try:
+            heal = _attempt_self_heal(
+                pipeline_name,
+                storage,
+                diagnosis_model_client_factory,
+                mode="create_pr",
+                human_approved_categories=AUTO_APPROVED_CATEGORIES,
+                repair_model_client_factory=repair_model_client_factory,
+            )
+        except Exception:
+            storage.delete(pending_key)
+            raise
         _print_heal(pipeline_name, heal, "create_pr")
         verification = heal.get("repair_verification") or {}
 
@@ -462,6 +479,7 @@ def auto_scan_and_repair(
             storage.write_json(pending_key, pending_record)
             results.append(pending_record)
         else:
+            storage.delete(pending_key)
             results.append(
                 {
                     "pipeline_name": pipeline_name,
@@ -479,18 +497,54 @@ def accept_repair(pipeline_name: str, branch: str, storage: S3Storage, spark) ->
     project's "no real GitHub PR publication" boundary), then a real rerun of this pipeline's
     ETL/validation so the accepted change actually takes effect in the live environment --
     merging alone would leave real curated data reflecting the pre-fix state until rerun.
-    Never automatic; only ever called in direct response to an explicit human action."""
+    Never automatic; only ever called in direct response to an explicit human action.
+
+    If the branch itself isn't mergeable here, falls back to applying the pending repair
+    record's own stored unified diff directly (see below) -- this is the common case once
+    create_candidate_repair/accept_repair can run in different processes."""
     _section(f"ACCEPT REPAIR: {pipeline_name} ({branch})")
+    merge_error = None
     try:
         subprocess.run(
             ["git", "merge", "--no-ff", branch, "-m", f"Merge {branch}: accept repair for {pipeline_name}"],
             check=True, capture_output=True, text=True, timeout=30,
         )
     except subprocess.CalledProcessError as exc:
-        return {"accepted": False, "pipeline_name": pipeline_name, "branch": branch, "error": f"git merge failed: {exc.stderr.strip()}"}
+        merge_error = exc.stderr.strip()
     except subprocess.TimeoutExpired:
         return {"accepted": False, "pipeline_name": pipeline_name, "branch": branch, "error": "git merge timed out"}
-    subprocess.run(["git", "branch", "-d", branch], capture_output=True, timeout=30)
+
+    if merge_error is None:
+        subprocess.run(["git", "branch", "-d", branch], capture_output=True, timeout=30)
+    else:
+        # Confirmed live (ROSA, 2026-07-29): create_candidate_repair/verify_candidate_repair
+        # run inside the mcp-data-ops pod's own ephemeral git repo, but accept_repair runs
+        # inside whichever pod serves /api/repairs/accept (e.g. the console) -- a SEPARATE
+        # container with its own independent git history that never saw that branch, and
+        # which wouldn't retain it across a restart either way. The unified diff itself is
+        # already persisted as DATA in the pending-repair record (not live process/git state),
+        # so applying it directly here works regardless of which pod/process created the
+        # candidate, and survives pod restarts. Only used when the branch merge itself fails --
+        # the merge path above still wins when it's available (e.g. local single-process dev).
+        pending_key = _pending_repair_key(pipeline_name)
+        pr_artifact = (storage.read_json(pending_key).get("pr_artifact") or {}) if storage.exists(pending_key) else {}
+        diff, target_file = pr_artifact.get("diff"), pr_artifact.get("target_file")
+        if not diff or not target_file:
+            return {"accepted": False, "pipeline_name": pipeline_name, "branch": branch, "error": f"git merge failed: {merge_error}"}
+        try:
+            subprocess.run(["git", "apply", "--whitespace=nowarn", "-"], input=diff, check=True, capture_output=True, text=True, timeout=30)
+            subprocess.run(["git", "add", target_file], check=True, capture_output=True, timeout=30)
+            subprocess.run(
+                ["git", "commit", "-m", f"Accept repair for {pipeline_name} ({branch}): applied stored diff directly"],
+                check=True, capture_output=True, text=True, timeout=30,
+            )
+        except subprocess.CalledProcessError as exc:
+            return {
+                "accepted": False, "pipeline_name": pipeline_name, "branch": branch,
+                "error": f"git merge failed: {merge_error}; git apply fallback also failed: {exc.stderr.strip()}",
+            }
+        except subprocess.TimeoutExpired:
+            return {"accepted": False, "pipeline_name": pipeline_name, "branch": branch, "error": f"git merge failed: {merge_error}; git apply fallback timed out"}
 
     from src.migrate_lifecycle_to_s3 import migrate_context
 
@@ -524,7 +578,8 @@ def accept_repair(pipeline_name: str, branch: str, storage: S3Storage, spark) ->
     storage.write_json(PIPELINE_RUN_KEY, pipeline_run)
     storage.delete(_pending_repair_key(pipeline_name))
 
-    print(f"  merged {branch} into main; {pipeline_name} rerun for real against the accepted change: validation_status={validation['overall_status']}")
+    how = f"merged {branch} into main" if merge_error is None else f"applied {branch}'s stored diff directly (branch itself wasn't mergeable here)"
+    print(f"  {how}; {pipeline_name} rerun for real against the accepted change: validation_status={validation['overall_status']}")
     return {"accepted": True, "pipeline_name": pipeline_name, "branch": branch, "validation_status": validation["overall_status"]}
 
 

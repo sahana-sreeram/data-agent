@@ -32,7 +32,7 @@ from src.data_ops import (
     run_incident_response,
     scale_summary,
 )
-from src.demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
+from demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
 from src.eval_report import build_eval_report, load_demo_manifests_from_s3
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
@@ -62,6 +62,14 @@ class ScanRequest(BaseModel):
 class RepairDecisionRequest(BaseModel):
     pipeline_name: str
     branch: str
+
+
+class CodexRunRequest(BaseModel):
+    pipeline_name: str = "loan_portfolio"
+
+
+CODEX_RUN_IMAGE_ENV_VAR = "CODEX_RUN_IMAGE"
+CODEX_RUN_NAMESPACE_ENV_VAR = "RHOAI_NAMESPACE"
 
 
 def _model_client_factory() -> DiagnosisModelClient:
@@ -161,7 +169,7 @@ def context_detail(pipeline_name: str) -> dict:
 def _require_scripted_model_eligible(pipeline_name: str | None) -> None:
     """The scripted (no-API-cost, instant) model client replays a fixed tool-call sequence
     and diagnosis built specifically for the flagship payment_service v2 / loan_portfolio
-    scenario (see src.demo.enterprise_incident) -- it is not a generic stand-in for any
+    scenario (see demo.enterprise_incident) -- it is not a generic stand-in for any
     pipeline. Using it against a different pipeline would fail loudly during diagnosis
     grounding (its recommended_fix.target_file wouldn't be a known file for that pipeline),
     never silently produce a wrong result -- but this check gives a clearer error up front."""
@@ -183,7 +191,7 @@ def incident(request: IncidentRequest) -> dict:
     src.lifecycle_run_self_healing's docstring for the policy this overrides.
 
     use_scripted_model swaps in the same no-API-cost, instant model client
-    src.demo.enterprise_incident uses by default -- real Spark/S3/git the whole time, only
+    demo.enterprise_incident uses by default -- real Spark/S3/git the whole time, only
     the model's responses are canned -- for the one scenario it's built for (see
     _require_scripted_model_eligible). Default False preserves this endpoint's original
     behavior (a real OpenAI call) for every existing caller."""
@@ -242,7 +250,7 @@ def incidents_scan(request: ScanRequest = ScanRequest()) -> dict:
 
     use_scripted_model restricts the scan to loan_portfolio only (see
     _require_scripted_model_eligible) and uses the same no-API-cost, instant model client
-    src.demo.enterprise_incident uses by default -- real Spark/S3/git the whole time."""
+    demo.enterprise_incident uses by default -- real Spark/S3/git the whole time."""
     try:
         storage = S3Storage()
         if request.use_scripted_model:
@@ -262,6 +270,38 @@ def repairs_pending() -> dict:
     try:
         storage = S3Storage()
         return {"pending": list_pending_repairs(storage)}
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@app.get("/api/run-details/{run_id}")
+def run_details(run_id: str) -> dict:
+    """Everything the Run Details tab shows in one call: the data-product estate (what the
+    old Data Products tab showed), every pending repair awaiting accept/reject (what the old
+    Repairs tab showed), and -- when a src.agents.codex_mcp_loop run exists -- that run's own
+    MCP tool-call timeline and final report. `run_id="latest"` reads
+    curated/demo_run_latest.json (the most recent run of either harness); any other value
+    reads curated/demo_runs/<run_id>.json, the same per-run audit record
+    demo.enterprise_incident and src.agents.codex_mcp_loop both already persist.
+
+    codex_run is null when AGENT_HARNESS=current (the default) has never produced one -- the
+    tab still works identically in that case, just without a tool-call timeline to show."""
+    try:
+        storage = S3Storage()
+        key = "curated/demo_run_latest.json" if run_id == "latest" else f"curated/demo_runs/{run_id}.json"
+        codex_run = storage.read_json(key) if storage.exists(key) else None
+        if run_id != "latest" and codex_run is None:
+            raise HTTPException(status_code=404, detail=f"no run found for run_id {run_id!r}")
+        return {
+            "data_products": data_product_estate(storage),
+            "pending_repairs": list_pending_repairs(storage),
+            "codex_run": codex_run,
+            # Plain env var, set once via `oc set env deployment/data-agent-console
+            # HISTORY_SERVER_URL=https://<route-host>` after applying
+            # deploy/rhoai/history-server-route.yaml -- None locally/before that Route exists,
+            # in which case the console simply omits the link (see app.js).
+            "history_server_url": os.environ.get("HISTORY_SERVER_URL"),
+        }
     except StorageError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
@@ -302,6 +342,87 @@ def repairs_reject(request: RepairDecisionRequest) -> dict:
         return reject_repair(request.pipeline_name, request.branch, storage)
     except StorageError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+def _codex_run_batch_api():
+    """Lazy import -- the `kubernetes` package (pyproject.toml's `rhoai` extra) is never
+    required for the local-only path. Mirrors src.platform_backends.pipeline_runner.
+    _default_k8s_client's in-cluster/kubeconfig fallback. A separate function (not inlined
+    into the endpoint) so tests can monkeypatch this one call site with a fake client instead
+    of needing the real package installed."""
+    import kubernetes
+
+    try:
+        kubernetes.config.load_incluster_config()
+    except kubernetes.config.ConfigException:
+        kubernetes.config.load_kube_config()
+    return kubernetes.client.BatchV1Api()
+
+
+def _build_codex_run_job(pipeline_name: str) -> dict:
+    """A one-off Job cloning deploy/rhoai/morning-loop-cronjob.yaml's jobTemplate exactly
+    (same image, resources, envFrom, serviceAccount, backoffLimit=0 -- a run that doesn't
+    converge needs a human to look at it, not a retry storm) but scoped to a single pipeline
+    via --pipeline, with a generated name instead of the CronJob's fixed one. This IS the real
+    Codex/MCP harness (src.agents.codex_mcp_loop) -- a genuine MCP client making real network
+    calls to mcp-data-ops/mcp-spark-runtime -- run on demand instead of only on the CronJob's
+    schedule."""
+    image = os.environ.get(CODEX_RUN_IMAGE_ENV_VAR, "image-registry.openshift-image-registry.svc:5000/data-agent/data-agent:latest")
+    labels = {"app.kubernetes.io/managed-by": "claude-demo", "app.kubernetes.io/component": "codex-run"}
+    return {
+        "apiVersion": "batch/v1",
+        "kind": "Job",
+        "metadata": {"generateName": "codex-run-", "labels": labels},
+        "spec": {
+            "backoffLimit": 0,
+            "template": {
+                "metadata": {"labels": labels},
+                "spec": {
+                    "serviceAccountName": "data-agent-app",
+                    "restartPolicy": "Never",
+                    "containers": [
+                        {
+                            "name": "codex-run",
+                            "image": image,
+                            "imagePullPolicy": "Always",
+                            "command": ["python3", "-m", "src.agents.codex_mcp_loop", "--pipeline", pipeline_name],
+                            "resources": {
+                                "requests": {"cpu": "500m", "memory": "2Gi"},
+                                "limits": {"cpu": "2", "memory": "4Gi"},
+                            },
+                            "envFrom": [
+                                {"configMapRef": {"name": "data-agent-app-config"}},
+                                {"secretRef": {"name": "data-agent-secrets"}},
+                            ],
+                        }
+                    ],
+                },
+            },
+        },
+    }
+
+
+@app.post("/api/codex-run/trigger")
+def codex_run_trigger(request: CodexRunRequest) -> dict:
+    """Launch the real Codex/MCP harness as a one-off Kubernetes Job, scoped to one pipeline
+    -- the actual MCP-over-the-network agent loop, distinct from the console's own direct-call
+    Q&A/auto-scan path (src.data_ops, AGENT_HARNESS=current always, regardless of what that env
+    var says -- nothing in this module branches on it). Fire-and-forget: returns as soon as the
+    Job is created; the harness itself takes minutes. Watch its progress via `oc get pods`/`oc
+    logs`, or the Run Details tab once it writes curated/demo_run_latest.json on completion.
+    RHOAI-only: requires the `kubernetes` package (pyproject.toml's `rhoai` extra) and the
+    batch/jobs RBAC grant in deploy/rhoai/role.yaml."""
+    if request.pipeline_name not in PIPELINE_REGISTRY:
+        raise HTTPException(status_code=404, detail=f"unknown pipeline {request.pipeline_name!r}; known: {sorted(PIPELINE_REGISTRY)}")
+    namespace = os.environ.get(CODEX_RUN_NAMESPACE_ENV_VAR, "data-agent")
+    try:
+        batch_api = _codex_run_batch_api()
+        job = batch_api.create_namespaced_job(namespace=namespace, body=_build_codex_run_job(request.pipeline_name))
+    except ImportError as exc:
+        raise HTTPException(status_code=501, detail="kubernetes package not installed -- this action requires RHOAI mode (pip install -e '.[rhoai]')") from exc
+    except Exception as exc:  # noqa: BLE001 -- surface any k8s API failure (RBAC, connectivity) as a clean 502, not a stack trace
+        raise HTTPException(status_code=502, detail=f"failed to create Codex/MCP run Job: {exc}") from exc
+    return {"job_name": job.metadata.name, "namespace": namespace, "pipeline_name": request.pipeline_name}
 
 
 # Mounted last: FastAPI matches routes in registration order, and StaticFiles(html=True)

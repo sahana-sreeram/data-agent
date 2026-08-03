@@ -10,16 +10,14 @@
 <header>
   <h1>Data Operations Console</h1>
   <div id="health-banner" class="banner">Checking pipeline health...</div>
-  <div id="auto-scan-banner" class="banner">Health monitor starting...</div>
   <label class="checkbox-label" id="use-scripted-model-label">
     <input type="checkbox" id="use-scripted-model" checked />
-    Scripted model (instant, no API cost)
+    Scripted model
   </label>
   <nav id="tab-nav">
     <button class="tab-button active" data-tab="overview">Overview</button>
     <button class="tab-button" data-tab="qa">Q&amp;A</button>
-    <button class="tab-button" data-tab="data-products">Data Products</button>
-    <button class="tab-button" data-tab="repairs">Repairs</button>
+    <button class="tab-button" data-tab="run-details">Run Details</button>
   </nav>
 </header>
 
@@ -35,15 +33,6 @@
       <h2>Scale (measured)</h2>
       <div id="overview-scale">Loading...</div>
     </section>
-    <section class="card">
-      <h2>What this is</h2>
-      <p>An agentic data-operations control layer over a lending data estate: 6 upstream
-      services, 6 governed Spark pipelines, and a full incident lifecycle from an
-      automatically detected trust failure to a verified, reviewable repair. A health monitor
-      watches every data product, diagnoses a break, and proposes a bounded fix for you to
-      accept or reject -- nothing is ever promoted without that explicit decision. The Q&amp;A
-      tab is one entry point into this same system, not a separate chatbot.</p>
-    </section>
   </section>
 
   <!-- Q&A -->
@@ -54,31 +43,39 @@
         <input id="qa-question-input" type="text" placeholder="e.g. What is our total outstanding principal?" autocomplete="off" />
         <button type="submit">Ask</button>
       </form>
-      <p class="muted">Real OpenAI call, grounded against real curated data -- a cited number
-      is always exactly what a tool returned, never fabricated. If the data behind the
-      answer can't be trusted, this refuses to answer from it and may trigger the same
-      incident-response flow as the health monitor (see the Repairs tab).</p>
     </section>
 
-    <div id="qa-spinner" class="spinner hidden">Working -- this can take up to a couple of minutes if the data behind the answer needs to be diagnosed and repaired...</div>
+    <div id="qa-spinner" class="spinner hidden">Working...</div>
     <div id="qa-error" class="error hidden"></div>
 
     <div id="qa-history"></div>
   </section>
 
-  <!-- Data Products -->
-  <section id="tab-data-products" class="tab-panel hidden">
+  <!-- Run Details: one operational timeline + review view, consolidating what used to be
+       separate Data Products and Repairs tabs. -->
+  <section id="tab-run-details" class="tab-panel hidden">
     <section class="card">
       <h2>Data product estate</h2>
-      <div id="data-products-table">Loading...</div>
+      <div id="run-details-estate">Loading...</div>
     </section>
-  </section>
-
-  <!-- Repairs -->
-  <section id="tab-repairs" class="tab-panel hidden">
+    <section class="card" id="run-details-workflow-card">
+      <h2>Workflow (Codex/MCP)</h2>
+      <button id="codex-run-trigger-btn" type="button">Run Codex/MCP (loan_portfolio)</button>
+      <div id="codex-run-status" class="muted"></div>
+      <div id="run-details-workflow">Loading...</div>
+    </section>
+    <section class="card hidden" id="run-details-infra-card">
+      <h2>Infrastructure</h2>
+      <div id="run-details-infra"></div>
+    </section>
+    <section class="card">
+      <h2>Diagnose &amp; repair</h2>
+      <button id="check-incidents-now-btn" type="button">Diagnose &amp; generate repair</button>
+      <div id="auto-scan-banner" class="banner">Health monitor starting...</div>
+    </section>
     <section class="card">
       <h2>Review package</h2>
-      <div id="repairs-content">
+      <div id="run-details-repairs">
         <p class="muted">No repairs pending review.</p>
       </div>
     </section>

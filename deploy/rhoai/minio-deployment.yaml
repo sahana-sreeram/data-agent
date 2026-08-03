@@ -1,0 +1,86 @@
+# A dedicated in-cluster MinIO for this demo -- the fallback explicitly authorized when no
+# existing RHOAI data connection could be reused (confirmed live, 2026-07-28: none exists in
+# `data-agent`) AND the in-cluster NooBaa alternative is administratively disabled (see
+# configmap-app-config.yaml's S3_ENDPOINT_URL comment). Mirrors docker-compose.yml's local
+# MinIO setup exactly (same image, same server command) -- just running in-cluster instead of
+# on a laptop, so the Spark driver/executors (which run inside the cluster) can actually reach
+# it over the network.
+#
+# Credentials come from a Secret (minio-credentials), created imperatively (not committed):
+#   oc create secret generic minio-credentials -n data-agent \
+#     --from-literal=MINIO_ROOT_USER=<choose-one> \
+#     --from-literal=MINIO_ROOT_PASSWORD=<choose-one>
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-data
+  namespace: data-agent
+  labels:
+    app: minio
+    app.kubernetes.io/managed-by: claude-demo
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: data-agent
+  labels:
+    app: minio
+    app.kubernetes.io/managed-by: claude-demo
+spec:
+  replicas: 1
+  # RWO PVC + a plain RollingUpdate strategy deadlocks on redeploy (the new pod can't mount
+  # the volume until the old one releases it, but the old one waits for the new one to become
+  # ready first) -- confirmed live. Recreate avoids that.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+        app.kubernetes.io/managed-by: claude-demo
+    spec:
+      containers:
+        - name: minio
+          image: "quay.io/minio/minio:latest"
+          args: ["server", "/data", "--console-address", ":9001"]
+          ports:
+            - containerPort: 9000
+            - containerPort: 9001
+          envFrom:
+            - secretRef:
+                name: minio-credentials
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: data-agent
+  labels:
+    app: minio
+    app.kubernetes.io/managed-by: claude-demo
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
