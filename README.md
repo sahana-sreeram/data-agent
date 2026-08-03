@@ -1,12 +1,6 @@
 # data-agent
 
-An agentic data-operations control layer for a synthetic lending company's data estate — not
-a chatbot over a table. Upstream services emit domain events; PySpark pipelines curate them
-into business metrics; a context-enrichment layer derives most technical documentation
-automatically, leaving only real business-semantics decisions to a human; and the system walks
-a full incident lifecycle — trust check → diagnosis → governed repair → sandboxed verification
-→ reviewable PR — whenever a data product can't be trusted. Q&A is one entry point into that
-lifecycle, not the whole of it: the context layer, not the agent loop, is the differentiator.
+A context-aware data agent for a synthetic lending company. It uses PySpark to turn raw service data into trusted data products, automatically builds most of the technical context around them, and helps diagnose, repair, and validate data issues before preparing a fix for human review. Q&A is only one way into the system—the real focus is giving agents the context they need to act safely on enterprise data.
 
 ![Architecture: upstream services → Spark curation → enriched context layer → agent platform on RHOAI → diagnose/repair/verify → verified PR](content/readme/architecture.png)
 
