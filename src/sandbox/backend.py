@@ -1,6 +1,6 @@
 """SandboxBackend Protocol plus two implementations.
 
-TempDirSandbox wraps src.legacy.apply_repair's existing
+TempDirSandbox wraps src.apply_repair's existing
 _create_isolated_workspace/_workspace_path functions exactly as they are today -- a temp
 directory containing a copy of ONLY the target file. It is the default everywhere in this
 codebase and its behavior must never change.
@@ -16,7 +16,7 @@ commit to directly. It enforces the boundaries the project's sandboxing requirem
 - write access restricted to the target file (enforced by the CALLER -- apply_unified_diff/
   apply_structured_config_edit only ever write to workspace_path(workspace_dir, target_file);
   the sandbox backend does not hand the model direct filesystem access at all, matching
-  src.legacy.repair_tools's "the model never receives a write-capable tool" design)
+  src.repair_agent's "the model never receives a write-capable tool" design)
 - a bounded creation timeout (`timeout_seconds`, passed to the underlying `git` subprocess)
 - an audit log entry for every workspace created and cleaned up
 
@@ -36,7 +36,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
-from src.legacy.apply_repair import _create_isolated_workspace, _workspace_path
+from src.apply_repair import _create_isolated_workspace, _workspace_path
 
 DEFAULT_TIMEOUT_SECONDS = 60.0
 

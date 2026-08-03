@@ -32,7 +32,7 @@ from src.data_ops import (
     run_incident_response,
     scale_summary,
 )
-from src.demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
+from demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
 from src.eval_report import build_eval_report, load_demo_manifests_from_s3
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY
 from src.model_client import DiagnosisModelClient, ModelClientError, OpenAIDiagnosisModelClient
@@ -169,7 +169,7 @@ def context_detail(pipeline_name: str) -> dict:
 def _require_scripted_model_eligible(pipeline_name: str | None) -> None:
     """The scripted (no-API-cost, instant) model client replays a fixed tool-call sequence
     and diagnosis built specifically for the flagship payment_service v2 / loan_portfolio
-    scenario (see src.demo.enterprise_incident) -- it is not a generic stand-in for any
+    scenario (see demo.enterprise_incident) -- it is not a generic stand-in for any
     pipeline. Using it against a different pipeline would fail loudly during diagnosis
     grounding (its recommended_fix.target_file wouldn't be a known file for that pipeline),
     never silently produce a wrong result -- but this check gives a clearer error up front."""
@@ -191,7 +191,7 @@ def incident(request: IncidentRequest) -> dict:
     src.lifecycle_run_self_healing's docstring for the policy this overrides.
 
     use_scripted_model swaps in the same no-API-cost, instant model client
-    src.demo.enterprise_incident uses by default -- real Spark/S3/git the whole time, only
+    demo.enterprise_incident uses by default -- real Spark/S3/git the whole time, only
     the model's responses are canned -- for the one scenario it's built for (see
     _require_scripted_model_eligible). Default False preserves this endpoint's original
     behavior (a real OpenAI call) for every existing caller."""
@@ -250,7 +250,7 @@ def incidents_scan(request: ScanRequest = ScanRequest()) -> dict:
 
     use_scripted_model restricts the scan to loan_portfolio only (see
     _require_scripted_model_eligible) and uses the same no-API-cost, instant model client
-    src.demo.enterprise_incident uses by default -- real Spark/S3/git the whole time."""
+    demo.enterprise_incident uses by default -- real Spark/S3/git the whole time."""
     try:
         storage = S3Storage()
         if request.use_scripted_model:
@@ -282,7 +282,7 @@ def run_details(run_id: str) -> dict:
     MCP tool-call timeline and final report. `run_id="latest"` reads
     curated/demo_run_latest.json (the most recent run of either harness); any other value
     reads curated/demo_runs/<run_id>.json, the same per-run audit record
-    src.demo.enterprise_incident and src.agents.codex_mcp_loop both already persist.
+    demo.enterprise_incident and src.agents.codex_mcp_loop both already persist.
 
     codex_run is null when AGENT_HARNESS=current (the default) has never produced one -- the
     tab still works identically in that case, just without a tool-call timeline to show."""

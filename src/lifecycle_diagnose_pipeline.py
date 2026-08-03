@@ -1,7 +1,6 @@
-"""Diagnose why one of the 5 lifecycle pipelines' validation failed. Parallel to
-src/diagnose_incident.py (left completely unmodified) for the S3-backed lifecycle model,
-generalized (via src/lifecycle_pipeline_registry.py) to work for any of the 5 pipelines
-instead of being hardcoded to loan_portfolio.
+"""Diagnose why one of the 5 lifecycle pipelines' validation failed, generalized (via
+src/lifecycle_pipeline_registry.py) to work for any of the 5 pipelines instead of being
+hardcoded to loan_portfolio.
 
 Unlike the original model, no persisted artifact carries a pipeline's validation's full
 per-check expected/actual detail (src/run_lifecycle_etl_pipelines.py only stores a status
@@ -20,9 +19,8 @@ import argparse
 import os
 
 from src.context_retriever import build_context_retriever, is_demo_context_blind
-from src.legacy.diagnose_incident import build_starting_context
-from src.legacy.diagnosis_agent import DiagnosisAgentError
-from src.legacy.diagnosis_models import DiagnosisValidationError, build_no_incident_diagnosis, diagnosis_to_dict
+from src.diagnosis_agent import DiagnosisAgentError
+from src.diagnosis_models import DiagnosisValidationError, build_no_incident_diagnosis, diagnosis_to_dict
 from src.lifecycle_diagnosis_agent import run_lifecycle_diagnosis
 from src.lifecycle_diagnostic_tools import build_diagnostic_tools_for_pipeline
 from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTRY
@@ -31,6 +29,25 @@ from src.storage import S3Storage
 from src.validate_lifecycle_raw import TABLE_FILENAMES, validate_lifecycle_raw
 
 DIAGNOSIS_MODEL_ENV_VAR = "DIAGNOSIS_MODEL"
+
+
+def _build_starting_context(validation_results: dict) -> dict:
+    """The agent's only starting signal: overall status and failed checks, verbatim. No root cause, no fix."""
+    failed_checks = [c for c in validation_results.get("checks", []) if c.get("status") == "FAIL"]
+    return {
+        "overall_status": validation_results.get("overall_status"),
+        "failed_checks": [
+            {
+                "id": c["id"],
+                "description": c.get("description"),
+                "expected": c.get("expected"),
+                "actual": c.get("actual"),
+                "difference": c.get("difference"),
+                "details": c.get("details"),
+            }
+            for c in failed_checks
+        ],
+    }
 
 
 class DiagnosePipelineError(Exception):
@@ -103,7 +120,7 @@ def run_diagnose_pipeline(pipeline_name: str, storage: S3Storage, model_client_f
             context_retriever=context_retriever,
             blind_raw_context=is_demo_context_blind(),
         )
-        starting_context = build_starting_context(validation_results)
+        starting_context = _build_starting_context(validation_results)
         known_metrics = known_metric_names_from(tools.metrics)
         model_client = model_client_factory()
         result = run_lifecycle_diagnosis(

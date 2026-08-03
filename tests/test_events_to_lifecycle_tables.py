@@ -1,6 +1,6 @@
 """Tests for src/events_to_lifecycle_tables.py -- the seam that lets the existing 5 Spark ETL
 pipelines run completely unmodified regardless of whether data came from direct generation or
-from services. Uses local-dir output (fast, deterministic, no S3 needed); the real S3 path and
+from demo.services. Uses local-dir output (fast, deterministic, no S3 needed); the real S3 path and
 a full run through the actual unmodified ETL pipelines was verified manually against live
 MinIO (see the project plan's Phase 4 verification notes) rather than in this suite, to avoid
 every CI run mutating real curated state.
@@ -12,19 +12,19 @@ from pathlib import Path
 
 import pytest
 
-from services.application_service.contract import SCHEMA_VERSION as APPLICATION_SCHEMA_VERSION
-from services.application_service.main import SPECS as APPLICATION_SPECS
-from services.common.runner import produce_events, write_events
-from services.loan_service.contract import SCHEMA_VERSION as LOAN_SCHEMA_VERSION
-from services.loan_service.main import SPECS as LOAN_SPECS
-from services.marketing_service.contract import SCHEMA_VERSION as MARKETING_SCHEMA_VERSION
-from services.marketing_service.main import SPECS as MARKETING_SPECS
-from services.payment_service.contract import SCHEMA_VERSION as PAYMENT_SCHEMA_VERSION
-from services.payment_service.main import _build_specs as payment_specs
-from services.risk_service.contract import SCHEMA_VERSION as RISK_SCHEMA_VERSION
-from services.risk_service.main import SPECS as RISK_SPECS
-from services.underwriting_service.contract import SCHEMA_VERSION as UNDERWRITING_SCHEMA_VERSION
-from services.underwriting_service.main import SPECS as UNDERWRITING_SPECS
+from demo.services.application_service.contract import SCHEMA_VERSION as APPLICATION_SCHEMA_VERSION
+from demo.services.application_service.main import SPECS as APPLICATION_SPECS
+from demo.services.common.runner import produce_events, write_events
+from demo.services.loan_service.contract import SCHEMA_VERSION as LOAN_SCHEMA_VERSION
+from demo.services.loan_service.main import SPECS as LOAN_SPECS
+from demo.services.marketing_service.contract import SCHEMA_VERSION as MARKETING_SCHEMA_VERSION
+from demo.services.marketing_service.main import SPECS as MARKETING_SPECS
+from demo.services.payment_service.contract import SCHEMA_VERSION as PAYMENT_SCHEMA_VERSION
+from demo.services.payment_service.main import _build_specs as payment_specs
+from demo.services.risk_service.contract import SCHEMA_VERSION as RISK_SCHEMA_VERSION
+from demo.services.risk_service.main import SPECS as RISK_SPECS
+from demo.services.underwriting_service.contract import SCHEMA_VERSION as UNDERWRITING_SCHEMA_VERSION
+from demo.services.underwriting_service.main import SPECS as UNDERWRITING_SPECS
 from src.events_to_lifecycle_tables import EVENT_TYPE_TO_TABLE, build_lifecycle_tables_from_events
 from src.validate_lifecycle_raw import TABLE_REQUIRED_COLUMNS, validate_lifecycle_raw
 

@@ -258,14 +258,14 @@ def build_default_data_ops_tools() -> DataOpsTools:
     diagnosis_factory = _default_diagnosis_model_client_factory
     repair_factory = _default_repair_model_client_factory
     if os.environ.get(USE_SCRIPTED_MODEL_ENV_VAR, "").lower() == "true":
-        # Mirrors src/api.py's use_scripted_model request flag / src.demo.enterprise_incident's
+        # Mirrors src/api.py's use_scripted_model request flag / demo.enterprise_incident's
         # --scripted-model default: the same real diagnose/apply/verify code runs (real Spark,
         # real S3, real sandbox), only the model's responses are canned -- this is specifically
         # for proving the cluster-backed repair MECHANICS independent of real model behavior,
         # never a generic stand-in for any pipeline (see enterprise_incident.py's docstring:
         # it replays one fixed tool-call sequence built for the loan_portfolio
         # payment_service-contract-change scenario).
-        from src.demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
+        from demo.enterprise_incident import _scripted_diagnosis_client_factory, _scripted_repair_client_factory
 
         diagnosis_factory = _scripted_diagnosis_client_factory
         repair_factory = _scripted_repair_client_factory

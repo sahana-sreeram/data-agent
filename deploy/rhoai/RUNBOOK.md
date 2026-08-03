@@ -207,7 +207,7 @@ session).
 
 To test `create_candidate_repair`/`verify_candidate_repair` for free before connecting a real
 model, enable the scripted-model path (loan_portfolio/`payment_service`-contract-change
-scenario only -- see `src.demo.enterprise_incident`):
+scenario only -- see `demo.enterprise_incident`):
 ```
 oc set env deployment/mcp-data-ops -n data-agent USE_SCRIPTED_MODEL=true
 ```
@@ -261,7 +261,7 @@ asyncio.run(main())
 ## 10. Inject the semantic-failure scenario (payment_service v2, PAID -> SETTLED)
 
 Run from your own machine, pointed at the cluster's MinIO over a port-forward -- this reuses
-`src.demo.enterprise_incident.inject_contract_change` exactly, just against cluster storage
+`demo.enterprise_incident.inject_contract_change` exactly, just against cluster storage
 instead of local:
 ```
 oc port-forward svc/minio -n data-agent 19000:9000 &
@@ -272,7 +272,7 @@ S3_BUCKET=data-agent \
 JAVA_HOME=/opt/homebrew/opt/openjdk@17 \
 python3 -c "
 from src.storage import S3Storage
-from src.demo.enterprise_incident import inject_contract_change
+from demo.enterprise_incident import inject_contract_change
 print(inject_contract_change(S3Storage(), None))
 "
 kill %1

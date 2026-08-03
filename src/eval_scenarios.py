@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.legacy.repair_models import RepairEligibility
+from src.repair_models import RepairEligibility
 
 
 @dataclass(frozen=True)

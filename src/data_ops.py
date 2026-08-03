@@ -243,7 +243,7 @@ def run_incident_response(
 
     repair_model_client_factory (only meaningful on the `pipeline_name` path) overrides which
     model client repair planning uses -- None (the default) preserves the real repair model
-    src.ask_lifecycle._attempt_self_heal already uses. See src.demo.enterprise_incident for
+    src.ask_lifecycle._attempt_self_heal already uses. See demo.enterprise_incident for
     the one real caller of this today: a scripted, no-API-cost repair client for repeatable
     demo runs.
 

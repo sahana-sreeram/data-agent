@@ -45,7 +45,7 @@ from src.lifecycle_pipeline_registry import DEFAULT_AS_OF_DATE, PIPELINE_REGISTR
 from src.lifecycle_run_self_healing import _persist_run_artifacts
 from src.lifecycle_verify_repair import run_verify_lifecycle_repair
 from src.model_client import DiagnosisModelClient, OpenAIDiagnosisModelClient, OpenAIResponsesModelClient
-from src.legacy.repair_models import evaluate_repair_eligibility
+from src.repair_models import evaluate_repair_eligibility
 from src.spark_session import get_spark_session
 from src.storage import S3Storage
 
@@ -258,13 +258,13 @@ def run_upstream_contract_scenario(
     events_to_lifecycle_tables adapter, then runs the same diagnose -> repair -> verify flow
     as run_bug_scenario -- but the injected difference is in the DATA, never in any
     etl_spark_*.py file. Per policy, evaluate_repair_eligibility refuses SOURCE_CONTRACT_CHANGE
-    regardless of confidence (src/legacy/repair_models.py), so repair_result is always expected
+    regardless of confidence (src/repair_models.py), so repair_result is always expected
     to come back BLOCKED here -- this scenario proves the diagnosis traces the failure back to
     the upstream service, not that it gets auto-repaired. ALWAYS restores the original raw
     tables and reruns clean ETL afterward, regardless of outcome."""
-    from services.common.envelope import events_to_dataframe
-    from services.common.runner import produce_events
-    from services.payment_service.main import _build_specs
+    from demo.services.common.envelope import events_to_dataframe
+    from demo.services.common.runner import produce_events
+    from demo.services.payment_service.main import _build_specs
     from src.events_to_lifecycle_tables import EVENT_TYPE_TO_TABLE, _strip_envelope
 
     spec = PIPELINE_REGISTRY[scenario.pipeline_name]

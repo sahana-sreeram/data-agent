@@ -42,20 +42,20 @@ import argparse
 import time
 from pathlib import Path
 
-from services.application_service.contract import SCHEMA_VERSION as APPLICATION_SCHEMA_VERSION
-from services.application_service.main import SPECS as APPLICATION_SPECS
-from services.common.runner import produce_events, write_events
-from services.common.seeding import generate_namespaced_batch
-from services.loan_service.contract import SCHEMA_VERSION as LOAN_SCHEMA_VERSION
-from services.loan_service.main import SPECS as LOAN_SPECS
-from services.marketing_service.contract import SCHEMA_VERSION as MARKETING_SCHEMA_VERSION
-from services.marketing_service.main import SPECS as MARKETING_SPECS
-from services.payment_service.contract import SCHEMA_VERSION as PAYMENT_SCHEMA_VERSION
-from services.payment_service.main import _build_specs as build_payment_specs
-from services.risk_service.contract import SCHEMA_VERSION as RISK_SCHEMA_VERSION
-from services.risk_service.main import SPECS as RISK_SPECS
-from services.underwriting_service.contract import SCHEMA_VERSION as UNDERWRITING_SCHEMA_VERSION
-from services.underwriting_service.main import SPECS as UNDERWRITING_SPECS
+from demo.services.application_service.contract import SCHEMA_VERSION as APPLICATION_SCHEMA_VERSION
+from demo.services.application_service.main import SPECS as APPLICATION_SPECS
+from demo.services.common.runner import produce_events, write_events
+from demo.services.common.seeding import generate_namespaced_batch
+from demo.services.loan_service.contract import SCHEMA_VERSION as LOAN_SCHEMA_VERSION
+from demo.services.loan_service.main import SPECS as LOAN_SPECS
+from demo.services.marketing_service.contract import SCHEMA_VERSION as MARKETING_SCHEMA_VERSION
+from demo.services.marketing_service.main import SPECS as MARKETING_SPECS
+from demo.services.payment_service.contract import SCHEMA_VERSION as PAYMENT_SCHEMA_VERSION
+from demo.services.payment_service.main import _build_specs as build_payment_specs
+from demo.services.risk_service.contract import SCHEMA_VERSION as RISK_SCHEMA_VERSION
+from demo.services.risk_service.main import SPECS as RISK_SPECS
+from demo.services.underwriting_service.contract import SCHEMA_VERSION as UNDERWRITING_SCHEMA_VERSION
+from demo.services.underwriting_service.main import SPECS as UNDERWRITING_SPECS
 from src.storage import S3Storage
 
 PROFILES: dict[str, int] = {

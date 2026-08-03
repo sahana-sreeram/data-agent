@@ -3,9 +3,9 @@ every upstream-service producer is built from. No S3/model needed; all local/det
 
 from __future__ import annotations
 
-from services.common.envelope import Event, deterministic_event_id, events_to_dataframe
-from services.common.runner import TableEventSpec, produce_events
-from services.common.seeding import generate_shared_dataset
+from demo.services.common.envelope import Event, deterministic_event_id, events_to_dataframe
+from demo.services.common.runner import TableEventSpec, produce_events
+from demo.services.common.seeding import generate_shared_dataset
 
 
 def test_deterministic_event_id_is_stable_across_calls():

@@ -22,14 +22,14 @@ from __future__ import annotations
 
 import json
 
-from src.legacy.diagnosis_agent import (
+from src.diagnosis_agent import (
     DEFAULT_MAX_TURNS,
     SUBMIT_DIAGNOSIS_TOOL_NAME,
     DiagnosisAgentError,
     _serialize_tool_call,
     _submit_diagnosis_tool_spec,
 )
-from src.legacy.diagnosis_models import DiagnosisResult, parse_diagnosis_result
+from src.diagnosis_models import DiagnosisResult, parse_diagnosis_result
 from src.lifecycle_diagnostic_tools import TOOL_SPECS, LifecycleDiagnosticTools, dispatch_tool
 from src.model_client import DiagnosisModelClient, ToolCall
 
