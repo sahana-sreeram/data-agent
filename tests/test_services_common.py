@@ -1,4 +1,4 @@
-"""Tests for services/common/{envelope,runner,seeding}.py -- the shared building blocks
+"""Tests for demo/services/common/{envelope,runner,seeding}.py -- the shared building blocks
 every upstream-service producer is built from. No S3/model needed; all local/deterministic."""
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ def test_deterministic_event_id_differs_by_natural_key():
 
 def test_envelope_columns_never_collide_with_payload_fields():
     """payment_events' own event_id/event_type must survive untouched -- see
-    services/common/envelope.py's Event.to_flat_dict docstring for why this matters."""
+    demo/services/common/envelope.py's Event.to_flat_dict docstring for why this matters."""
     event = Event(
         event_id="evt_abc",
         event_type="PaymentReceived",

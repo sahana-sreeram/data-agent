@@ -3,7 +3,7 @@ data, so context can be invalidated/regenerated when it changes -- see
 src.context_retriever.ContextRetriever.ensure_fresh.
 
 payment_service is the only service with more than one contract version today (see
-services/payment_service/contract.py): v1 labels a successfully collected installment
+demo/services/payment_service/contract.py): v1 labels a successfully collected installment
 payment_status="PAID"; v2 relabels the same installment "SETTLED". Detection reads the raw
 data directly rather than trusting any config, since the whole point is to notice when the
 data no longer matches what context was generated against.

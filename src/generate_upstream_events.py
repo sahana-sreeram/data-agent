@@ -7,7 +7,7 @@ millions of Python objects in memory at once.
 
 Each batch calls src.generate_data.generate_dataset() (unmodified) for a bounded chunk of
 customers, namespaces every ID/FK column so batches never collide
-(services/common/seeding.generate_namespaced_batch), builds that batch's events for every
+(demo/services/common/seeding.generate_namespaced_batch), builds that batch's events for every
 service, and writes them immediately (one Parquet part file per batch) before moving to the
 next batch -- peak memory is one batch's worth of data, not the whole profile's.
 
@@ -27,12 +27,12 @@ matter a lot for how this module is built:
    opposite past a few thousand customers per chunk.
 2. Partitioning by exact calendar day (rather than month) produced a severe small-files
    problem at realistic volumes (1,000 customers -> 14,000+ files, most under 10KB) --
-   services/common/runner.py partitions by event_month instead, which cut both file count and
+   demo/services/common/runner.py partitions by event_month instead, which cut both file count and
    write time by more than an order of magnitude in the same test.
 
 "large" is sized to make single-node pandas genuinely impractical (the whole point) while
 keeping a full run to a few minutes on this machine, NOT the 10M+ ceiling floated earlier --
-see the project plan's Phase 5 notes and services/README.md for the full reasoning and the
+see the project plan's Phase 5 notes and demo/services/README.md for the full reasoning and the
 measured numbers.
 """
 

@@ -12,7 +12,7 @@ demo/
 │   ├── inject-bug.sh          deploy payment_service's v2 contract change against live MinIO
 │   ├── reset-bug.sh           revert the injection, rerun clean, clear any pending repair
 │   └── generate-repair.sh     drive create_candidate_repair/verify_candidate_repair directly via MCP
-└── services/                 6 synthetic upstream-event generators (see services/README.md)
+└── services/                 6 synthetic upstream-event generators (see demo/services/README.md)
 ```
 
 ## Running it locally

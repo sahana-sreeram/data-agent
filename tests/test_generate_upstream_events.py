@@ -1,6 +1,6 @@
 """Tests for src/generate_upstream_events.py -- run only the "small" profile (fast,
 deterministic, ~1000 customers). "demo"/"large" are exercised manually (see
-services/README.md and the module's own docstring for measured timings), not in the default
+demo/services/README.md and the module's own docstring for measured timings), not in the default
 test suite -- they're minutes-long by design.
 """
 
@@ -32,7 +32,7 @@ def test_small_profile_is_deterministic(tmp_path):
 
 
 def test_multi_batch_ids_never_collide_and_reconstruct_cleanly(tmp_path):
-    """The whole point of batch namespacing (services/common/seeding.generate_namespaced_batch)
+    """The whole point of batch namespacing (demo/services/common/seeding.generate_namespaced_batch)
     -- two batches of customers must never produce the same customer_id/loan_id/etc., and the
     combined output must still pass the real raw-table validator."""
     run_scale_generation("small", seed=42, as_of_date="2026-07-20", output="local", chunk_size=500, local_dir=tmp_path)
