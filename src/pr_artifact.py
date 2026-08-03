@@ -17,7 +17,7 @@ from pathlib import Path
 
 from src.sandbox.backend import GitWorktreeSandbox, SandboxError
 
-# Mirrors src.legacy.repair_models.evaluate_repair_eligibility's auto-repair-eligible set --
+# Mirrors src.repair_models.evaluate_repair_eligibility's auto-repair-eligible set --
 # duplicated as a constant (not imported) because that module's set is about what's ELIGIBLE
 # for repair at all, a stricter question than "how risky is an already-applied one to review."
 LOW_RISK_ROOT_CAUSE_CATEGORIES = {"ETL_LOGIC", "BUSINESS_RULE_MISMATCH", "DUPLICATION"}

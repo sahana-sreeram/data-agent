@@ -29,7 +29,7 @@ result shape ("rows": [...] from the get_* tools, "groups": [...] from aggregate
 
 from __future__ import annotations
 
-from src.legacy.answer_models import (
+from src.answer_models import (
     AnswerStatus,
     AnswerValidationError,
     BusinessAnswer,

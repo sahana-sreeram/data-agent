@@ -49,7 +49,7 @@ as the consumer, regardless of what compute engine is underneath. The domain-spe
 (`src/context_retriever.py`'s `ContextRetriever`, and the lending-specific `context/*.json`
 files it reads) is a real *implementation* of this contract, not the contract itself.
 
-This session's own context-layer ablation demo (see `DEMO_SCRIPT.md` Act 5,
+This session's own context-layer ablation demo (see `../../demo/DEMO_SCRIPT.md` Act 5,
 `src/context_retriever.py::BlindContextRetriever`) makes this concrete: strip these six tools
 down to nulls and the same real model, given the same real failing pipeline, measurably loses
 the ability to explain *why* something is wrong or *where* to fix it -- even with raw code and

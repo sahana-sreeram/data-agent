@@ -1,9 +1,0 @@
-{
-  "as_of_date": "2026-07-20",
-  "etl_status": "SUCCESS",
-  "etl_error": null,
-  "validation_status": "PASS",
-  "validation_error": null,
-  "overall_status": "SUCCESS",
-  "repaired_by": "src.verify_repair"
-}

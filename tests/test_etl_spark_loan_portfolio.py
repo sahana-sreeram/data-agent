@@ -173,7 +173,7 @@ VALIDATION_RULES_WITH_DRIFT_CHECK = {
 
 # Same two loans as PAYMENT_EVENTS above, but every originally-PAID installment has been
 # relabeled SETTLED -- exactly payment_service's v2 contract change (see
-# services/payment_service/contract.py) -- while the REVERSAL keeps its own REVERSED status
+# demo/services/payment_service/contract.py) -- while the REVERSAL keeps its own REVERSED status
 # (the rename only ever touches a PAID record). BUSINESS_RULES is UNCHANGED (still only
 # recognizes "PAID"), so the ETL -- and the reconciliation check that recomputes with the
 # identical business-rule-driven filter -- both silently stop recognizing these as collected

@@ -84,7 +84,7 @@ def test_curated_fail_investigates_directly_and_never_checks_raw_validation(monk
 
     monkeypatch.setattr(diagnose_module, "validate_lifecycle_raw", raw_check_should_not_run)
     monkeypatch.setattr(diagnose_module, "build_diagnostic_tools_for_pipeline", lambda *a, **k: calls.append("build_tools") or type("Tools", (), {"metrics": {}})())
-    monkeypatch.setattr(diagnose_module, "build_starting_context", lambda validation_results: calls.append("starting_context") or {})
+    monkeypatch.setattr(diagnose_module, "_build_starting_context", lambda validation_results: calls.append("starting_context") or {})
     monkeypatch.setattr(
         diagnose_module,
         "run_lifecycle_diagnosis",
@@ -110,7 +110,7 @@ def test_curated_pass_but_raw_fail_uses_raw_checks_as_diagnosis_evidence(monkeyp
     monkeypatch.setattr(diagnose_module, "validate_lifecycle_raw", lambda tables, br, vr: raw_failure)
     monkeypatch.setattr(diagnose_module, "TABLE_FILENAMES", {"payment_schedule": "x", "payment_events": "y"})
     monkeypatch.setattr(diagnose_module, "build_diagnostic_tools_for_pipeline", lambda pipeline_name, storage, validation_results, business_rules, **k: seen_validation_results.append(validation_results) or type("Tools", (), {"metrics": {}})())
-    monkeypatch.setattr(diagnose_module, "build_starting_context", lambda validation_results: seen_validation_results.append(validation_results) or {})
+    monkeypatch.setattr(diagnose_module, "_build_starting_context", lambda validation_results: seen_validation_results.append(validation_results) or {})
     monkeypatch.setattr(
         diagnose_module,
         "run_lifecycle_diagnosis",
@@ -148,7 +148,7 @@ def test_run_diagnose_pipeline_respects_demo_context_mode(monkeypatch):
         return type("Tools", (), {"metrics": {}})()
 
     monkeypatch.setattr(diagnose_module, "build_diagnostic_tools_for_pipeline", fake_build_tools)
-    monkeypatch.setattr(diagnose_module, "build_starting_context", lambda validation_results: {})
+    monkeypatch.setattr(diagnose_module, "_build_starting_context", lambda validation_results: {})
     monkeypatch.setattr(diagnose_module, "run_lifecycle_diagnosis", lambda *a, **k: type("R", (), {})())
     monkeypatch.setattr(diagnose_module, "diagnosis_to_dict", lambda result: {"diagnosis_status": "DIAGNOSED"})
 

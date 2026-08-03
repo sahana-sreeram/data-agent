@@ -2,7 +2,7 @@
 capabilities; MCP makes them available; Codex gathers the context and manages the workflow."
 
 Unlike every other agent loop in this codebase (src/lifecycle_diagnosis_agent.py,
-src/legacy/diagnosis_agent.py), which dispatches tool calls via a plain in-process Python
+src/diagnosis_agent.py), which dispatches tool calls via a plain in-process Python
 function (dispatch_tool), this loop dispatches every tool call through a real MCP
 ClientSession -- the same DiagnosisModelClient Protocol and tool-calling loop shape
 (model_client.send(messages, tools) -> ModelResponse, forced tool_choice, a designated
@@ -29,7 +29,7 @@ import uuid
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 
-from src.legacy.diagnosis_agent import _serialize_tool_call
+from src.diagnosis_agent import _serialize_tool_call
 from src.model_client import DiagnosisModelClient, ModelClientError, ToolCall
 
 
@@ -143,7 +143,7 @@ class CodexMcpLoopResult:
     final_report: dict | None = None
 
     def to_manifest(self) -> dict:
-        # Matches src.demo.enterprise_incident's {"run_id", ..., "stages": [...]} shape --
+        # Matches demo.enterprise_incident's {"run_id", ..., "stages": [...]} shape --
         # the audit-artifact convention every existing demo run manifest already follows.
         return {"run_id": self.run_id, "backend": "codex_mcp", "stages": self.stages, "final_report": self.final_report}
 
@@ -227,7 +227,7 @@ def run_codex_mcp_loop(
 
 def run_and_persist_codex_mcp_loop(pipeline_names: list[str], storage, model_client_factory, *, max_turns: int = DEFAULT_MAX_TURNS) -> dict:
     """Production entry point: builds both real MCP servers, runs the loop, and persists the
-    run manifest exactly the way src.demo.enterprise_incident already persists a demo run --
+    run manifest exactly the way demo.enterprise_incident already persists a demo run --
     locally addressable at curated/demo_runs/<run_id>.json plus a curated/demo_run_latest.json
     convenience copy -- so the Run Details view can show a codex_mcp run the same way it shows
     the existing direct-call demo runs."""

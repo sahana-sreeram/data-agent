@@ -1,7 +1,7 @@
 # One shared image for every RHOAI-deployed piece of this demo -- the console/API, both MCP
 # servers, and the Spark driver/executors submitted via the Spark Operator all run this same
 # image with a different ENTRYPOINT/command (see the Deployment/SparkApplication manifests in
-# this directory). Mirrors services/*/Dockerfile's "build from repo root" convention.
+# this directory). Mirrors demo/services/*/Dockerfile's "build from repo root" convention.
 #
 # Build from the REPO ROOT:
 #   docker build -f deploy/rhoai/Dockerfile -t <registry>/data-agent:latest .
@@ -26,6 +26,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 WORKDIR /opt/spark-app
 COPY pyproject.toml ./
 COPY src ./src
+COPY demo ./demo
 COPY static ./static
 COPY context ./context
 COPY pipelines ./pipelines

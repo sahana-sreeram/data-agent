@@ -179,7 +179,7 @@ def _attempt_self_heal(
     repair_model_client_factory defaults to None, which preserves this function's original
     behavior exactly (the module-level _repair_model_client_factory, a real OpenAI Responses
     client) for every existing caller. Passing one overrides which client repair planning
-    uses -- e.g. src.demo.enterprise_incident's scripted, no-API-cost repair client -- without
+    uses -- e.g. demo.enterprise_incident's scripted, no-API-cost repair client -- without
     touching what model diagnosis uses.
     """
     from src.lifecycle_run_self_healing import run_lifecycle_self_healing

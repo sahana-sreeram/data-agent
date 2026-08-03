@@ -15,7 +15,7 @@ import pandas as pd
 import pytest
 
 import src.lifecycle_verify_repair as verify_module
-from src.legacy.apply_repair import _workspace_path
+from src.apply_repair import _workspace_path
 from src.etl_spark_delinquency_default import compute_delinquency_default
 from src.etl_spark_loan_portfolio import compute_loan_portfolio
 from src.lifecycle_pipeline_registry import PIPELINE_REGISTRY

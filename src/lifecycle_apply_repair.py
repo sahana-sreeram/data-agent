@@ -32,7 +32,7 @@ from typing import Callable
 
 from src.context_retriever import ContextRetriever
 from src.context_store.file_store import FileContextStore
-from src.legacy.apply_repair import (
+from src.apply_repair import (
     DEFAULT_REPAIR_TARGETS_FILE,
     PatchApplyError,
     _create_isolated_workspace,
@@ -51,7 +51,7 @@ from src.model_client import (
     OpenAIResponsesModelClient,
 )
 from src.sandbox.backend import SandboxBackend, TempDirSandbox
-from src.legacy.repair_models import (
+from src.repair_models import (
     DEFAULT_ELIGIBLE_ROOT_CAUSE_CATEGORIES,
     RepairDecision,
     RepairEligibility,
@@ -203,7 +203,7 @@ def run_apply_lifecycle_repair(
     original_hash = _sha256_of_file(Path(plan.target_file))
     try:
         workspace_dir = sandbox_backend.create_workspace(plan.target_file)
-        # _validate_and_apply_patch (src.legacy.apply_repair) computes the target's in-workspace
+        # _validate_and_apply_patch (src.apply_repair) computes the target's in-workspace
         # path via the same workspace_dir / target_file.lstrip("/") formula every SandboxBackend
         # uses (see src.sandbox.backend) -- both TempDirSandbox and GitWorktreeSandbox already
         # place the target file at exactly that path, so no backend-specific wiring is needed here.
