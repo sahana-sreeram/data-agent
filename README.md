@@ -8,6 +8,8 @@ a full incident lifecycle — trust check → diagnosis → governed repair → 
 → reviewable PR — whenever a data product can't be trusted. Q&A is one entry point into that
 lifecycle, not the whole of it: the context layer, not the agent loop, is the differentiator.
 
+![Architecture: upstream services → Spark curation → enriched context layer → agent platform on RHOAI → diagnose/repair/verify → verified PR](content/readme/architecture.png)
+
 ## How it works
 
 - **Ingest** — 6 upstream services (`demo/services/`) emit versioned domain events;
